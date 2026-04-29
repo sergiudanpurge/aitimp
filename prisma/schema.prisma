@@ -17,6 +17,8 @@ model User {
   city            String?
   phone           String?
   avatar          String?
+  cui             String?
+isActive        Boolean  @default(true) 
   emailVerified   Boolean   @default(false)
   verifyToken     String?
   createdAt       DateTime  @default(now())
@@ -40,6 +42,7 @@ model Provider {
   rating      Float    @default(0)
   reviewCount Int      @default(0)
   isCompany   Boolean  @default(false)
+  logo            String?
   workStart   String   @default("08:00")
   workEnd     String   @default("18:00")
   createdAt   DateTime @default(now())

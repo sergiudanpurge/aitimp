@@ -25,8 +25,8 @@ if (!user.emailVerified) {
     }
 
     const token = await new SignJWT({ 
-      id: user.id, email: user.email, name: user.name, role: user.role 
-    })
+  id: user.id, email: user.email, name: user.name, role: user.role, accountType: user.accountType
+})
       .setProtectedHeader({ alg: "HS256" })
       .setExpirationTime("7d")
       .sign(secret)
