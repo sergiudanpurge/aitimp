@@ -224,12 +224,42 @@ export default function Dashboard() {
 function ProfileTab({ user, isCompany }: any) {
   const [form, setForm] = useState({ name: user.name || '', phone: user.phone || '', city: user.city || '', cui: user.cui || '', description: '' })
   const [msg, setMsg] = useState('')
+  const [avatar, setAvatar] = useState(user.avatar || '')
+  const [uploading, setUploading] = useState(false)
+
+  const uploadAvatar = async (e: any) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('upload_preset', 'aitimp_avatars')
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/dlemr26ee/image/upload`, {
+      method: 'POST',
+      body: formData
+    })
+    const data = await res.json()
+    
+    if (data.secure_url) {
+      setAvatar(data.secure_url)
+      await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, avatar: data.secure_url })
+      })
+      setMsg('Avatar actualizat!')
+      setTimeout(() => setMsg(''), 3000)
+    }
+    setUploading(false)
+  }
 
   const save = async () => {
     const res = await fetch('/api/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
+      body: JSON.stringify({ ...form, avatar })
     })
     if (res.ok) { setMsg('Profil salvat!'); setTimeout(() => setMsg(''), 3000) }
   }
@@ -237,7 +267,25 @@ function ProfileTab({ user, isCompany }: any) {
   return (
     <div>
       <div style={{ fontSize: '26px', fontWeight: 800, marginBottom: '24px' }}>Profilul meu</div>
+      
+      <div style={{ background: '#1f1535', borderRadius: '14px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '16px' }}>
+        <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '16px' }}>Avatar / Logo</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: avatar ? 'transparent' : '#9b6dff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '28px', color: 'white', overflow: 'hidden', flexShrink: 0, border: '3px solid rgba(155,109,255,0.3)' }}>
+            {avatar ? <img src={avatar} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : user.name?.charAt(0)}
+          </div>
+          <div>
+            <label style={{ display: 'inline-block', padding: '10px 20px', background: '#9b6dff', color: 'white', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+              {uploading ? 'Se incarca...' : '📷 Incarca poza'}
+              <input type="file" accept="image/*" onChange={uploadAvatar} style={{ display: 'none' }} />
+            </label>
+            <div style={{ fontSize: '12px', color: '#a0a0a0', marginTop: '8px' }}>JPG, PNG sau GIF. Max 5MB.</div>
+          </div>
+        </div>
+      </div>
+
       <div style={{ background: '#1f1535', borderRadius: '14px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '16px' }}>Informatii generale</div>
         <div style={{ marginBottom: '16px' }}>
           <label style={{ fontSize: '13px', color: '#a0a0a0', display: 'block', marginBottom: '6px' }}>{isCompany ? 'Denumire companie' : 'Nume'}</label>
           <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}

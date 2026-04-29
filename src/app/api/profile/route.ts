@@ -23,7 +23,7 @@ export async function PUT(request: Request) {
 
     await prisma.user.update({
       where: { id: user.id as string },
-      data: { name, phone, city, cui }
+      data: { name, phone, city, cui, avatar }
     })
 
     return NextResponse.json({ message: "Profil actualizat!" })
