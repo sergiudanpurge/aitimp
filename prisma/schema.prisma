@@ -18,6 +18,9 @@ model User {
   phone           String?
   avatar          String?
   cui             String?
+  judet           String?
+oras            String?
+adresa          String?
 isActive        Boolean  @default(true) 
   emailVerified   Boolean   @default(false)
   verifyToken     String?
