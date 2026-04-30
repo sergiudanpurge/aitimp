@@ -1,0 +1,1 @@
+const fs=require(" fs);fs.writeFileSync(C:/aitimp/src/app/dashboard/employees/[id]/page.tsx,TEST);console.log(ok);

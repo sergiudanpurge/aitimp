@@ -63,6 +63,7 @@ model Service {
   duration   Int
   price      Float
   createdAt  DateTime @default(now())
+  icon        String?
 
   bookings   Booking[]
 }
