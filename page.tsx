@@ -11,7 +11,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
-        <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
+        <hr className="border-none border-t border-gold-border" style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
         <ServicesSection />
         <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
         <HowItWorks />
