@@ -42,3 +42,22 @@ export async function GET(request: Request, context: any) {
     return NextResponse.json({ error: "Eroare server" }, { status: 500 })
   }
 }
+export async function PATCH(request: Request, context: any) {
+  try {
+    const user = await getUser()
+    if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
+
+    const params = await context.params
+    const id = params.id
+    const { isActive } = await request.json()
+
+    await prisma.user.update({
+      where: { id },
+      data: { isActive }
+    })
+
+    return NextResponse.json({ message: "Angajat actualizat!" })
+  } catch (error) {
+    return NextResponse.json({ error: "Eroare server" }, { status: 500 })
+  }
+}
