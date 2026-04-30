@@ -1,105 +1,134 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 export default function EmployeesPage() {
-  const router = useRouter()
-  const [employees, setEmployees] = useState<any[]>([])
-  const [form, setForm] = useState({ name: '', email: '' })
-  const [loading, setLoading] = useState(false)
-  const [msg, setMsg] = useState('')
-  const [error, setError] = useState('')
+  const router = useRouter();
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [form, setForm] = useState({ name: "", email: "" });
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    fetch('/api/employees').then(r => r.json()).then(d => setEmployees(d.employees || []))
-  }, [])
+    fetch("/api/employees").then(r => r.json()).then(d => setEmployees(d.employees || []));
+  }, []);
 
   const inviteEmployee = async () => {
-    setLoading(true)
-    setMsg('')
-    setError('')
-
-    const res = await fetch('/api/invite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    })
-    const data = await res.json()
-
+    setLoading(true); setMsg(""); setError("");
+    const res = await fetch("/api/invite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    const data = await res.json();
     if (res.ok) {
-      setMsg(`Invitatie trimisa catre ${form.email}!`)
-      setForm({ name: '', email: '' })
-      setEmployees([...employees, { name: form.name, email: form.email, emailVerified: false }])
+      setMsg(`Invitație trimisă către ${form.email}!`);
+      setEmployees([...employees, { name: form.name, email: form.email, emailVerified: false }]);
+      setForm({ name: "", email: "" });
+      setTimeout(() => { setMsg(""); setShowModal(false); }, 2000);
     } else {
-      setError(data.error)
+      setError(data.error);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
+
+  const btnPrimary = { padding: "10px 20px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", gap: 6 } as const;
 
   return (
-    <main style={{ minHeight: '100vh', background: '#1a1130', fontFamily: 'sans-serif', color: 'white' }}>
-      <nav style={{ background: '#1f1535', padding: '0 2rem', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ fontSize: '22px', fontWeight: 900 }}>ai<span style={{ color: '#f97316' }}>timp</span>.ro</div>
-        <button onClick={() => router.push('/dashboard')} style={{ background: 'transparent', color: '#a0a0a0', border: '1.5px solid rgba(255,255,255,0.15)', padding: '8px 18px', borderRadius: '50px', cursor: 'pointer', fontSize: '14px' }}>← Dashboard</button>
-      </nav>
-
-      <div style={{ padding: '40px 2rem', maxWidth: '900px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>Echipa mea</h1>
-        <p style={{ color: '#a0a0a0', marginBottom: '32px' }}>Invita angajati — primesc email de activare</p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-
-          <div style={{ background: '#1f1535', borderRadius: '14px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px' }}>+ Invita angajat nou</div>
-
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '13px', color: '#a0a0a0', display: 'block', marginBottom: '6px' }}>Nume angajat</label>
-              <input placeholder="ex: Marcel Ionescu" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1.5px solid rgba(255,255,255,0.15)', background: '#2a1f45', color: 'white', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+    <DashboardLayout title="Angajați" actions={
+      <button style={btnPrimary} onClick={() => setShowModal(true)}>＋ Invită angajat</button>
+    }>
+      {/* Cards angajati */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+        {employees.map((emp: any, i) => (
+          <div key={i} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s", cursor: "pointer" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.3)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; (e.currentTarget as HTMLDivElement).style.transform = "none"; }}>
+            {/* Banner */}
+            <div style={{ height: 70, background: "linear-gradient(135deg,#1a1408,#2a2010)", position: "relative" }}>
+              <div style={{ position: "absolute", bottom: -24, left: 20, width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: "#fff", border: "3px solid #161616", fontFamily: "var(--font-playfair)" }}>
+                {emp.name?.charAt(0)}
+              </div>
+              <div style={{ position: "absolute", top: 10, right: 10, fontSize: 10, padding: "3px 8px", borderRadius: 6, fontWeight: 700, background: emp.emailVerified ? "rgba(76,175,130,0.2)" : "rgba(232,184,75,0.2)", color: emp.emailVerified ? "#4caf82" : "#e8b84b" }}>
+                {emp.emailVerified ? "● Activ" : "● Invitat"}
+              </div>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ fontSize: '13px', color: '#a0a0a0', display: 'block', marginBottom: '6px' }}>Email angajat</label>
-              <input type="email" placeholder="ex: marcel@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1.5px solid rgba(255,255,255,0.15)', background: '#2a1f45', color: 'white', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-            </div>
+            <div style={{ padding: "32px 20px 20px" }}>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 2 }}>{emp.name}</div>
+              <div style={{ fontSize: 12, color: "#777", marginBottom: 16 }}>{emp.email}</div>
 
-            {msg && <div style={{ padding: '10px', background: 'rgba(34,197,94,0.15)', borderRadius: '8px', fontSize: '13px', marginBottom: '14px', color: '#86efac' }}>{msg}</div>}
-            {error && <div style={{ padding: '10px', background: 'rgba(239,68,68,0.15)', borderRadius: '8px', fontSize: '13px', marginBottom: '14px', color: '#fca5a5' }}>{error}</div>}
-
-            <button onClick={inviteEmployee} disabled={loading}
-              style={{ width: '100%', padding: '12px', background: '#9b6dff', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}>
-              {loading ? 'Se trimite...' : '📧 Trimite invitatie'}
-            </button>
-          </div>
-
-          <div style={{ background: '#1f1535', borderRadius: '14px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px' }}>Angajati ({employees.length})</div>
-            {employees.length === 0 ? (
-              <div style={{ color: '#a0a0a0', fontSize: '14px' }}>Nu ai angajati inca.</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {employees.map((emp: any, i: number) => (
-                  <div key={i} onClick={() => emp.id && router.push(`/dashboard/employees/${emp.id}`)}
-                    style={{ background: '#2a1f45', borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: emp.id ? 'pointer' : 'default' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#9b6dff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '15px' }}>
-                      {emp.name?.charAt(0)}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600 }}>{emp.name}</div>
-                      <div style={{ fontSize: '12px', color: '#a0a0a0' }}>{emp.email}</div>
-                    </div>
-                    <div style={{ fontSize: '11px', padding: '3px 10px', borderRadius: '50px', background: emp.emailVerified ? 'rgba(34,197,94,0.15)' : 'rgba(234,179,8,0.15)', color: emp.emailVerified ? '#86efac' : '#fde047' }}>
-                      {emp.emailVerified ? 'Activ' : 'Invitatie trimisa'}
-                    </div>
+              {/* Mini stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
+                {[["0", "Rezervări"], ["0 lei", "Încasări"], ["—", "Rating"]].map(([val, label]) => (
+                  <div key={label} style={{ background: "#1e1e1e", borderRadius: 8, padding: "8px 10px", textAlign: "center" }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#c9a96e" }}>{val}</div>
+                    <div style={{ fontSize: 10, color: "#777", marginTop: 1 }}>{label}</div>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
 
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => emp.id && router.push(`/dashboard/employees/${emp.id}`)}
+                  style={{ flex: 1, padding: "8px", borderRadius: 8, background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", color: "#c9a96e", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                  Profil →
+                </button>
+                <button style={{ padding: "8px 12px", borderRadius: 8, background: "#1e1e1e", border: "1px solid #262626", color: "#777", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                  {emp.isActive === false ? "▶ Activează" : "⏸"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Add card */}
+        <div onClick={() => setShowModal(true)} style={{ background: "#161616", border: "1px dashed #262626", borderRadius: 14, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 200, cursor: "pointer", opacity: 0.5, transition: "all 0.2s" }}
+          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.85"; (e.currentTarget as HTMLDivElement).style.borderColor = "#c9a96e"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.5"; (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; }}>
+          <div style={{ fontSize: 32 }}>＋</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#777" }}>Invită angajat nou</div>
         </div>
       </div>
-    </main>
-  )
+
+      {/* Modal invita */}
+      {showModal && (
+        <div onClick={() => setShowModal(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 18, padding: 30, width: 440, maxWidth: "95vw" }}>
+            <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Invită angajat</div>
+            <div style={{ fontSize: 13, color: "#777", marginBottom: 24 }}>Angajatul primește email cu link de activare</div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 7 }}>Nume angajat</label>
+              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="ex: Marcel Ionescu"
+                style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
+                onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 7 }}>Email angajat</label>
+              <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="ex: marcel@email.com"
+                style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
+                onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+            </div>
+
+            {msg && <div style={{ background: "rgba(76,175,130,0.1)", border: "1px solid rgba(76,175,130,0.3)", borderRadius: 8, padding: "10px 14px", marginBottom: 16, color: "#4caf82", fontSize: 13 }}>{msg}</div>}
+            {error && <div style={{ background: "rgba(224,90,90,0.1)", border: "1px solid rgba(224,90,90,0.3)", borderRadius: 8, padding: "10px 14px", marginBottom: 16, color: "#e05a5a", fontSize: 13 }}>{error}</div>}
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 11, borderRadius: 10, background: "#1e1e1e", color: "#777", border: "1px solid #262626", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anulează</button>
+              <button onClick={inviteEmployee} disabled={loading} style={{ flex: 2, padding: 11, borderRadius: 10, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", fontSize: 13, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: "var(--font-outfit)" }}>
+                {loading ? "Se trimite..." : "📧 Trimite invitație"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </DashboardLayout>
+  );
 }

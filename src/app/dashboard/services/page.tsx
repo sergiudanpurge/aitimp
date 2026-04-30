@@ -1,128 +1,204 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+"use client";
+
+import { useState, useEffect } from "react";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+
+const durataOptions = [
+  { label: "30 min", slots: 1 },
+  { label: "60 min", slots: 2 },
+  { label: "90 min", slots: 3 },
+  { label: "120 min", slots: 4 },
+  { label: "180 min", slots: 6 },
+  { label: "240 min", slots: 8 },
+];
 
 export default function ServicesPage() {
-  const router = useRouter()
-  const [services, setServices] = useState<any[]>([])
-  const [form, setForm] = useState({ name: '', duration: '', price: '', employeeId: '' })
-  const [employees, setEmployees] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-  const [msg, setMsg] = useState('')
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [selectedEmp, setSelectedEmp] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [form, setForm] = useState({ name: "", price: "", duration: 1, icon: "✂️", description: "" });
 
   useEffect(() => {
-    fetch('/api/services').then(r => r.json()).then(d => setServices(d.services || []))
-    fetch('/api/employees').then(r => r.json()).then(d => setEmployees(d.employees || []))
-  }, [])
+    fetch("/api/employees").then(r => r.json()).then(d => {
+      const emps = d.employees || [];
+      setEmployees(emps);
+      if (emps.length > 0) setSelectedEmp(emps[0]);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectedEmp?.id) {
+      fetch(`/api/employees/${selectedEmp.id}`).then(r => r.json()).then(d => setServices(d.services || []));
+    }
+  }, [selectedEmp]);
 
   const addService = async () => {
-    setLoading(true)
-    const res = await fetch('/api/services', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    })
-    const data = await res.json()
+    setLoading(true);
+    const res = await fetch("/api/services", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, employeeId: selectedEmp?.id }),
+    });
+    const data = await res.json();
     if (res.ok) {
-      setMsg('Serviciu adaugat!')
-      setServices([...services, data.service])
-      setForm({ name: '', duration: '', price: '', employeeId: '' })
-    } else {
-      setMsg(data.error)
+      setServices([...services, data.service]);
+      setMsg("Serviciu adăugat!");
+      setForm({ name: "", price: "", duration: 1, icon: "✂️", description: "" });
+      setTimeout(() => { setMsg(""); setShowModal(false); }, 1500);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
-  const durLabels: any = { '1': '30 min', '2': '1 ora', '3': '1.5 ore', '4': '2 ore', '6': '3 ore', '8': '4 ore' }
+  const btnPrimary = { padding: "10px 20px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", gap: 6 } as const;
 
   return (
-    <main style={{ minHeight: '100vh', background: '#1a1130', fontFamily: 'sans-serif', color: 'white' }}>
-      <nav style={{ background: '#1f1535', padding: '0 2rem', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ fontSize: '22px', fontWeight: 900 }}>ai<span style={{ color: '#f97316' }}>timp</span>.ro</div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => router.push('/dashboard')} style={{ background: 'transparent', color: '#a0a0a0', border: '1.5px solid rgba(255,255,255,0.15)', padding: '8px 18px', borderRadius: '50px', cursor: 'pointer', fontSize: '14px' }}>← Dashboard</button>
-        </div>
-      </nav>
+    <DashboardLayout title="Servicii" actions={
+      <button style={btnPrimary} onClick={() => setShowModal(true)}>＋ Serviciu nou</button>
+    }>
 
-      <div style={{ padding: '40px 2rem', maxWidth: '900px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '8px' }}>Serviciile mele</h1>
-        <p style={{ color: '#a0a0a0', marginBottom: '32px' }}>Adauga servicii cu durata si pret</p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-
-          {/* ADAUGA SERVICIU */}
-          <div style={{ background: '#1f1535', borderRadius: '14px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px' }}>+ Adauga serviciu nou</div>
-
-            {employees.length > 0 && (
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ fontSize: '13px', color: '#a0a0a0', display: 'block', marginBottom: '6px' }}>Angajat (optional)</label>
-                <select value={form.employeeId} onChange={e => setForm({ ...form, employeeId: e.target.value })}
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1.5px solid rgba(255,255,255,0.15)', background: '#2a1f45', color: 'white', fontSize: '14px', outline: 'none' }}>
-                  <option value="">Selecteaza angajat...</option>
-                  {employees.map((emp: any) => (
-                    <option key={emp.id} value={emp.id}>{emp.name}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '13px', color: '#a0a0a0', display: 'block', marginBottom: '6px' }}>Nume serviciu</label>
-              <input placeholder="ex: Tuns, Curatenie, Masaj..." value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1.5px solid rgba(255,255,255,0.15)', background: '#2a1f45', color: 'white', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+      {/* Selector angajat */}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        {employees.map(emp => (
+          <div key={emp.id} onClick={() => setSelectedEmp(emp)} style={{
+            display: "flex", alignItems: "center", gap: 12, padding: "14px 20px",
+            background: selectedEmp?.id === emp.id ? "rgba(201,169,110,0.06)" : "#161616",
+            border: `2px solid ${selectedEmp?.id === emp.id ? "#c9a96e" : "#262626"}`,
+            borderRadius: 14, cursor: "pointer", transition: "all 0.2s", maxWidth: 260,
+          }}>
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, color: "#fff", flexShrink: 0, fontFamily: "var(--font-playfair)" }}>
+              {emp.name?.charAt(0)}
             </div>
-
-            <div style={{ marginBottom: '14px' }}>
-              <label style={{ fontSize: '13px', color: '#a0a0a0', display: 'block', marginBottom: '6px' }}>Durata</label>
-              <select value={form.duration} onChange={e => setForm({ ...form, duration: e.target.value })}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1.5px solid rgba(255,255,255,0.15)', background: '#2a1f45', color: 'white', fontSize: '14px', outline: 'none' }}>
-                <option value="">Selecteaza durata...</option>
-                <option value="1">30 minute — 1 slot</option>
-                <option value="2">1 ora — 2 sloturi</option>
-                <option value="3">1.5 ore — 3 sloturi</option>
-                <option value="4">2 ore — 4 sloturi</option>
-                <option value="6">3 ore — 6 sloturi</option>
-                <option value="8">4 ore — 8 sloturi</option>
-              </select>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#f0ede8" }}>{emp.name}</div>
+              <div style={{ fontSize: 11, color: "#777", marginTop: 2 }}>{services.length} servicii</div>
             </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ fontSize: '13px', color: '#a0a0a0', display: 'block', marginBottom: '6px' }}>Pret (RON)</label>
-              <input type="number" placeholder="ex: 80" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1.5px solid rgba(255,255,255,0.15)', background: '#2a1f45', color: 'white', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
-            </div>
-
-            {msg && <div style={{ padding: '10px', background: 'rgba(155,109,255,0.15)', borderRadius: '8px', fontSize: '13px', marginBottom: '14px', color: '#c4b5fd' }}>{msg}</div>}
-
-            <button onClick={addService} disabled={loading}
-              style={{ width: '100%', padding: '12px', background: '#9b6dff', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}>
-              {loading ? 'Se salveaza...' : 'Salveaza serviciul'}
-            </button>
+            {selectedEmp?.id === emp.id && <div style={{ color: "#c9a96e", fontSize: 16 }}>✓</div>}
           </div>
+        ))}
+      </div>
 
-          {/* LISTA SERVICII */}
-          <div style={{ background: '#1f1535', borderRadius: '14px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ fontSize: '16px', fontWeight: 700, marginBottom: '20px' }}>Servicii active ({services.length})</div>
-            {services.length === 0 ? (
-              <div style={{ color: '#a0a0a0', fontSize: '14px' }}>Nu ai servicii inca. Adauga primul serviciu!</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {services.map((s: any) => (
-                  <div key={s.id} style={{ background: '#2a1f45', borderRadius: '10px', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '15px' }}>{s.name}</div>
-                      <div style={{ fontSize: '12px', color: '#a0a0a0', marginTop: '3px' }}>{durLabels[s.duration] || s.duration + ' sloturi'}</div>
-                    </div>
-                    <div style={{ fontSize: '18px', fontWeight: 700, color: '#9b6dff' }}>{s.price} RON</div>
-                  </div>
-                ))}
+      {/* Grid servicii */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+        {services.map((s: any, i) => (
+          <div key={i} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s" }}
+            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.3)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; (e.currentTarget as HTMLDivElement).style.transform = "none"; }}>
+
+            {/* Galerie placeholder */}
+            <div style={{ height: 110, background: "linear-gradient(135deg,#1a1408,#2a2010)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>
+              {s.icon || "✂️"}
+              <div style={{ position: "absolute", top: 8, left: 8, fontSize: 10, padding: "3px 8px", borderRadius: 6, fontWeight: 700, background: "rgba(76,175,130,0.85)", color: "#fff" }}>● Activ</div>
+              <div style={{ position: "absolute", top: 8, right: 8, fontSize: 10, padding: "3px 8px", borderRadius: 6, background: "rgba(0,0,0,0.6)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}>0 foto</div>
+            </div>
+
+            <div style={{ padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 9, background: "rgba(201,169,110,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{s.icon || "✂️"}</div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700 }}>{s.name}</div>
+                  <div style={{ fontSize: 11, color: "#777", marginTop: 1 }}>{selectedEmp?.name}</div>
+                </div>
               </div>
-            )}
-          </div>
 
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+                <div style={{ background: "#1e1e1e", borderRadius: 8, padding: "9px 11px" }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "#e8c987" }}>{s.price} lei</div>
+                  <div style={{ fontSize: 10, color: "#777", marginTop: 2 }}>Tarif</div>
+                </div>
+                <div style={{ background: "#1e1e1e", borderRadius: 8, padding: "9px 11px" }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "#e8c987" }}>{s.duration * 30} min</div>
+                  <div style={{ fontSize: 10, color: "#777", marginTop: 2 }}>{s.duration} slot{s.duration > 1 ? "uri" : ""}</div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 7 }}>
+                <button style={{ flex: 1, padding: 8, borderRadius: 8, background: "#1e1e1e", color: "#f0ede8", border: "1px solid #262626", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✏️ Editează</button>
+                <button style={{ flex: 1, padding: 8, borderRadius: 8, background: "rgba(224,90,90,0.1)", color: "#e05a5a", border: "1px solid rgba(224,90,90,0.2)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>⏸ Dezactivează</button>
+                <button style={{ padding: "8px 10px", borderRadius: 8, background: "transparent", color: "#777", border: "1px solid #262626", fontSize: 11, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>🗑</button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Add card */}
+        <div onClick={() => setShowModal(true)} style={{ background: "#161616", border: "1px dashed #262626", borderRadius: 14, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 280, cursor: "pointer", opacity: 0.5, transition: "all 0.2s" }}
+          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.85"; (e.currentTarget as HTMLDivElement).style.borderColor = "#c9a96e"; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.5"; (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; }}>
+          <div style={{ fontSize: 32 }}>＋</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#777" }}>Adaugă serviciu nou</div>
         </div>
       </div>
-    </main>
-  )
+
+      {/* Modal */}
+      {showModal && (
+        <div onClick={() => setShowModal(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 18, padding: 30, width: 480, maxWidth: "95vw" }}>
+            <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Serviciu nou</div>
+            <div style={{ fontSize: 13, color: "#777", marginBottom: 24 }}>Pentru {selectedEmp?.name}</div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Nume serviciu</label>
+              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="ex: Tuns + Styling"
+                style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
+                onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Tarif (lei)</label>
+                <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} placeholder="ex: 45"
+                  style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
+                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
+                  onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Icon emoji</label>
+                <input value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} placeholder="ex: ✂️"
+                  style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
+                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
+                  onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Durată</label>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {durataOptions.map(d => (
+                  <button key={d.slots} onClick={() => setForm({ ...form, duration: d.slots })}
+                    style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${form.duration === d.slots ? "#c9a96e" : "#262626"}`, background: form.duration === d.slots ? "rgba(201,169,110,0.12)" : "#1e1e1e", color: form.duration === d.slots ? "#e8c987" : "#777", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                    {d.label}
+                  </button>
+                ))}
+                <button onClick={() => setForm({ ...form, duration: 999 })}
+                  style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${form.duration === 999 ? "rgba(90,141,224,0.5)" : "#262626"}`, background: form.duration === 999 ? "rgba(90,141,224,0.1)" : "#1e1e1e", color: form.duration === 999 ? "#5a8de0" : "#777", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                  🌙 Toată ziua
+                </button>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Descriere</label>
+              <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Descrie pe scurt serviciul..." rows={3}
+                style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box", resize: "vertical" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
+                onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+            </div>
+
+            {msg && <div style={{ background: "rgba(76,175,130,0.1)", border: "1px solid rgba(76,175,130,0.3)", borderRadius: 8, padding: "10px 14px", marginBottom: 16, color: "#4caf82", fontSize: 13 }}>{msg}</div>}
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 11, borderRadius: 10, background: "#1e1e1e", color: "#777", border: "1px solid #262626", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anulează</button>
+              <button onClick={addService} disabled={loading} style={{ flex: 2, padding: 11, borderRadius: 10, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", fontSize: 13, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: "var(--font-outfit)" }}>
+                {loading ? "Se salvează..." : "Salvează serviciul"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </DashboardLayout>
+  );
 }
