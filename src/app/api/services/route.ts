@@ -43,17 +43,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Toate campurile sunt obligatorii" }, { status: 400 })
     }
 
+    const targetUserId = employeeId || user.id as string
+
     let provider = await prisma.provider.findUnique({
-      where: { userId: employeeId || user.id as string }
+      where: { userId: targetUserId }
     })
+
+    console.log("targetUserId:", targetUserId)
+    console.log("provider gasit:", provider?.userId)
 
     if (!provider) {
       provider = await prisma.provider.create({
         data: {
-          userId: user.id as string,
+          userId: targetUserId,
           isCompany: false,
         }
       })
+      console.log("provider creat:", provider.userId)
     }
 
     const service = await prisma.service.create({

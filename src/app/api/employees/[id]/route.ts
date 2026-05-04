@@ -22,6 +22,8 @@ export async function GET(request: Request, context: any) {
     const params = await context.params
     const id = params.id
 
+    console.log("Cautam provider pentru userId:", id)
+
     const employee = await prisma.user.findUnique({
       where: { id }
     })
@@ -33,6 +35,9 @@ export async function GET(request: Request, context: any) {
       include: { services: true }
     })
 
+    console.log("Provider gasit:", provider?.id)
+    console.log("Servicii:", provider?.services?.length)
+
     return NextResponse.json({ 
       employee, 
       services: provider?.services || [],
@@ -42,6 +47,7 @@ export async function GET(request: Request, context: any) {
     return NextResponse.json({ error: "Eroare server" }, { status: 500 })
   }
 }
+
 export async function PATCH(request: Request, context: any) {
   try {
     const user = await getUser()
