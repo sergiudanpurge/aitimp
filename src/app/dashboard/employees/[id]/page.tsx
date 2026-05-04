@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import GalerieTab from "@/components/dashboard/GalerieTab";
 
 const DAYS = ["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"];
 const defaultSchedule = DAYS.reduce((acc, day, i) => ({
@@ -22,6 +23,7 @@ export default function EmployeeProfile() {
   const [schedule, setSchedule] = useState<any>(defaultSchedule);
   const [newService, setNewService] = useState({ name: "", price: "", duration: 1, icon: "✂️" });
   const [showServiceModal, setShowServiceModal] = useState(false);
+  const [providerId, setProviderId] = useState<string | undefined>(undefined);
   useEffect(() => {
     fetch(`/api/employees/${id}`).then(r => r.json()).then(d => {
       setEmployee(d.employee);
@@ -88,9 +90,9 @@ export default function EmployeeProfile() {
         </div>
       </div>
       <div style={{ display: "flex", gap: 4, background: "#161616", border: "1px solid #262626", borderRadius: 12, padding: 4 }}>
-        {["program","servicii","calendar","rezervari","statistici"].map(t => (
+        {["program","servicii","galerie","calendar","rezervari","statistici"].map(t => (
           <button key={t} onClick={() => setActiveTab(t)} style={{ flex: 1, padding: "9px", borderRadius: 9, border: "none", background: activeTab === t ? "rgba(201,169,110,0.15)" : "transparent", color: activeTab === t ? "#c9a96e" : "#777", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", transition: "all 0.15s" }}>
-            {t === "program" ? "Program" : t === "servicii" ? "Servicii" : t === "calendar" ? "Calendar" : t === "rezervari" ? "Rezervări" : "Statistici"}
+            {t === "program" ? "Program" : t === "servicii" ? "Servicii" : t === "galerie" ? "Galerie" : t === "calendar" ? "Calendar" : t === "rezervari" ? "Rezervări" : "Statistici"}
           </button>
         ))}
       </div>
@@ -184,7 +186,9 @@ export default function EmployeeProfile() {
         </div>
       )}
 
+      {activeTab === "galerie" && <GalerieTab providerId={providerId} />}
       {activeTab === "calendar" && <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, padding: 24, textAlign: "center", color: "#777" }}><div style={{ fontSize: 40, marginBottom: 12 }}>🗓</div><div style={{ fontSize: 14, fontWeight: 600 }}>Calendar în construcție</div></div>}
+      {activeTab === "galerie" && <GalerieTab providerId={employee?.provider?.id} />}
       {activeTab === "rezervari" && <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, padding: 24, textAlign: "center", color: "#777" }}><div style={{ fontSize: 40, marginBottom: 12 }}>📅</div><div style={{ fontSize: 14, fontWeight: 600 }}>Nicio rezervare</div></div>}
 
       {activeTab === "statistici" && (
