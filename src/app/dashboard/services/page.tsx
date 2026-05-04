@@ -17,10 +17,13 @@ export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
   const [selectedEmp, setSelectedEmp] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editService, setEditService] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [form, setForm] = useState({ name: "", price: "", duration: 1, icon: "✂️", description: "" });
+  const [editForm, setEditForm] = useState({ name: "", price: "", duration: 1, icon: "✂️", description: "" });
 
   useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(async (d) => {
@@ -56,21 +59,59 @@ export default function ServicesPage() {
     const data = await res.json();
     if (res.ok) {
       setServices([...services, data.service]);
-      setMsg("Serviciu adăugat!");
+      setMsg("Serviciu adaugat!");
       setForm({ name: "", price: "", duration: 1, icon: "✂️", description: "" });
       setTimeout(() => { setMsg(""); setShowModal(false); }, 1500);
     }
     setLoading(false);
   };
 
+  const saveEdit = async () => {
+    if (!editService) return;
+    setLoading(true);
+    const res = await fetch(`/api/services/${editService.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editForm),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setServices(services.map((s: any) => s.id === editService.id ? { ...s, ...editForm } : s));
+      setMsg("Serviciu actualizat!");
+      setShowEditModal(false);
+      setEditService(null);
+      setTimeout(() => setMsg(""), 2000);
+    }
+    setLoading(false);
+  };
+
+  const openEdit = (s: any) => {
+    setEditService(s);
+    setEditForm({ name: s.name, price: s.price, duration: s.duration, icon: s.icon || "✂️", description: s.description || "" });
+    setShowEditModal(true);
+  };
+
+  const deleteService = async (id: string) => {
+    if (!confirm("Esti sigur ca vrei sa stergi acest serviciu?")) return;
+    const res = await fetch(`/api/services/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setServices(services.filter((s: any) => s.id !== id));
+      setMsg("Serviciu sters!");
+      setTimeout(() => setMsg(""), 2000);
+    }
+  };
+
   const btnPrimary = { padding: "10px 20px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", gap: 6 } as const;
+
+  const inputStyle = { width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const };
 
   return (
     <DashboardLayout title="Servicii" actions={
       <button style={btnPrimary} onClick={() => setShowModal(true)}>+ Serviciu nou</button>
     }>
 
-      {/* Selector angajat - doar pentru Admin */}
+      {msg && <div style={{ background: "rgba(76,175,130,0.1)", border: "1px solid rgba(76,175,130,0.3)", borderRadius: 8, padding: "10px 16px", color: "#4caf82", fontSize: 13 }}>{msg}</div>}
+
       {isAdmin && employees.length > 0 && (
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {employees.map(emp => (
@@ -93,10 +134,9 @@ export default function ServicesPage() {
         </div>
       )}
 
-      {/* Grid servicii */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-        {services.map((s: any, i) => (
-          <div key={i} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s" }}
+        {services.map((s: any) => (
+          <div key={s.id} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s" }}
             onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.3)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; (e.currentTarget as HTMLDivElement).style.transform = "none"; }}>
             <div style={{ height: 110, background: "linear-gradient(135deg,#1a1408,#2a2010)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>
@@ -119,13 +159,12 @@ export default function ServicesPage() {
                 </div>
                 <div style={{ background: "#1e1e1e", borderRadius: 8, padding: "9px 11px" }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: "#e8c987" }}>{s.duration * 30} min</div>
-                  <div style={{ fontSize: 10, color: "#777", marginTop: 2 }}>{s.duration} slot{s.duration > 1 ? "uri" : ""}</div>
+                  <div style={{ fontSize: 10, color: "#777", marginTop: 2 }}>Durata</div>
                 </div>
               </div>
               <div style={{ display: "flex", gap: 7 }}>
-                <button style={{ flex: 1, padding: 8, borderRadius: 8, background: "#1e1e1e", color: "#f0ede8", border: "1px solid #262626", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✏️ Editează</button>
-                <button style={{ flex: 1, padding: 8, borderRadius: 8, background: "rgba(224,90,90,0.1)", color: "#e05a5a", border: "1px solid rgba(224,90,90,0.2)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>⏸ Dezactivează</button>
-                <button style={{ padding: "8px 10px", borderRadius: 8, background: "transparent", color: "#777", border: "1px solid #262626", fontSize: 11, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>🗑</button>
+                <button onClick={() => openEdit(s)} style={{ flex: 1, padding: 8, borderRadius: 8, background: "#1e1e1e", color: "#f0ede8", border: "1px solid #262626", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✏️ Editează</button>
+                <button onClick={() => deleteService(s.id)} style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(224,90,90,0.1)", color: "#e05a5a", border: "1px solid rgba(224,90,90,0.2)", fontSize: 11, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>🗑</button>
               </div>
             </div>
           </div>
@@ -139,7 +178,7 @@ export default function ServicesPage() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* MODAL ADAUGA */}
       {showModal && (
         <div onClick={() => setShowModal(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 18, padding: 30, width: 480, maxWidth: "95vw" }}>
@@ -147,25 +186,19 @@ export default function ServicesPage() {
             <div style={{ fontSize: 13, color: "#777", marginBottom: 24 }}>Pentru {selectedEmp?.name}</div>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Nume serviciu</label>
-              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="ex: Tuns + Styling"
-                style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
-                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
-                onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="ex: Tuns + Styling" style={inputStyle}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Tarif (lei)</label>
-                <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} placeholder="ex: 45"
-                  style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
-                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
-                  onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+                <input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} placeholder="ex: 45" style={inputStyle}
+                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
               </div>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Icon emoji</label>
-                <input value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} placeholder="ex: ✂️"
-                  style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" }}
-                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
-                  onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+                <input value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} placeholder="ex: ✂️" style={inputStyle}
+                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
               </div>
             </div>
             <div style={{ marginBottom: 16 }}>
@@ -186,15 +219,67 @@ export default function ServicesPage() {
             <div style={{ marginBottom: 24 }}>
               <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Descriere</label>
               <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Descrie pe scurt serviciul..." rows={3}
-                style={{ width: "100%", padding: "11px 14px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box", resize: "vertical" }}
-                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
-                onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+                style={{ ...inputStyle, resize: "vertical" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
             </div>
-            {msg && <div style={{ background: "rgba(76,175,130,0.1)", border: "1px solid rgba(76,175,130,0.3)", borderRadius: 8, padding: "10px 14px", marginBottom: 16, color: "#4caf82", fontSize: 13 }}>{msg}</div>}
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 11, borderRadius: 10, background: "#1e1e1e", color: "#777", border: "1px solid #262626", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anulează</button>
               <button onClick={addService} disabled={loading} style={{ flex: 2, padding: 11, borderRadius: 10, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", fontSize: 13, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: "var(--font-outfit)" }}>
                 {loading ? "Se salvează..." : "Salvează serviciul"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EDITARE */}
+      {showEditModal && editService && (
+        <div onClick={() => setShowEditModal(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 18, padding: 30, width: 480, maxWidth: "95vw" }}>
+            <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Editează serviciu</div>
+            <div style={{ fontSize: 13, color: "#777", marginBottom: 24 }}>Modifică detaliile serviciului</div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Nume serviciu</label>
+              <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} style={inputStyle}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Tarif (lei)</label>
+                <input type="number" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: e.target.value })} style={inputStyle}
+                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Icon emoji</label>
+                <input value={editForm.icon} onChange={e => setEditForm({ ...editForm, icon: e.target.value })} style={inputStyle}
+                  onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+              </div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Durată</label>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {durataOptions.map(d => (
+                  <button key={d.slots} onClick={() => setEditForm({ ...editForm, duration: d.slots })}
+                    style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${editForm.duration === d.slots ? "#c9a96e" : "#262626"}`, background: editForm.duration === d.slots ? "rgba(201,169,110,0.12)" : "#1e1e1e", color: editForm.duration === d.slots ? "#e8c987" : "#777", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                    {d.label}
+                  </button>
+                ))}
+                <button onClick={() => setEditForm({ ...editForm, duration: 999 })}
+                  style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${editForm.duration === 999 ? "rgba(90,141,224,0.5)" : "#262626"}`, background: editForm.duration === 999 ? "rgba(90,141,224,0.1)" : "#1e1e1e", color: editForm.duration === 999 ? "#5a8de0" : "#777", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                  Toata ziua
+                </button>
+              </div>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#777", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Descriere</label>
+              <textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} rows={3}
+                style={{ ...inputStyle, resize: "vertical" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setShowEditModal(false)} style={{ flex: 1, padding: 11, borderRadius: 10, background: "#1e1e1e", color: "#777", border: "1px solid #262626", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anulează</button>
+              <button onClick={saveEdit} disabled={loading} style={{ flex: 2, padding: 11, borderRadius: 10, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", fontSize: 13, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, fontFamily: "var(--font-outfit)" }}>
+                {loading ? "Se salvează..." : "Salvează modificările"}
               </button>
             </div>
           </div>

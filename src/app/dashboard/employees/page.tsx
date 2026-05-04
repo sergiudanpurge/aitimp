@@ -77,9 +77,19 @@ export default function EmployeesPage() {
                   style={{ flex: 1, padding: "8px", borderRadius: 8, background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", color: "#c9a96e", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
                   Profil →
                 </button>
-                <button style={{ padding: "8px 12px", borderRadius: 8, background: "#1e1e1e", border: "1px solid #262626", color: "#777", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                  {emp.isActive === false ? "▶ Activează" : "⏸"}
-                </button>
+                <button onClick={async (e) => {
+  e.stopPropagation();
+  const res = await fetch(`/api/employees/${emp.id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isActive: emp.isActive === false ? true : false }),
+  });
+  if (res.ok) {
+    setEmployees(employees.map((e: any) => e.id === emp.id ? { ...e, isActive: emp.isActive === false ? true : false } : e));
+  }
+}} style={{ padding: "8px 12px", borderRadius: 8, background: emp.isActive === false ? "rgba(76,175,130,0.1)" : "#1e1e1e", border: `1px solid ${emp.isActive === false ? "rgba(76,175,130,0.2)" : "#262626"}`, color: emp.isActive === false ? "#4caf82" : "#777", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+  {emp.isActive === false ? "▶ Activează" : "⏸"}
+</button>
               </div>
             </div>
           </div>

@@ -32,7 +32,7 @@ export default function EmployeeProfile() {
   const toggleActive = async () => {
     const res = await fetch(`/api/employees/${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !employee.isActive }),
+      body: JSON.stringify({ isActive: employee.isActive === false ? true : false }),
     });
     if (res.ok) { setEmployee({ ...employee, isActive: !employee.isActive }); setMsg(employee.isActive ? "Dezactivat!" : "Activat!"); setTimeout(() => setMsg(""), 2000); }
   };

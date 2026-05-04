@@ -14,61 +14,39 @@ async function getUser() {
   return payload
 }
 
-export async function GET(request: Request, context: any) {
+export async function DELETE(request: Request, context: any) {
   try {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
-
     const params = await context.params
     const id = params.id
-
-    console.log("Cautam provider pentru userId:", id)
-
-    const employee = await prisma.user.findUnique({
-      where: { id }
-    })
-
-    if (!employee) return NextResponse.json({ error: "Angajat negasit" }, { status: 404 })
-
-    const provider = await prisma.provider.findUnique({
-      where: { userId: id },
-      include: { services: true }
-    })
-
-    console.log("Provider gasit:", provider?.id)
-    console.log("Servicii:", provider?.services?.length)
-
-    return NextResponse.json({ 
-      employee, 
-      services: provider?.services || [],
-      provider
-    })
+    await prisma.service.delete({ where: { id } })
+    return NextResponse.json({ message: "Serviciu sters!" })
   } catch (error) {
-    console.error("GET error:", error)
+    console.error("DELETE error:", error)
     return NextResponse.json({ error: "Eroare server" }, { status: 500 })
   }
 }
 
-export async function PATCH(request: Request, context: any) {
+export async function PUT(request: Request, context: any) {
   try {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
-
     const params = await context.params
     const id = params.id
-    const body = await request.json()
-    console.log("PATCH angajat body:", body)
-    console.log("PATCH angajat id:", id)
-    const { isActive } = body
-
-    await prisma.user.update({
+    const { name, price, duration, icon, description } = await request.json()
+    const service = await prisma.service.update({
       where: { id },
-      data: { isActive }
+      data: {
+        name,
+        price: parseFloat(price),
+        duration: parseInt(duration),
+        icon: icon || "✂️",
+      }
     })
-
-    return NextResponse.json({ message: "Angajat actualizat!" })
+    return NextResponse.json({ message: "Serviciu actualizat!", service })
   } catch (error) {
-    console.error("PATCH angajat error:", error)
+    console.error("PUT error:", error)
     return NextResponse.json({ error: "Eroare server" }, { status: 500 })
   }
 }
