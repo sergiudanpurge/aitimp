@@ -1,0 +1,13 @@
+          <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{r.clientName || "Client"}</div>
+                  <div style={{ color: "#c9a96e", fontSize: 12, marginBottom: 6 }}>{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</div>
+                  <div style={{ fontSize: 12, color: "#a0a0a0", lineHeight: 1.6 }}>{r.comment}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
