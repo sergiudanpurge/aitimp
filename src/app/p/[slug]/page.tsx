@@ -41,13 +41,16 @@ export default function ProviderPage() {
       setProvider(d.provider);
       setEmployees(d.employees || []);
       if (d.provider?.accountType === "company") {
-        if (d.employees?.length > 0) {
-          setActiveEmployee(d.employees[0]);
-          setServices(d.employees[0].services || []);
-        }
-      } else {
-        setServices(d.services || []);
-      }
+  if (d.employees?.length > 0) {
+    setActiveEmployee(d.employees[0]);
+    setServices(d.employees[0].services || []);
+  } else {
+    // Firma fara angajati - serviciile sunt ale firmei
+    setServices(d.services || []);
+  }
+} else {
+  setServices(d.services || []);
+}
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [slug]);
@@ -294,13 +297,13 @@ export default function ProviderPage() {
                 </div>
                 {selectedSlot && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <button onClick={doRezervare} style={{ width: "100%", padding: 12, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                      Rezervă acum
-                    </button>
-                    <button style={{ width: "100%", padding: 10, background: "transparent", color: s.accent, border: `1px solid rgba(201,169,110,0.3)`, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#c9a96e"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                      Trimite mesaj
-                    </button>
+                    <button onClick={() => {
+  const chatWith = isCompany && activeEmployee ? activeEmployee.id : provider.id;
+  window.location.href = `/chat/${chatWith}`;
+}} style={{ width: "100%", padding: 10, background: "transparent", color: s.accent, border: `1px solid rgba(201,169,110,0.3)`, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="#c9a96e"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+  Trimite mesaj
+</button>
                   </div>
                 )}
               </>
