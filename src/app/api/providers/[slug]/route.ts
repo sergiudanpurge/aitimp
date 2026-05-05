@@ -17,39 +17,31 @@ export async function GET(request: Request, context: any) {
       }
     })
 
-    if (!user) return NextResponse.json({ error: "Prestator negăsit" }, { status: 404 })
+    if (!user) return NextResponse.json({ error: "Prestator negasit" }, { status: 404 })
 
-    // Luam serviciile proprii
     const provider = await prisma.provider.findUnique({
       where: { userId: user.id },
       include: { services: true }
     })
 
-    // Luam angajatii daca e companie
     let employees: any[] = []
     if (user.accountType === "company") {
       const emps = await prisma.user.findMany({
         where: { companyId: user.id },
-        include: {
-          provider: {
-            include: { services: true }
-          }
-        }
+        include: { provider: { include: { services: true } } }
       })
-      employees = emps.map(e => ({
-        ...e,
-        services: e.provider?.services || []
-      }))
+      employees = emps.map(e => ({ ...e, services: e.provider?.services || [] }))
     }
 
-    return NextResponse.json({
-      provider: {
-        ...user,
-        password: undefined,
-      },
-      employees,
-      services: provider?.services || []
-    })
+    const safeUser = {
+      ...user,
+      password: undefined,
+      verifyToken: undefined,
+      email: user.showEmail ? user.email : undefined,
+      phone: user.showPhone ? user.phone : undefined,
+    }
+
+    return NextResponse.json({ provider: safeUser, employees, services: provider?.services || [] })
 
   } catch (error) {
     console.error(error)

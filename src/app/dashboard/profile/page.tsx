@@ -9,13 +9,14 @@ export default function ProfilePage() {
     telefon: "", email: "", website: "",
     facebook: "", instagram: "", tiktok: "",
     descriere: "", oras: "", judet: "",
+    showEmail: false, showPhone: false,
   });
   const [avatar, setAvatar] = useState("");
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState("");
   const [activeTab, setActiveTab] = useState("general");
 
-  useEffect(() => {
+ useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => {
       if (d.user) {
         setForm(prev => ({
@@ -27,6 +28,13 @@ export default function ProfilePage() {
           email: d.user.email || "",
           oras: d.user.oras || "",
           judet: d.user.judet || "",
+          descriere: d.user.description || "",
+          website: d.user.website || "",
+          facebook: d.user.facebook || "",
+          instagram: d.user.instagram || "",
+          tiktok: d.user.tiktok || "",
+          showEmail: d.user.showEmail || false,
+          showPhone: d.user.showPhone || false,
         }));
         setAvatar(d.user.avatar || "");
       }
@@ -52,7 +60,26 @@ export default function ProfilePage() {
   };
 
   const save = async () => {
-    const res = await fetch("/api/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, avatar }) });
+    const res = await fetch("/api/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name,
+        phone: form.telefon,
+        cui: form.cui,
+        adresa: form.adresa,
+        judet: form.judet,
+        oras: form.oras,
+        website: form.website,
+        facebook: form.facebook,
+        instagram: form.instagram,
+        tiktok: form.tiktok,
+        description: form.descriere,
+        avatar,
+        showEmail: form.showEmail,
+        showPhone: form.showPhone,
+      })
+    });
     if (res.ok) { setMsg("Profil salvat!"); setTimeout(() => setMsg(""), 2000); }
   };
 
@@ -157,23 +184,31 @@ export default function ProfilePage() {
             )}
 
             {activeTab === "contact" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <label style={labelStyle}>Telefon</label>
-                  <input value={form.telefon} onChange={e => setForm({ ...form, telefon: e.target.value })} placeholder="+40721000000" style={inputStyle}
-                    onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Email contact</label>
-                  <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="contact@companie.ro" style={inputStyle}
-                    onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Website</label>
-                  <input value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="https://companie.ro" style={inputStyle}
-                    onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
-                </div>
-              </div>
+             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+  <div>
+    <label style={labelStyle}>Telefon</label>
+    <input value={form.telefon} onChange={e => setForm({ ...form, telefon: e.target.value })} placeholder="+40721000000" style={inputStyle}
+      onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 12, color: "#777", marginTop: 8 }}>
+      <input type="checkbox" checked={form.showPhone} onChange={e => setForm({ ...form, showPhone: e.target.checked })} style={{ accentColor: "#c9a96e", width: 14, height: 14 }} />
+      Afișează telefonul pe profilul public
+    </label>
+  </div>
+  <div>
+    <label style={labelStyle}>Email contact</label>
+    <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="contact@companie.ro" style={inputStyle}
+      onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+    <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 12, color: "#777", marginTop: 8 }}>
+      <input type="checkbox" checked={form.showEmail} onChange={e => setForm({ ...form, showEmail: e.target.checked })} style={{ accentColor: "#c9a96e", width: 14, height: 14 }} />
+      Afișează emailul pe profilul public
+    </label>
+  </div>
+  <div>
+    <label style={labelStyle}>Website</label>
+    <input value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="https://companie.ro" style={inputStyle}
+      onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+  </div>
+</div>
             )}
 
             {activeTab === "social" && (

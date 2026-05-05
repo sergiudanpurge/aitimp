@@ -21,6 +21,13 @@ model User {
   judet           String?
 oras            String?
 adresa          String?
+description     String?
+  instagram       String?
+  facebook        String?
+  website         String?
+  tiktok          String?
+  showEmail       Boolean  @default(false)
+  showPhone       Boolean  @default(false)
 isActive        Boolean  @default(true) 
   emailVerified   Boolean   @default(false)
   verifyToken     String?

@@ -19,11 +19,27 @@ export async function PUT(request: Request) {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
 
-    const { name, phone, city, cui, description } = await request.json()
+    const { name, phone, city, cui, avatar, judet, oras, adresa, description, instagram, facebook, website, tiktok, showEmail, showPhone } = await request.json()
 
     await prisma.user.update({
       where: { id: user.id as string },
-      data: { name, phone, city, cui, avatar }
+      data: {
+        name,
+        phone,
+        city,
+        cui,
+        avatar,
+        judet,
+        oras,
+        adresa,
+        description,
+        instagram,
+        facebook,
+        website,
+        tiktok,
+        showEmail: showEmail ?? false,
+        showPhone: showPhone ?? false,
+      }
     })
 
     return NextResponse.json({ message: "Profil actualizat!" })
