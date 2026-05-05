@@ -18,10 +18,15 @@ export default function DashboardPage() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
+useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => {
       if (d.error) router.push("/login");
-      else setUser(d.user);
+      else {
+        setUser(d.user);
+        if (d.user?.accountType === "private") {
+          router.push("/dashboard/user");
+        }
+      }
     });
     fetch("/api/employees").then(r => r.json()).then(d => setEmployees(d.employees || []));
     fetch("/api/bookings").then(r => r.json()).then(d => setBookings(d.bookings || []));

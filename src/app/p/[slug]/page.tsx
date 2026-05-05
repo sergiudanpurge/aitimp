@@ -237,7 +237,7 @@ export default function ProviderPage() {
           </div>
         )}
 
-        {/* LISTA SERVICII */}
+{/* LISTA SERVICII */}
         <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
           <div style={{ padding: "14px 18px", borderBottom: `1px solid ${s.border}`, fontSize: 13, fontWeight: 600, color: s.muted }}>
             Selectează un serviciu
@@ -257,6 +257,15 @@ export default function ProviderPage() {
             ))}
           </div>
         </div>
+
+        {/* BUTON MESAJ */}
+        <button onClick={() => {
+          const chatWith = isCompany && activeEmployee ? activeEmployee.id : provider.id;
+          window.location.href = `/chat/${chatWith}`;
+        }} style={{ width: "100%", padding: 12, background: "transparent", color: s.accent, border: `1px solid rgba(201,169,110,0.3)`, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 14 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#c9a96e"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          Trimite mesaj {isCompany && activeEmployee ? `lui ${activeEmployee.name}` : provider.name}
+        </button>
 
         {/* CALENDAR DROPDOWN */}
         {selectedService && (
