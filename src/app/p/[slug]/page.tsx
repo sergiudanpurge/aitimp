@@ -1,5 +1,6 @@
-"use client";
+"use client"
 
+import { useResponsive } from "@/hooks/useResponsive";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 
@@ -115,6 +116,7 @@ export default function ProviderPage() {
   };
 
   const isCompany = provider?.accountType === "company";
+  const { isMobile, isTablet } = useResponsive();
 
   if (loading) return <div style={{ minHeight: "100vh", background: s.bg }} />;
   if (!provider) return <div style={{ minHeight: "100vh", background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", color: s.muted }}>Profilul nu a fost găsit.</div>;
@@ -125,8 +127,8 @@ export default function ProviderPage() {
       <div style={{ height: 160, background: isCompany ? "linear-gradient(135deg,#1a1408,#2a2010)" : "linear-gradient(135deg,#0e1520,#152030)" }} />
 
       {/* HEADER CONTENT */}
-      <div style={{ padding: "0 32px 24px", display: "flex", alignItems: "flex-end", gap: 20, marginTop: -36 }}>
-        {isCompany ? (
+<div style={{ padding: isMobile ? "0 16px 20px" : "0 32px 24px", display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: isMobile ? 12 : 20, marginTop: -36 }}>
+          {isCompany ? (
           <div style={{ width: 72, height: 72, borderRadius: 14, background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 700, color: "#fff", border: `3px solid ${s.bg}`, flexShrink: 0 }}>
             {provider.avatar ? <img src={provider.avatar} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 14 }} /> : provider.name?.charAt(0)}
           </div>
@@ -157,7 +159,7 @@ export default function ProviderPage() {
       </div>
 
       {/* DESCRIERE + DETALII */}
-      <div style={{ padding: "0 32px 20px", borderBottom: `1px solid ${s.border}` }}>
+      <div style={{ padding: isMobile ? "0 16px 16px" : "0 32px 20px", borderBottom: `1px solid ${s.border}` }}>
         {provider.description && <div style={{ fontSize: 13, color: "#a0a0a0", lineHeight: 1.7, marginBottom: 14 }}>{provider.description}</div>}
         {(provider.showPhone && provider.phone) || (provider.showEmail && provider.email) ? (
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -194,7 +196,7 @@ export default function ProviderPage() {
       )}
 
       {/* SECTIUNEA PRINCIPALA */}
-      <div style={{ padding: "24px 32px" }}>
+      <div style={{ padding: isMobile ? "16px" : "24px 32px" }}>
 
         {/* HEADER ANGAJAT ACTIV */}
         {isCompany && activeEmployee && (
@@ -321,9 +323,9 @@ export default function ProviderPage() {
         )}
       </div>
       {/* GALERIE */}
-      <div style={{ padding: "0 32px 24px" }}>
+      <div style={{ padding: isMobile ? "0 16px 16px" : "0 32px 24px" }}>
         <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Galerie</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 8 }}>
           {[1,2,3,4].map(i => (
             <div key={i} style={{ height: 100, borderRadius: 10, background: `linear-gradient(135deg, #1a1408, #${i % 2 === 0 ? "2a2010" : "1a2008"})`, border: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: s.muted, fontSize: 22 }}>
               📷
@@ -333,7 +335,7 @@ export default function ProviderPage() {
       </div>
 
       {/* REVIEWS */}
-      <div style={{ padding: "24px 32px", borderTop: `1px solid ${s.border}` }}>
+      <div style={{ padding: isMobile ? "16px" : "24px 32px", borderTop: `1px solid ${s.border}` }}>
         <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
           Recenzii {isCompany && activeEmployee ? activeEmployee.name : provider.name}
         </div>
