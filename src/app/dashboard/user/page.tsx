@@ -21,6 +21,10 @@ export default function UserProfilePage() {
     fetch("/api/auth/me").then(r => r.json()).then(d => {
       if (d.error) { router.push("/login"); return; }
       setUser(d.user);
+if (d.user?.role === "employee") {
+  router.push("/dashboard/employee");
+  return;
+}
     });
     fetch("/api/bookings").then(r => r.json()).then(d => setBookings(d.bookings || []));
     fetch("/api/services").then(r => r.json()).then(d => setServices(d.services || []));

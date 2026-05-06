@@ -17,7 +17,13 @@ export default function DashboardPage() {
       if (d.error) router.push("/login");
       else {
         setUser(d.user);
-        if (d.user?.accountType === "private") router.push("/dashboard/user");
+if (d.user?.role === "employee") {
+  router.push("/dashboard/employee");
+} else if (d.user?.accountType === "private") {
+  router.push("/dashboard/user");
+}
+
+       
       }
     });
     fetch("/api/employees").then(r => r.json()).then(d => setEmployees(d.employees || []));
