@@ -7,19 +7,21 @@ import Navbar from "@/components/Navbar";
 
 export default function HomePage() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <HeroSection />
-        <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
-        <ServicesSection />
-        <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
-        <HowItWorks />
-        <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
-        <ReviewsSection />
-        <CtaSection />
-      </main>
-      <Footer />
-    </>
+    <div style={{ background: "#090806" }}>
+      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+        <Navbar />
+        <main>
+          <HeroSection />
+          <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
+          <ServicesSection />
+          <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
+          <HowItWorks />
+          <hr style={{ borderTopWidth: 1, borderColor: "rgba(201,168,76,0.2)" }} />
+          <ReviewsSection />
+          <CtaSection />
+        </main>
+        <Footer />
+      </div>
+    </div>
   );
 }

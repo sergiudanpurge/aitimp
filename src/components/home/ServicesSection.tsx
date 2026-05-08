@@ -13,7 +13,7 @@ const services = [
 
 export default function ServicesSection() {
   return (
-    <section id="servicii" style={{ padding: "100px 64px", background: "#0f0e0b" }}>
+    <section id="servicii" style={{ padding: "clamp(48px, 8vw, 100px) clamp(16px, 5vw, 64px)", background: "#0f0e0b" }}>
       <div style={{ textAlign: "center", marginBottom: "64px" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#C9A84C", marginBottom: "16px" }}>
           <span style={{ width: 20, height: 1, background: "#C9A84C", display: "inline-block" }} />
@@ -24,27 +24,21 @@ export default function ServicesSection() {
           Servicii pentru <em style={{ fontStyle: "italic", color: "#C9A84C" }}>orice nevoie</em>
         </h2>
       </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
         {services.map((s, i) => (
           <div key={i} style={{
             background: s.extra ? "rgba(201,168,76,0.05)" : "#181510",
             border: `1px solid ${s.extra ? "rgba(201,168,76,0.25)" : "rgba(201,168,76,0.15)"}`,
-            borderRadius: "16px",
-            padding: "36px 28px",
-            cursor: "pointer",
-            transition: "all 0.3s",
-            borderStyle: s.extra ? "dashed" : "solid",
+            borderRadius: "16px", padding: "36px 28px", cursor: "pointer",
+            transition: "all 0.3s", borderStyle: s.extra ? "dashed" : "solid",
           }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px)";
               (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,168,76,0.5)";
-              (e.currentTarget as HTMLDivElement).style.boxShadow = "0 20px 40px rgba(0,0,0,0.4)";
             }}
             onMouseLeave={e => {
               (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
               (e.currentTarget as HTMLDivElement).style.borderColor = s.extra ? "rgba(201,168,76,0.25)" : "rgba(201,168,76,0.15)";
-              (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
             }}>
             <span style={{ fontSize: "2.2rem", marginBottom: "18px", display: "block" }}>{s.icon}</span>
             <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: "1.2rem", fontWeight: 700, marginBottom: "10px" }}>{s.name}</h3>
