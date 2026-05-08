@@ -1,50 +1,80 @@
-import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient()
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
 
-export async function GET(request: Request) {
+  const q       = searchParams.get("q") || "";
+  const judet   = searchParams.get("judet") || "";
+  const oras    = searchParams.get("oras") || "";
+  const pretMin = parseFloat(searchParams.get("pretMin") || "0");
+  const pretMax = parseFloat(searchParams.get("pretMax") || "999999");
+  const rating  = parseFloat(searchParams.get("rating") || "0");
+  const tip     = searchParams.get("tip") || "";
+
   try {
-    const { searchParams } = new URL(request.url)
-    const q = searchParams.get("q") || ""
-    const loc = searchParams.get("loc") || ""
+    const users = await prisma.user.findMany({
+      where: {
+        provider: {
+          is: {
+            services: { some: {} },
+            ...(rating > 0 ? { rating: { gte: rating } } : {}),
+          }
+        },
+        ...(tip ? { accountType: tip } : {}),
+        ...(judet ? { judet: { equals: judet, mode: "insensitive" } } : {}),
+        ...(oras ? { oras: { equals: oras, mode: "insensitive" } } : {}),
+        ...(q ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { description: { contains: q, mode: "insensitive" } },
+            { provider: { services: { some: { name: { contains: q, mode: "insensitive" } } } } },
+          ],
+        } : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        accountType: true,
+        judet: true,
+        oras: true,
+        description: true,
+        provider: {
+          select: {
+            rating: true,
+            services: {
+              where: { isActive: true },
+              select: { id: true, name: true, price: true, duration: true, icon: true },
+              take: 5,
+            }
+          }
+        }
+      },
+      take: 50,
+    });
 
-    const providers = await prisma.provider.findMany({
-      include: {
-        user: true,
-        services: true,
-      }
-    })
+    const results = users.map(u => ({
+      id: u.id,
+      name: u.name,
+      avatar: u.avatar,
+      accountType: u.accountType,
+      judet: u.judet,
+      oras: u.oras,
+      description: u.description,
+      rating: u.provider?.rating || 0,
+      services: u.provider?.services || [],
+      minPrice: u.provider?.services?.length
+        ? Math.min(...u.provider.services.map(s => s.price))
+        : null,
+    }));
 
-    let results = providers.map((p: any) => ({
-      id: p.userId,
-      name: p.user.name,
-      avatar: p.user.avatar,
-      accountType: p.user.accountType,
-      oras: p.user.oras,
-      city: p.user.city,
-      rating: p.rating || null,
-      services: p.services,
-      minPrice: p.services.length > 0 ? Math.min(...p.services.map((s: any) => s.price)) : null,
-    }))
+    // Sortare după rating
+    results.sort((a, b) => b.rating - a.rating);
 
-    if (q) {
-      results = results.filter((r: any) =>
-        r.name?.toLowerCase().includes(q.toLowerCase()) ||
-        r.services?.some((s: any) => s.name?.toLowerCase().includes(q.toLowerCase()))
-      )
-    }
-
-    if (loc) {
-      results = results.filter((r: any) =>
-        r.oras?.toLowerCase().includes(loc.toLowerCase()) ||
-        r.city?.toLowerCase().includes(loc.toLowerCase())
-      )
-    }
-
-    return NextResponse.json({ results })
-  } catch (error) {
-    console.error("Search error:", error)
-    return NextResponse.json({ error: "Eroare server" }, { status: 500 })
+    return NextResponse.json({ results });
+  } catch (err) {
+    console.error("[/api/search]", err);
+    return NextResponse.json({ error: "Eroare server" }, { status: 500 });
   }
 }

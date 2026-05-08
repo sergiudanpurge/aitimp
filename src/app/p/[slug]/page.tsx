@@ -123,9 +123,17 @@ export default function ProviderPage() {
   return (
     <div style={{ background: s.bg, color: "#f0ede8", minHeight: "100vh", fontFamily: "var(--font-outfit)" }}>
 
+     {/* HOME BUTTON */}
+{/* NAVBAR */}
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 52, background: "rgba(10,10,10,0.85)", borderBottom: "1px solid rgba(255,255,255,0.06)", backdropFilter: "blur(16px)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px" }}>
+        <a href="/" style={{ fontFamily: "var(--font-playfair)", fontSize: 16, color: "#c9a96e", textDecoration: "none" }}>aitimp.ro</a>
+        <div style={{ display: "flex", gap: 8 }}>
+          <a href="/search" style={{ padding: "6px 14px", background: "transparent", border: "1px solid #262626", borderRadius: 7, fontSize: 12, color: "#777", textDecoration: "none" }}>🔍 Caută</a>
+          <a href="/dashboard" style={{ padding: "6px 14px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 7, fontSize: 12, color: "#c9a96e", textDecoration: "none" }}>Dashboard</a>
+        </div>
+      </div>
       {/* HEADER BANNER */}
-      <div style={{ height: 160, background: isCompany ? "linear-gradient(135deg,#1a1408,#2a2010)" : "linear-gradient(135deg,#0e1520,#152030)" }} />
-
+      <div style={{ height: 160, marginTop: 52, background: isCompany ? "linear-gradient(135deg,#1a1408,#2a2010)" : "linear-gradient(135deg,#0e1520,#152030)" }} />
       {/* HEADER CONTENT */}
 <div style={{ padding: isMobile ? "0 16px 20px" : "0 32px 24px", display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: isMobile ? 12 : 20, marginTop: -36 }}>
           {isCompany ? (

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useResponsive } from "@/hooks/useResponsive";
+import { judete, orasePerJudet } from "@/lib/romania";
 
 const CATEGORIES = [
   { icon: "✂️", label: "Coafură" },
@@ -21,8 +22,13 @@ export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile, isTablet } = useResponsive();
+
   const [query, setQuery] = useState(searchParams.get("q") || "");
-  const [location, setLocation] = useState(searchParams.get("loc") || "");
+  const [judet, setJudet] = useState(searchParams.get("judet") || "");
+  const [oras, setOras] = useState(searchParams.get("oras") || "");
+  const [pretMin, setPretMin] = useState(searchParams.get("pretMin") || "");
+  const [pretMax, setPretMax] = useState(searchParams.get("pretMax") || "");
+  const [oraseDisponibile, setOraseDisponibile] = useState<string[]>([]);
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -30,20 +36,44 @@ export default function SearchPage() {
     type: "toate", rating: "toate", available: false, verified: false,
   });
 
-  useEffect(() => { search(); }, []);
-
-  const search = async () => {
+  const search = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&loc=${encodeURIComponent(location)}`);
+    const params = new URLSearchParams();
+    if (query)                      params.set("q", query);
+    if (judet)                      params.set("judet", judet);
+    if (oras)                       params.set("oras", oras);
+    if (pretMin)                    params.set("pretMin", pretMin);
+    if (pretMax)                    params.set("pretMax", pretMax);
+    if (filters.rating !== "toate") params.set("rating", filters.rating);
+    if (filters.type !== "toate")   params.set("tip", filters.type);
+    const res = await fetch(`/api/search?${params.toString()}`);
     const data = await res.json();
-    setResults(data.results || []);
+    setResults(data.providers || []);
     setLoading(false);
-  };
+  }, [query, judet, oras, pretMin, pretMax, filters]);
 
   const handleSearch = () => {
-    router.push(`/search?q=${encodeURIComponent(query)}&loc=${encodeURIComponent(location)}`);
+    const params = new URLSearchParams();
+    if (query)   params.set("q", query);
+    if (judet)   params.set("judet", judet);
+    if (oras)    params.set("oras", oras);
+    if (pretMin) params.set("pretMin", pretMin);
+    if (pretMax) params.set("pretMax", pretMax);
+    router.push(`/search?${params.toString()}`);
     search();
   };
+
+  useEffect(() => { search(); }, []);
+
+  useEffect(() => {
+    if (judet) {
+      setOraseDisponibile(orasePerJudet[judet] || []);
+      setOras("");
+    } else {
+      setOraseDisponibile([]);
+      setOras("");
+    }
+  }, [judet]);
 
   const inputStyle = {
     background: "#161616", border: "1px solid #262626", borderRadius: 12,
@@ -53,6 +83,7 @@ export default function SearchPage() {
 
   const FilterPanel = () => (
     <div style={{ padding: isMobile ? "16px" : "24px 20px" }}>
+
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Tip prestator</div>
         {[["toate","Toate"],["company","Firme"],["private","Persoane fizice"]].map(([val, label]) => (
@@ -64,7 +95,9 @@ export default function SearchPage() {
           </div>
         ))}
       </div>
+
       <div style={{ height: 1, background: "#262626", margin: "4px 0 20px" }} />
+
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Rating minim</div>
         {[["toate","Orice rating"],["5","5★ și peste"],["4","4★ și peste"],["3","3★ și peste"]].map(([val, label]) => (
@@ -76,7 +109,31 @@ export default function SearchPage() {
           </div>
         ))}
       </div>
+
       <div style={{ height: 1, background: "#262626", margin: "4px 0 20px" }} />
+
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Preț (RON)</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            type="number"
+            placeholder="Min"
+            value={pretMin}
+            onChange={e => setPretMin(e.target.value)}
+            style={{ width: "50%", background: "#161616", border: "1px solid #262626", borderRadius: 8, color: "#f0ede8", fontSize: 13, padding: "8px 10px", outline: "none", fontFamily: "var(--font-outfit)" }}
+          />
+          <input
+            type="number"
+            placeholder="Max"
+            value={pretMax}
+            onChange={e => setPretMax(e.target.value)}
+            style={{ width: "50%", background: "#161616", border: "1px solid #262626", borderRadius: 8, color: "#f0ede8", fontSize: 13, padding: "8px 10px", outline: "none", fontFamily: "var(--font-outfit)" }}
+          />
+        </div>
+      </div>
+
+      <div style={{ height: 1, background: "#262626", margin: "4px 0 20px" }} />
+
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Alte filtre</div>
         {[["verified","Profil verificat"],["available","Disponibil azi"]].map(([key, label]) => (
@@ -88,6 +145,7 @@ export default function SearchPage() {
           </div>
         ))}
       </div>
+
       {isMobile && (
         <button onClick={() => setShowFilters(false)} style={{ width: "100%", padding: 12, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
           Aplică filtrele
@@ -95,6 +153,7 @@ export default function SearchPage() {
       )}
     </div>
   );
+
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#f0ede8", fontFamily: "var(--font-outfit)" }}>
 
@@ -115,31 +174,62 @@ export default function SearchPage() {
         <div style={{ fontSize: 12, color: "#777", marginBottom: 16 }}>Peste 1.200 de prestatori în toată România</div>
 
         <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 10, marginBottom: 14 }}>
+
+          {/* Input căutare */}
           <div style={{ flex: 1, position: "relative" }}>
             <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 17, color: "#777", pointerEvents: "none" }}>🔍</span>
-            <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSearch()}
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSearch()}
               placeholder="Ce serviciu cauți?"
               style={{ ...inputStyle, padding: "13px 16px 13px 44px" }}
               onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
-              onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
+              onBlur={e => (e.currentTarget.style.borderColor = "#262626")}
+            />
           </div>
-          <div style={{ position: "relative", width: isMobile ? "100%" : 200 }}>
-            <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 16, pointerEvents: "none" }}>📍</span>
-            <input value={location} onChange={e => setLocation(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSearch()}
-              placeholder="Oraș sau județ"
-              style={{ ...inputStyle, padding: "13px 16px 13px 38px" }}
-              onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")}
-              onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
-          </div>
-          <button onClick={handleSearch} style={{ padding: "13px 28px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", whiteSpace: "nowrap" }}>
+
+          {/* Dropdown județ */}
+          <select
+            value={judet}
+            onChange={e => setJudet(e.target.value)}
+            style={{ ...inputStyle, padding: "13px 16px", width: isMobile ? "100%" : 180, cursor: "pointer" }}
+          >
+            <option value="">📍 Toate județele</option>
+            {judete.map(j => (
+              <option key={j} value={j}>{j}</option>
+            ))}
+          </select>
+
+          {/* Dropdown oraș — apare doar dacă e selectat un județ */}
+          {judet && (
+            <select
+              value={oras}
+              onChange={e => setOras(e.target.value)}
+              style={{ ...inputStyle, padding: "13px 16px", width: isMobile ? "100%" : 160, cursor: "pointer" }}
+            >
+              <option value="">Toate orașele</option>
+              {oraseDisponibile.map(o => (
+                <option key={o} value={o}>{o}</option>
+              ))}
+            </select>
+          )}
+
+          <button
+            onClick={handleSearch}
+            style={{ padding: "13px 28px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", whiteSpace: "nowrap" }}
+          >
             Caută
           </button>
         </div>
 
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {CATEGORIES.map(cat => (
-            <div key={cat.label} onClick={() => { setQuery(cat.label); handleSearch(); }}
-              style={{ padding: "5px 12px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 20, fontSize: 11, color: "#c9a96e", cursor: "pointer" }}>
+            <div
+              key={cat.label}
+              onClick={() => { setQuery(cat.label); handleSearch(); }}
+              style={{ padding: "5px 12px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 20, fontSize: 11, color: "#c9a96e", cursor: "pointer" }}
+            >
               {cat.icon} {cat.label}
             </div>
           ))}
@@ -149,7 +239,10 @@ export default function SearchPage() {
       {/* MOBILE FILTER BUTTON */}
       {isMobile && (
         <div style={{ padding: "10px 16px", borderBottom: "1px solid #262626", display: "flex", gap: 8 }}>
-          <button onClick={() => setShowFilters(true)} style={{ flex: 1, padding: "10px", background: "#161616", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+          <button
+            onClick={() => setShowFilters(true)}
+            style={{ flex: 1, padding: "10px", background: "#161616", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}
+          >
             ⚙️ Filtre
           </button>
           <select style={{ flex: 1, padding: "10px", background: "#161616", border: "1px solid #262626", borderRadius: 10, color: "#f0ede8", fontSize: 13, outline: "none", fontFamily: "var(--font-outfit)" }}>
@@ -187,7 +280,9 @@ export default function SearchPage() {
         <div style={{ padding: isMobile ? "14px 16px" : "20px 24px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <div style={{ fontSize: 13, color: "#777" }}>
-              {loading ? "Se caută..." : <><span style={{ color: "#f0ede8", fontWeight: 600 }}>{results.length}</span> rezultate{query ? ` pentru "${query}"` : ""}</>}
+              {loading ? "Se caută..." : (
+                <><span style={{ color: "#f0ede8", fontWeight: 600 }}>{results.length}</span> rezultate{query ? ` pentru "${query}"` : ""}</>
+              )}
             </div>
             {!isMobile && (
               <select style={{ padding: "8px 14px", background: "#161616", border: "1px solid #262626", borderRadius: 8, color: "#f0ede8", fontSize: 13, outline: "none", fontFamily: "var(--font-outfit)" }}>
@@ -212,11 +307,11 @@ export default function SearchPage() {
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14 }}>
               {results.map((r: any) => (
-                <Link key={r.id} href={`/p/${r.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link key={r.id} href={`/p/${r.slug || r.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s" }}>
                     <div style={{ height: isMobile ? 70 : 100, background: "linear-gradient(135deg,#1a1408,#2a2010)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {r.avatar ? (
-                        <img src={r.avatar} style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", objectFit: "cover", border: "3px solid rgba(201,169,110,0.4)" }} />
+                      {r.avatarUrl ? (
+                        <img src={r.avatarUrl} style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", objectFit: "cover", border: "3px solid rgba(201,169,110,0.4)" }} />
                       ) : (
                         <div style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#fff", border: "3px solid rgba(201,169,110,0.4)" }}>
                           {r.name?.split(" ").map((n: string) => n[0]).join("").slice(0,2).toUpperCase()}
@@ -231,16 +326,18 @@ export default function SearchPage() {
                         <div style={{ fontSize: 14, fontWeight: 700 }}>{r.name}</div>
                         <div style={{ fontSize: 13, fontWeight: 700, color: "#c9a96e" }}>★ {r.rating || "—"}</div>
                       </div>
-                      <div style={{ fontSize: 11, color: "#777", marginBottom: 8 }}>📍 {r.oras || r.city || "România"}</div>
+                      <div style={{ fontSize: 11, color: "#777", marginBottom: 8 }}>📍 {r.oras || "România"}</div>
                       <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 8 }}>
-                        {(r.services || []).slice(0,2).map((s: any) => (
-                          <div key={s.id} style={{ padding: "3px 8px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 5, fontSize: 10, color: "#c9a96e" }}>{s.name}</div>
+                        {(r.services || []).slice(0,2).map((s: any, i: number) => (
+                          <div key={i} style={{ padding: "3px 8px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 5, fontSize: 10, color: "#c9a96e" }}>{s.name}</div>
                         ))}
-                        {(r.services || []).length > 2 && <div style={{ padding: "3px 8px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 5, fontSize: 10, color: "#777" }}>+{r.services.length-2}</div>}
+                        {(r.services || []).length > 2 && (
+                          <div style={{ padding: "3px 8px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 5, fontSize: 10, color: "#777" }}>+{r.services.length-2}</div>
+                        )}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid #262626" }}>
                         <div style={{ fontSize: 11, color: "#4caf82", fontWeight: 600 }}>● Disponibil</div>
-                        <div style={{ fontSize: 12, color: "#777" }}>de la <span style={{ fontWeight: 700, color: "#c9a96e" }}>{r.minPrice ? `${r.minPrice} lei` : "—"}</span></div>
+                        <div style={{ fontSize: 12, color: "#777" }}>de la <span style={{ fontWeight: 700, color: "#c9a96e" }}>{r.services?.[0]?.price ? `${r.services[0].price} lei` : "—"}</span></div>
                       </div>
                     </div>
                   </div>
