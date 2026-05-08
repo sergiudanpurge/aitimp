@@ -371,3 +371,23 @@ body::after {
 .bottom-nav-icon {
   font-size: 20px;
 }
+/* ===== MAX WIDTH GLOBAL ===== */
+.page-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 24px;
+}
+
+.dash-content-wrapper {
+  max-width: 1400px;
+  width: 100%;
+}
+
+/* Chat fix mobile */
+@media (max-width: 768px) {
+  .chat-container {
+    height: calc(100vh - 60px) !important;
+    overflow: hidden !important;
+  }
+}

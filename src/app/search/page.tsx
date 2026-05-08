@@ -1,5 +1,7 @@
 "use client";
 
+import Navbar from "@/components/Navbar";
+
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -155,17 +157,7 @@ setResults(data.results || []);
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#f0ede8", fontFamily: "var(--font-outfit)" }}>
-
-      {/* NAVBAR */}
-      <div style={{ height: 60, background: "rgba(10,10,10,0.95)", borderBottom: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 16px" : "0 32px", position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(12px)" }}>
-        <Link href="/" style={{ fontFamily: "var(--font-playfair)", fontSize: 18, color: "#c9a96e", textDecoration: "none" }}>aitimp.ro</Link>
-        <div style={{ display: "flex", gap: 8 }}>
-          {!isMobile && <Link href="/login" style={{ padding: "8px 18px", background: "transparent", border: "1px solid #262626", borderRadius: 8, fontSize: 13, color: "#777", textDecoration: "none" }}>Intră în cont</Link>}
-          <Link href="/register" style={{ padding: "8px 18px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#0a0a0a", textDecoration: "none" }}>
-            {isMobile ? "Cont" : "Înregistrare"}
-          </Link>
-        </div>
-      </div>
+      <Navbar />
 
       {/* SEARCH HERO */}
       <div style={{ background: "linear-gradient(135deg,#0f0d09,#1a1408,#0f0d09)", padding: isMobile ? "20px 16px 16px" : "40px 32px 28px", borderBottom: "1px solid #262626" }}>

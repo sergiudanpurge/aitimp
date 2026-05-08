@@ -101,7 +101,7 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        <div style={{ padding: isMobile ? 16 : 28, display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ padding: isMobile ? 16 : 28, display: "flex", flexDirection: "column", gap: 20, maxWidth: 1200, width: "100%", margin: "0 auto" }}>
 
           {/* MODE TOGGLE */}
           <div style={{ display: "flex", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: 4, gap: 4 }}>

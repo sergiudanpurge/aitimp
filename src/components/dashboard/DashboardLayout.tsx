@@ -15,7 +15,6 @@ export default function DashboardLayout({ children, title, actions }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => {
@@ -39,41 +38,42 @@ export default function DashboardLayout({ children, title, actions }: Props) {
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#0a0a0a", color: "#f0ede8", fontFamily: "var(--font-outfit)" }}>
+    <div style={{ minHeight: "100vh", background: "#050505", color: "#f0ede8", fontFamily: "var(--font-outfit)" }}>
 
-{/* Sidebar — ascuns pe mobile via CSS */}
-      <div className="dashboard-sidebar" style={{
-        width: 220, background: "#111", borderRight: "1px solid #262626",
-        position: "fixed", top: 0, left: 0, bottom: 0, zIndex: 50,
-        display: "flex", flexDirection: "column"
-      }}>
-        <Sidebar user={user} companyName={user.accountType === "company" ? user.name : undefined} />
-      </div>
+      {/* WRAPPER CENTRAT */}
+      <div style={{ maxWidth: 1600, margin: "0 auto", minHeight: "100vh", display: "flex", background: "#0a0a0a", boxShadow: "0 0 120px rgba(0,0,0,0.8)" }}>
 
-      <div className="dashboard-main" style={{ marginLeft: 220, flex: 1, display: "flex", flexDirection: "column" }}>
+        {/* SIDEBAR */}
+        <div className="dashboard-sidebar" style={{ width: 220, background: "#111", borderRight: "1px solid #262626", flexShrink: 0, position: "sticky", top: 0, height: "100vh", overflowY: "auto" }}>
+          <Sidebar user={user} companyName={user.accountType === "company" ? user.name : undefined} />
+        </div>
 
-        {/* Topbar */}
-        <div style={{ height: 58, background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 40 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Link href="/" style={{ fontSize: 18, textDecoration: "none", color: "#777" }} title="Acasă">🏠</Link>
-            <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 600 }}>{title}</div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {actions}
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: "#161616", border: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, cursor: "pointer", position: "relative" }}>
-              🔔
-              <div style={{ position: "absolute", top: 6, right: 7, width: 7, height: 7, borderRadius: "50%", background: "#c9a96e", border: "1.5px solid #0a0a0a" }} />
+        {/* MAIN */}
+        <div className="dashboard-main" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+
+          {/* TOPBAR */}
+          <div style={{ height: 58, background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 40 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <Link href="/" style={{ fontSize: 18, textDecoration: "none", color: "#777" }} title="Acasă">🏠</Link>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 600 }}>{title}</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {actions}
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: "#161616", border: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, cursor: "pointer", position: "relative" }}>
+                🔔
+                <div style={{ position: "absolute", top: 6, right: 7, width: 7, height: 7, borderRadius: "50%", background: "#c9a96e", border: "1.5px solid #0a0a0a" }} />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Content */}
-        <div style={{ padding: 28, display: "flex", flexDirection: "column", gap: 22, maxWidth: 1400, width: "100%" }}>
-          {children}
+          {/* CONTENT */}
+          <div style={{ padding: 28, display: "flex", flexDirection: "column", gap: 22, paddingBottom: 88 }}>
+            {children}
+          </div>
         </div>
       </div>
 
-      {/* Bottom Navigation Mobile */}
+      {/* BOTTOM NAV MOBILE */}
       <div className="bottom-nav-mobile">
         {bottomNavItems.map(item => (
           <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
@@ -84,7 +84,6 @@ export default function DashboardLayout({ children, title, actions }: Props) {
           </Link>
         ))}
       </div>
-
     </div>
   );
 }

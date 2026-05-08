@@ -3,7 +3,7 @@ import ServicesSection from "@/components/home/ServicesSection";
 import HowItWorks from "@/components/home/HowItWorks";
 import ReviewsSection from "@/components/home/ReviewsSection";
 import { CtaSection, Footer } from "@/components/home/CtaFooter";
-import Navbar from "@/components/home/Navbar";
+import Navbar from "@/components/Navbar";
 
 export default function HomePage() {
   return (

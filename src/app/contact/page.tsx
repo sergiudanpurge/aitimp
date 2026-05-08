@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useResponsive } from "@/hooks/useResponsive";
+import Navbar from "@/components/Navbar";
 
 export default function ContactPage() {
   const { isMobile } = useResponsive();
@@ -21,29 +22,17 @@ export default function ContactPage() {
     boxSizing: "border-box" as const,
   };
 
-  const submit = async (e: any) => {
+  const submit = (e: any) => {
     e.preventDefault();
     setSent(true);
   };
 
   return (
     <div style={{ minHeight: "100vh", background: s.bg, color: "#f0ede8", fontFamily: "var(--font-outfit)" }}>
-
-      {/* NAVBAR */}
-      <div style={{ height: 60, background: "rgba(10,10,10,0.95)", borderBottom: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 16px" : "0 32px", position: "sticky", top: 0, zIndex: 50, backdropFilter: "blur(12px)" }}>
-        <Link href="/" style={{ fontFamily: "var(--font-playfair)", fontSize: 18, color: s.accent, textDecoration: "none" }}>aitimp.ro</Link>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <Link href="/" style={{ fontSize: 18, textDecoration: "none" }} title="Acasă">🏠</Link>
-          {!isMobile && <Link href="/login" style={{ padding: "8px 18px", background: "transparent", border: `1px solid ${s.border}`, borderRadius: 8, fontSize: 13, color: s.muted, textDecoration: "none" }}>Intră în cont</Link>}
-          <Link href="/register" style={{ padding: "8px 18px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#0a0a0a", textDecoration: "none" }}>
-            {isMobile ? "Cont" : "Înregistrare"}
-          </Link>
-        </div>
-      </div>
+      <Navbar />
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "24px 16px" : "48px 32px" }}>
 
-        {/* HEADER */}
         <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: s.accent, marginBottom: 12 }}>— Contact —</div>
           <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 28 : 40, fontWeight: 700, marginBottom: 14 }}>Hai să vorbim</div>
@@ -54,7 +43,6 @@ export default function ContactPage() {
 
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.4fr", gap: 24 }}>
 
-          {/* INFO */}
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {[
               { icon: "📧", label: "Email", val: "contact@aitimp.ro" },
@@ -70,14 +58,13 @@ export default function ContactPage() {
               </div>
             ))}
 
-            {/* FAQ */}
             <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: 20, marginTop: 4 }}>
               <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 700, marginBottom: 14 }}>Întrebări frecvente</div>
               {[
                 { q: "Cum fac o rezervare?", a: "Caută un prestator, selectează serviciul și alege data dorită." },
                 { q: "Este gratuit să mă înregistrez?", a: "Da! Înregistrarea este complet gratuită pentru toți utilizatorii." },
                 { q: "Pot anula o rezervare?", a: "Da, poți anula oricând din profilul tău. Ambele părți vor fi notificate." },
-                { q: "Cum devin prestator?", a: "Înregistrează-te ca persoană fizică sau companie și activează modul Prestator." },
+                { q: "Cum devin prestator?", a: "Înregistrează-te și activează modul Prestator din profil." },
               ].map((item, i) => (
                 <div key={i} style={{ padding: "10px 0", borderBottom: i < 3 ? `1px solid ${s.surface2}` : "none" }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: s.accent, marginBottom: 4 }}>{item.q}</div>
@@ -87,7 +74,6 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* FORM */}
           <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 20 : 28 }}>
             {sent ? (
               <div style={{ textAlign: "center", padding: "40px 20px" }}>
@@ -105,27 +91,23 @@ export default function ContactPage() {
                   <div>
                     <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Nume</div>
                     <input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Numele tău" style={inputStyle}
-                      onFocus={e => (e.currentTarget.style.borderColor = s.accent)}
-                      onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                      onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
                   </div>
                   <div>
                     <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Email</div>
                     <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="email@exemplu.ro" style={inputStyle}
-                      onFocus={e => (e.currentTarget.style.borderColor = s.accent)}
-                      onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                      onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
                   </div>
                 </div>
                 <div>
                   <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Subiect</div>
                   <input required value={form.subject} onChange={e => setForm({...form, subject: e.target.value})} placeholder="Despre ce este vorba?" style={inputStyle}
-                    onFocus={e => (e.currentTarget.style.borderColor = s.accent)}
-                    onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                    onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
                 </div>
                 <div>
                   <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 7 }}>Mesaj</div>
                   <textarea required value={form.message} onChange={e => setForm({...form, message: e.target.value})} placeholder="Descrie problema sau întrebarea ta..." rows={5} style={{ ...inputStyle, resize: "vertical" }}
-                    onFocus={e => (e.currentTarget.style.borderColor = s.accent)}
-                    onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                    onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
                 </div>
                 <button type="submit" style={{ padding: "13px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
                   Trimite mesajul →
