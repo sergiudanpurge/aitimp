@@ -1,5 +1,5 @@
 "use client";
-
+import { useResponsive } from "@/hooks/useResponsive";
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
@@ -15,7 +15,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState("");
   const [activeTab, setActiveTab] = useState("general");
-
+const { isMobile } = useResponsive();
  useEffect(() => {
     fetch("/api/auth/me").then(r => r.json()).then(d => {
       if (d.user) {
@@ -93,10 +93,10 @@ export default function ProfilePage() {
         Salvează
       </button>
     }>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, alignItems: "start" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 2fr", gap: 20, alignItems: "start" }}>
 
         {/* Card preview */}
-        <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", position: "sticky", top: 80 }}>
+        <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", position: isMobile ? "static" : "sticky", top: 80 }}>
           <div style={{ height: 80, background: "linear-gradient(135deg,#1a1408,#2a2010)" }} />
           <div style={{ padding: "0 20px 20px", marginTop: -28 }}>
             <div style={{ width: 56, height: 56, borderRadius: "50%", border: "3px solid #161616", overflow: "hidden", background: "#262626", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
@@ -146,7 +146,7 @@ export default function ProfilePage() {
                   <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="SC Exemplu SRL" style={inputStyle}
                     onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 2fr", gap: 14 }}>
                   <div>
                     <label style={labelStyle}>CUI</label>
                     <input value={form.cui} onChange={e => setForm({ ...form, cui: e.target.value })} placeholder="RO12345678" style={inputStyle}

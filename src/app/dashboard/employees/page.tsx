@@ -43,8 +43,8 @@ export default function EmployeesPage() {
       <button style={btnPrimary} onClick={() => setShowModal(true)}>＋ Invită angajat</button>
     }>
       {/* Cards angajati */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-        {employees.map((emp: any, i) => (
+<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>       
+   {employees.map((emp: any, i) => (
           <div key={i} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s", cursor: "pointer" }}
             onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.3)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; (e.currentTarget as HTMLDivElement).style.transform = "none"; }}>
