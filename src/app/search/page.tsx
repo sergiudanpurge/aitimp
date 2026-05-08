@@ -48,8 +48,7 @@ export default function SearchPage() {
     if (filters.type !== "toate")   params.set("tip", filters.type);
     const res = await fetch(`/api/search?${params.toString()}`);
     const data = await res.json();
-    setResults(data.providers || []);
-    setLoading(false);
+setResults(data.results || []);
   }, [query, judet, oras, pretMin, pretMax, filters]);
 
   const handleSearch = () => {
@@ -310,13 +309,13 @@ export default function SearchPage() {
                 <Link key={r.id} href={`/p/${r.slug || r.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s" }}>
                     <div style={{ height: isMobile ? 70 : 100, background: "linear-gradient(135deg,#1a1408,#2a2010)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {r.avatarUrl ? (
-                        <img src={r.avatarUrl} style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", objectFit: "cover", border: "3px solid rgba(201,169,110,0.4)" }} />
-                      ) : (
-                        <div style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#fff", border: "3px solid rgba(201,169,110,0.4)" }}>
-                          {r.name?.split(" ").map((n: string) => n[0]).join("").slice(0,2).toUpperCase()}
-                        </div>
-                      )}
+{r.avatar ? (
+  <img src={r.avatar} style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", objectFit: "cover", border: "3px solid rgba(201,169,110,0.4)" }} />
+) : (
+  <div style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#fff", border: "3px solid rgba(201,169,110,0.4)" }}>
+    {r.name?.split(" ").map((n: string) => n[0]).join("").slice(0,2).toUpperCase()}
+  </div>
+)}
                       <div style={{ position: "absolute", top: 8, left: 8, padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700, background: r.accountType==="company"?"rgba(90,141,224,0.2)":"rgba(201,169,110,0.2)", color: r.accountType==="company"?"#5a8de0":"#c9a96e", border: `1px solid ${r.accountType==="company"?"rgba(90,141,224,0.3)":"rgba(201,169,110,0.3)"}` }}>
                         {r.accountType==="company"?"🏢 Firmă":"👤 Persoană"}
                       </div>
