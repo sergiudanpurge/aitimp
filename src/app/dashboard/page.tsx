@@ -1,4 +1,5 @@
 "use client";
+import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";

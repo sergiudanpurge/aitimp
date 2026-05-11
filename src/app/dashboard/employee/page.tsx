@@ -1,4 +1,5 @@
 "use client";
+import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -57,6 +58,7 @@ export default function EmployeeDashboard() {
               { id: "dashboard", icon: "⚡", label: "Dashboard" },
               { id: "services", icon: "✂️", label: "Serviciile mele" },
               { id: "calendar", icon: "🗓", label: "Calendarul meu" },
+              { id: "financiar", icon: "📊", label: "Situație financiară" },
               { id: "bookings", icon: "📋", label: "Cereri primite" },
             ].map(item => (
               <button key={item.id} onClick={() => setActiveNav(item.id)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, fontSize: 13, fontWeight: 500, color: activeNav === item.id ? s.accent : s.muted, background: activeNav === item.id ? "rgba(201,169,110,0.1)" : "transparent", border: activeNav === item.id ? `1px solid rgba(201,169,110,0.2)` : "1px solid transparent", cursor: "pointer", fontFamily: "var(--font-outfit)", textAlign: "left" as const }}>
@@ -229,6 +231,10 @@ export default function EmployeeDashboard() {
                 </div>
               ))}
             </div>
+          )}
+
+          {activeNav === "financiar" && (
+            <FinancialDashboard bookings={bookings} services={services} />
           )}
 
           {/* PLACEHOLDER PAGES */}

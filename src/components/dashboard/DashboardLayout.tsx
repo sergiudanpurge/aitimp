@@ -9,9 +9,10 @@ interface Props {
   children: React.ReactNode;
   title: string;
   actions?: React.ReactNode;
+  noPadding?: boolean;
 }
 
-export default function DashboardLayout({ children, title, actions }: Props) {
+export default function DashboardLayout({ children, title, actions, noPadding }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
@@ -38,21 +39,21 @@ export default function DashboardLayout({ children, title, actions }: Props) {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#050505", color: "#f0ede8", fontFamily: "var(--font-outfit)" }}>
+    <div style={{ height: "100vh", overflow: "hidden", background: "#050505", color: "#f0ede8", fontFamily: "var(--font-outfit)", display: "flex", flexDirection: "column" }}>
 
       {/* WRAPPER CENTRAT */}
-      <div style={{ maxWidth: 1600, margin: "0 auto", minHeight: "100vh", display: "flex", background: "#0a0a0a", boxShadow: "0 0 120px rgba(0,0,0,0.8)" }}>
+      <div style={{ maxWidth: 1600, margin: "0 auto", flex: 1, display: "flex", background: "#0a0a0a", boxShadow: "0 0 120px rgba(0,0,0,0.8)", width: "100%", overflow: "hidden" }}>
 
         {/* SIDEBAR */}
-        <div className="dashboard-sidebar" style={{ width: 220, background: "#111", borderRight: "1px solid #262626", flexShrink: 0, position: "sticky", top: 0, height: "100vh", overflowY: "auto" }}>
+        <div className="dashboard-sidebar" style={{ width: 220, background: "#111", borderRight: "1px solid #262626", flexShrink: 0, height: "100vh", overflowY: "auto" }}>
           <Sidebar user={user} companyName={user.accountType === "company" ? user.name : undefined} />
         </div>
 
         {/* MAIN */}
-        <div className="dashboard-main" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <div className="dashboard-main" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
 
           {/* TOPBAR */}
-          <div style={{ height: 58, background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", position: "sticky", top: 0, zIndex: 40 }}>
+          <div style={{ height: 58, flexShrink: 0, background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid #262626", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", zIndex: 40 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <Link href="/" style={{ fontSize: 18, textDecoration: "none", color: "#777" }} title="Acasă">🏠</Link>
               <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 600 }}>{title}</div>
@@ -67,7 +68,7 @@ export default function DashboardLayout({ children, title, actions }: Props) {
           </div>
 
           {/* CONTENT */}
-          <div style={{ padding: 28, display: "flex", flexDirection: "column", gap: 22, paddingBottom: 88 }}>
+          <div style={{ flex: 1, overflow: noPadding ? "hidden" : "auto", padding: noPadding ? 0 : 28, display: "flex", flexDirection: "column", gap: noPadding ? 0 : 22, paddingBottom: noPadding ? 0 : 88 }}>
             {children}
           </div>
         </div>
