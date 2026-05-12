@@ -134,49 +134,49 @@ export default function ServicesPage() {
         </div>
       )}
 
-<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>        
-  {services.map((s: any) => (
-          <div key={s.id} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s" }}
-            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.3)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; (e.currentTarget as HTMLDivElement).style.transform = "none"; }}>
-            <div style={{ height: 110, background: "linear-gradient(135deg,#1a1408,#2a2010)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>
-              {s.icon || "✂️"}
-              <div style={{ position: "absolute", top: 8, left: 8, fontSize: 10, padding: "3px 8px", borderRadius: 6, fontWeight: 700, background: "rgba(76,175,130,0.85)", color: "#fff" }}>● Activ</div>
-              <div style={{ position: "absolute", top: 8, right: 8, fontSize: 10, padding: "3px 8px", borderRadius: 6, background: "rgba(0,0,0,0.6)", color: "#fff", border: "1px solid rgba(255,255,255,0.1)" }}>0 foto</div>
+<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+  {services.map((s: any, idx: number) => {
+    const accentColors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
+    const accentColor = accentColors[idx % accentColors.length];
+    return (
+      <div key={s.id} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 12, overflow: "hidden", display: "flex", transition: "border-color .2s" }}
+        onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.4)"}
+        onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"}>
+        <div style={{ width: 4, background: accentColor, flexShrink: 0 }} />
+        <div style={{ flex: 1, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#f0ede8", marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
+              <div style={{ fontSize: 12, color: "#777" }}>{selectedEmp?.name}</div>
             </div>
-            <div style={{ padding: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 9, background: "rgba(201,169,110,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0 }}>{s.icon || "✂️"}</div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700 }}>{s.name}</div>
-                  <div style={{ fontSize: 11, color: "#777", marginTop: 1 }}>{selectedEmp?.name}</div>
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
-                <div style={{ background: "#1e1e1e", borderRadius: 8, padding: "9px 11px" }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#e8c987" }}>{s.price} lei</div>
-                  <div style={{ fontSize: 10, color: "#777", marginTop: 2 }}>Tarif</div>
-                </div>
-                <div style={{ background: "#1e1e1e", borderRadius: 8, padding: "9px 11px" }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#e8c987" }}>{s.duration * 30} min</div>
-                  <div style={{ fontSize: 10, color: "#777", marginTop: 2 }}>Durata</div>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 7 }}>
-                <button onClick={() => openEdit(s)} style={{ flex: 1, padding: 8, borderRadius: 8, background: "#1e1e1e", color: "#f0ede8", border: "1px solid #262626", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✏️ Editează</button>
-                <button onClick={() => deleteService(s.id)} style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(224,90,90,0.1)", color: "#e05a5a", border: "1px solid rgba(224,90,90,0.2)", fontSize: 11, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>🗑</button>
-              </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#c9a96e" }}>{s.price} lei</div>
+              <div style={{ fontSize: 11, color: "#777" }}>{s.duration * 30} min · {s.duration} {s.duration === 1 ? "slot" : "sloturi"}</div>
             </div>
           </div>
-        ))}
-
-        <div onClick={() => setShowModal(true)} style={{ background: "#161616", border: "1px dashed #262626", borderRadius: 14, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 12, minHeight: 280, cursor: "pointer", opacity: 0.5, transition: "all 0.2s" }}
-          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.85"; (e.currentTarget as HTMLDivElement).style.borderColor = "#c9a96e"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.5"; (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; }}>
-          <div style={{ fontSize: 32 }}>+</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#777" }}>Adaugă serviciu nou</div>
+          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+            <div style={{ padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(76,175,130,0.15)", color: "#4caf82" }}>● Activ</div>
+            <div style={{ padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(201,169,110,0.1)", color: "#c9a96e" }}>0 rezervări</div>
+            {s.description && <div style={{ padding: "3px 10px", borderRadius: 5, fontSize: 10, color: "#777", background: "#1e1e1e", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>{s.description}</div>}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 7 }}>
+              <button onClick={() => openEdit(s)} style={{ padding: "7px 14px", borderRadius: 7, background: "#1e1e1e", color: "#f0ede8", border: "1px solid #262626", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Editează</button>
+              <button onClick={() => deleteService(s.id)} style={{ padding: "7px 10px", borderRadius: 7, background: "rgba(224,90,90,0.08)", color: "#e05a5a", border: "1px solid rgba(224,90,90,0.2)", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Șterge</button>
+            </div>
+            <div style={{ fontSize: 11, color: "#444" }}>Ultima rezervare: —</div>
+          </div>
         </div>
       </div>
+    );
+  })}
+  <div onClick={() => setShowModal(true)} style={{ background: "#161616", border: "1px dashed #262626", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 56, cursor: "pointer", opacity: 0.5, transition: "all 0.2s" }}
+    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.85"; (e.currentTarget as HTMLDivElement).style.borderColor = "#c9a96e"; }}
+    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.opacity = "0.5"; (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; }}>
+    <div style={{ fontSize: 20 }}>+</div>
+    <div style={{ fontSize: 13, fontWeight: 600, color: "#777" }}>Adaugă serviciu nou</div>
+  </div>
+</div>
 
       {/* MODAL ADAUGA */}
       {showModal && (

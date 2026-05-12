@@ -96,15 +96,21 @@ export default function UserProfilePage() {
   ];
 
   const getSectionTitle = () => {
-    const titles: any = { profil: "Profilul meu", rezervari: "Rezervările mele", mesaje: "Mesaje", "recenzii-date": "Recenzii date", servicii: "Serviciile mele", calendar: "Calendarul meu", cereri: "Cereri primite", "recenzii-primite": "Recenzii primite", setari: "Setări" };
+    const titles: any = {
+      profil: "Profilul meu", rezervari: "Rezervările mele", mesaje: "Mesaje",
+      "recenzii-date": "Recenzii date", servicii: "Serviciile mele",
+      calendar: "Calendarul meu", cereri: "Cereri primite",
+      "recenzii-primite": "Recenzii primite", setari: "Setări", financiar: "Situație financiară",
+    };
     return titles[activeSection] || "Dashboard";
   };
 
   if (!user) return <div style={{ minHeight: "100vh", background: s.bg }} />;
+
   return (
     <div style={{ minHeight: "100vh", background: s.bg, color: "#f0ede8", fontFamily: "var(--font-outfit)", display: "flex" }}>
 
-      {/* SIDEBAR — doar desktop */}
+      {/* SIDEBAR */}
       {!isMobile && (
         <div style={{ width: 220, background: "#111", borderRight: `1px solid ${s.border}`, position: "fixed", top: 0, left: 0, bottom: 0, display: "flex", flexDirection: "column", zIndex: 50 }}>
           <div style={{ padding: "24px 20px 20px", borderBottom: `1px solid ${s.border}` }}>
@@ -153,8 +159,6 @@ export default function UserProfilePage() {
         {/* ===== PROFIL ===== */}
           {activeSection === "profil" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-              {/* HEADER PROFIL */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden" }}>
                 <div style={{ height: 70, background: "linear-gradient(135deg,#1a1408,#2a2010)" }} />
                 <div style={{ padding: "0 20px 20px", marginTop: -28, display: "flex", alignItems: "flex-end", gap: 14, flexWrap: "wrap" }}>
@@ -172,15 +176,13 @@ export default function UserProfilePage() {
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: `1px solid ${s.border}` }}>
                   {[[bookings.length.toString(),"Rezervări"],[services.length.toString(),"Servicii"],["4.94","Rating"],["0","Recenzii"]].map(([val,label],i) => (
-                    <div key={i} style={{ padding: isMobile ? "10px 8px" : "14px 16px", borderRight: i < 3 ? `1px solid ${s.border}` : "none", textAlign: "center", cursor: "pointer" }} onClick={() => setActiveSection(i === 0 ? "rezervari" : i === 1 ? "servicii" : "recenzii-primite")}>
+                    <div key={i} onClick={() => setActiveSection(i === 0 ? "rezervari" : i === 1 ? "servicii" : "recenzii-primite")} style={{ padding: isMobile ? "10px 8px" : "14px 16px", borderRight: i < 3 ? `1px solid ${s.border}` : "none", textAlign: "center", cursor: "pointer" }}>
                       <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 16 : 20, fontWeight: 700, color: s.accent }}>{val}</div>
                       <div style={{ fontSize: 10, color: s.muted, marginTop: 2 }}>{label}</div>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* STATS CLIENT */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.blue }}>👤 Statistici Client</div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: 10 }}>
@@ -192,8 +194,6 @@ export default function UserProfilePage() {
                   ))}
                 </div>
               </div>
-
-              {/* STATS PRESTATOR */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.accent }}>🔧 Statistici Prestator</div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: 10 }}>
@@ -201,7 +201,7 @@ export default function UserProfilePage() {
                     [rezervariFinalizate.toString(),"Finalizate luna curentă",s.green,"vs luna trecută: 0"],
                     [inAsteptareClient.toString(),"În așteptare",s.yellow,"necesită aprobare"],
                     [`${sumaIncasata} lei`,"Încasat luna curentă",s.accent,"vs luna trecută: 0 lei"],
-                    ["0","Recenzii primite","#5a8de0","rating mediu: —"],
+                    ["0","Recenzii primite",s.blue,"rating mediu: —"],
                   ].map(([val,label,color,sub]) => (
                     <div key={label} style={{ background: s.surface2, borderRadius: 10, padding: "12px 14px" }}>
                       <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 18 : 22, fontWeight: 700, color }}>{val}</div>
@@ -211,8 +211,6 @@ export default function UserProfilePage() {
                   ))}
                 </div>
               </div>
-
-              {/* REZERVARI RECENTE */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                   <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Rezervări recente</div>
@@ -236,6 +234,7 @@ export default function UserProfilePage() {
               </div>
             </div>
           )}
+
           {/* ===== REZERVARI ===== */}
           {activeSection === "rezervari" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -303,33 +302,47 @@ export default function UserProfilePage() {
               </div>
               {services.length === 0 ? (
                 <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: "40px 20px", textAlign: "center", color: s.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>✂️</div>
                   <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#f0ede8", marginBottom: 8 }}>Niciun serviciu</div>
-                  <div style={{ fontSize: 13 }}>Adaugă primul serviciu pentru a fi vizibil în căutări</div>
+                  <div style={{ fontSize: 13, marginBottom: 20 }}>Adaugă primul serviciu pentru a fi vizibil în căutări</div>
+                  <button style={{ padding: "10px 24px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>+ Adaugă serviciu</button>
                 </div>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
-                  {services.map((svc: any, i: number) => (
-                    <div key={i} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden" }}>
-                      <div style={{ height: 80, background: "linear-gradient(135deg,#1a1408,#2a2010)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36 }}>{svc.icon || "✂️"}</div>
-                      <div style={{ padding: 14 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>{svc.name}</div>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
-                          <div style={{ background: s.surface2, borderRadius: 8, padding: "8px 10px" }}><div style={{ fontSize: 14, fontWeight: 700, color: s.accent }}>{svc.price} lei</div><div style={{ fontSize: 10, color: s.muted }}>Tarif</div></div>
-                          <div style={{ background: s.surface2, borderRadius: 8, padding: "8px 10px" }}><div style={{ fontSize: 14, fontWeight: 700, color: s.accent }}>{svc.duration * 30} min</div><div style={{ fontSize: 10, color: s.muted }}>Durată</div></div>
-                        </div>
-                        <div style={{ display: "flex", gap: 8 }}>
-                          <button style={{ flex: 1, padding: 8, borderRadius: 8, background: s.surface2, color: "#f0ede8", border: `1px solid ${s.border}`, fontSize: 12, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✏️ Editează</button>
-                          <button style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(224,90,90,0.1)", color: s.red, border: "1px solid rgba(224,90,90,0.2)", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>🗑</button>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {services.map((svc: any, idx: number) => {
+                    const colors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
+                    const accent = colors[idx % colors.length];
+                    return (
+                      <div key={svc.id} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, overflow: "hidden", display: "flex", transition: "border-color .2s" }}
+                        onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.4)"}
+                        onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = s.border}>
+                        <div style={{ width: 4, background: accent, flexShrink: 0 }} />
+                        <div style={{ flex: 1, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.name}</div>
+                              {svc.description && <div style={{ fontSize: 12, color: s.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.description}</div>}
+                            </div>
+                            <div style={{ textAlign: "right", flexShrink: 0 }}>
+                              <div style={{ fontSize: 16, fontWeight: 700, color: s.accent }}>{svc.price} lei</div>
+                              <div style={{ fontSize: 11, color: s.muted }}>{svc.duration * 30} min</div>
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                            <div style={{ padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(76,175,130,0.15)", color: s.green }}>● Activ</div>
+                            <div style={{ padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(201,169,110,0.1)", color: s.accent }}>0 rezervări</div>
+                          </div>
+                          <div style={{ display: "flex", gap: 7 }}>
+                            <button style={{ padding: "7px 14px", borderRadius: 7, background: s.surface2, color: "#f0ede8", border: `1px solid ${s.border}`, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Editează</button>
+                            <button style={{ padding: "7px 10px", borderRadius: 7, background: "rgba(224,90,90,0.08)", color: s.red, border: "1px solid rgba(224,90,90,0.2)", fontSize: 12, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Șterge</button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
           )}
-
           {/* ===== CALENDAR ===== */}
           {activeSection === "calendar" && (
             <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: "40px 20px", textAlign: "center", color: s.muted }}>
@@ -362,6 +375,7 @@ export default function UserProfilePage() {
               <div style={{ fontSize: 13 }}>Recenziile de la clienți apar după finalizarea serviciilor</div>
             </div>
           )}
+
           {/* ===== FINANCIAR ===== */}
           {activeSection === "financiar" && (
             <FinancialDashboard bookings={bookings} services={services} />
@@ -370,7 +384,6 @@ export default function UserProfilePage() {
           {/* ===== SETARI ===== */}
           {activeSection === "setari" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 640 }}>
-
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 18 : 24 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Schimbă parola</div>
                 <div style={{ fontSize: 13, color: s.muted, marginBottom: 18 }}>Minim 8 caractere</div>
@@ -389,7 +402,6 @@ export default function UserProfilePage() {
                   {loading ? "Se schimbă..." : "Schimbă parola"}
                 </button>
               </div>
-
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 18 : 24 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 600, marginBottom: 18 }}>Notificări email</div>
                 {[
@@ -404,7 +416,6 @@ export default function UserProfilePage() {
                   </div>
                 ))}
               </div>
-
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 18 : 24 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Cont</div>
                 <div style={{ fontSize: 13, color: s.muted, marginBottom: 16 }}>Gestionează sesiunea</div>
@@ -413,7 +424,6 @@ export default function UserProfilePage() {
                   Deconectare
                 </button>
               </div>
-
               <div style={{ background: s.surface, border: "1px solid rgba(224,90,90,0.2)", borderRadius: 14, padding: isMobile ? 18 : 24 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 600, marginBottom: 4, color: s.red }}>Zonă periculoasă</div>
                 <div style={{ fontSize: 13, color: s.muted, marginBottom: 16 }}>Acțiuni ireversibile</div>
