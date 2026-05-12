@@ -6,6 +6,16 @@ import { useResponsive } from "@/hooks/useResponsive";
 import Link from "next/link";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
 
+const JUDETE = ["Alba","Arad","Argeș","Bacău","Bihor","Bistrița-Năsăud","Botoșani","Brăila","Brașov","București","Buzău","Călărași","Caraș-Severin","Cluj","Constanța","Covasna","Dâmbovița","Dolj","Galați","Giurgiu","Gorj","Harghita","Hunedoara","Ialomița","Iași","Ilfov","Maramureș","Mehedinți","Mureș","Neamț","Olt","Prahova","Sălaj","Satu Mare","Sibiu","Suceava","Teleorman","Timiș","Tulcea","Vâlcea","Vaslui","Vrancea"];
+const SOCIAL_PLATFORMS = [
+  { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/username" },
+  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/username" },
+  { key: "tiktok", label: "TikTok", placeholder: "https://tiktok.com/@username" },
+  { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/username" },
+  { key: "website", label: "Website", placeholder: "https://website.ro" },
+  { key: "youtube", label: "YouTube", placeholder: "https://youtube.com/@channel" },
+];
+
 export default function UserProfilePage() {
   const router = useRouter();
   const { isMobile } = useResponsive();
@@ -19,6 +29,9 @@ export default function UserProfilePage() {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [profileForm, setProfileForm] = useState({ name: "", phone: "", bio: "", judet: "", oras: "", address: "", facebook: "", instagram: "", tiktok: "", linkedin: "", website: "", youtube: "" });
+  const [profileMsg, setProfileMsg] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const s = {
     bg: "#0a0a0a", surface: "#161616", surface2: "#1e1e1e",
@@ -74,6 +87,7 @@ export default function UserProfilePage() {
   const sidebarSections = [
     { section: "client-header" },
     { id: "profil", icon: "🏠", label: "Profilul meu" },
+    { id: "editare-profil", icon: "✏️", label: "Editează profilul" },
     { id: "rezervari", icon: "📅", label: "Rezervările mele" },
     { id: "mesaje", icon: "💬", label: "Mesaje" },
     { id: "recenzii-date", icon: "⭐", label: "Recenzii date" },
@@ -146,6 +160,9 @@ export default function UserProfilePage() {
         <div style={{ height: 58, background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 16px" : "0 28px", position: "sticky", top: 0, zIndex: 40 }}>
           <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 16 : 18, fontWeight: 600 }}>{getSectionTitle()}</div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button onClick={() => setActiveSection("editare-profil")} style={{ padding: "7px 14px", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+  {isMobile ? "✏️" : "✏️ Editează profilul"}
+</button>
             <a href={`/p/${user.id}`} target="_blank" style={{ padding: "7px 14px", background: "rgba(201,169,110,0.1)", border: `1px solid rgba(201,169,110,0.2)`, borderRadius: 8, fontSize: 12, color: s.accent, textDecoration: "none", fontWeight: 600 }}>
               {isMobile ? "👁" : "👁 Profil public"}
             </a>
@@ -232,6 +249,113 @@ export default function UserProfilePage() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* ===== EDITARE PROFIL ===== */}
+          {activeSection === "editare-profil" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 720 }}>
+              {profileMsg && <div style={{ background: "rgba(76,175,130,0.1)", border: "1px solid rgba(76,175,130,0.3)", borderRadius: 10, padding: "12px 16px", color: s.green, fontSize: 13 }}>{profileMsg}</div>}
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden" }}>
+                <div style={{ height: 60, background: "linear-gradient(135deg,#1a1408,#2a2010)" }} />
+                <div style={{ padding: "0 20px 16px", marginTop: -24, display: "flex", alignItems: "flex-end", gap: 14 }}>
+                  <div style={{ position: "relative", flexShrink: 0 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#fff", border: `3px solid ${s.surface}`, overflow: "hidden" }}>
+                      {user.avatar ? <img src={user.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : (profileForm.name || user.name)?.charAt(0)}
+                    </div>
+                    <label style={{ position: "absolute", bottom: -2, right: -2, width: 20, height: 20, borderRadius: "50%", background: s.accent, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", border: `2px solid ${s.surface}`, fontSize: 9 }}>
+                      ✏️<input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const file = e.target.files?.[0]; if (!file) return; const fd = new FormData(); fd.append("file", file); fetch("/api/profile/avatar", { method: "POST", body: fd }).then(r => r.json()).then(d => { if (d.url) setUser({ ...user, avatar: d.url }); }); }} />
+                    </label>
+                  </div>
+                  <div style={{ paddingBottom: 4 }}>
+                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700 }}>{profileForm.name || user.name}</div>
+                    <div style={{ fontSize: 12, color: s.muted, marginTop: 2 }}>{profileForm.oras && profileForm.judet ? `📍 ${profileForm.oras}, ${profileForm.judet}` : "📍 Locație necompletată"}</div>
+                  </div>
+                </div>
+                {profileForm.bio && <div style={{ padding: "0 20px 16px", fontSize: 13, color: s.muted, lineHeight: 1.6 }}>{profileForm.bio}</div>}
+              </div>
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 24, display: "flex", flexDirection: "column", gap: 14 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Date personale</div>
+                {([["name","Nume complet","Numele tău complet"],["phone","Telefon","07xx xxx xxx"]] as [string,string,string][]).map(([k,l,p]) => (
+                  <div key={k}>
+                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{l}</div>
+                    <input value={(profileForm as any)[k]} onChange={e => setProfileForm({ ...profileForm, [k]: e.target.value })} placeholder={p}
+                      style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
+                      onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                  </div>
+                ))}
+                <div>
+                  <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Descriere / Bio</div>
+                  <textarea value={profileForm.bio} onChange={e => setProfileForm({ ...profileForm, bio: e.target.value })} placeholder="Descrie-te pe scurt..." rows={3}
+                    style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const, resize: "vertical" as const }}
+                    onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                  <div style={{ fontSize: 11, color: "#444", marginTop: 4 }}>{profileForm.bio.length}/500</div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Județ</div>
+                    <select value={profileForm.judet} onChange={e => setProfileForm({ ...profileForm, judet: e.target.value })}
+                      style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const, cursor: "pointer" }}>
+                      <option value="">Selectează județul</option>
+                      {JUDETE.map(j => <option key={j} value={j}>{j}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Oraș</div>
+                    <input value={profileForm.oras} onChange={e => setProfileForm({ ...profileForm, oras: e.target.value })} placeholder="ex: Oradea"
+                      style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
+                      onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                  </div>
+                </div>
+              </div>
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 24, display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Rețele sociale</div>
+                {SOCIAL_PLATFORMS.map(p => (
+                  <div key={p.key}>
+                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{p.label}</div>
+                    <input value={(profileForm as any)[p.key]} onChange={e => setProfileForm({ ...profileForm, [p.key]: e.target.value })} placeholder={p.placeholder}
+                      style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
+                      onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 24, display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Galerie foto</div>
+                <div style={{ fontSize: 13, color: s.muted }}>Adaugă până la 10 poze care apar pe profilul tău public.</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
+                  {(user.gallery || []).map((img: string, i: number) => (
+                    <div key={i} style={{ aspectRatio: "1", borderRadius: 10, overflow: "hidden", position: "relative", background: s.surface2 }}>
+                      <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <button style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(224,90,90,0.9)", color: "#fff", border: "none", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                    </div>
+                  ))}
+                  {(user.gallery?.length || 0) < 10 && (
+                    <label style={{ aspectRatio: "1", borderRadius: 10, border: `2px dashed ${s.border}`, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 6 }}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = s.accent)} onMouseLeave={e => (e.currentTarget.style.borderColor = s.border)}>
+                      <div style={{ fontSize: 24, color: s.muted }}>+</div>
+                      <div style={{ fontSize: 10, color: s.muted }}>Adaugă foto</div>
+                      <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => {
+                        const files = Array.from(e.target.files || []);
+                        files.forEach(file => {
+                          const fd = new FormData();
+                          fd.append("file", file);
+                          fetch("/api/profile/gallery", { method: "POST", body: fd })
+                            .then(r => r.json()).then(d => { if (d.url) setUser({ ...user, gallery: [...(user.gallery || []), d.url] }); });
+                        });
+                      }} />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <button onClick={async () => {
+                setProfileLoading(true);
+                const res = await fetch("/api/profile/update", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: profileForm.name, phone: profileForm.phone, bio: profileForm.bio, judet: profileForm.judet, oras: profileForm.oras, address: profileForm.address, socialLinks: { facebook: profileForm.facebook, instagram: profileForm.instagram, tiktok: profileForm.tiktok, linkedin: profileForm.linkedin, website: profileForm.website, youtube: profileForm.youtube } }) });
+                if (res.ok) { setProfileMsg("Profil actualizat cu succes!"); setTimeout(() => setProfileMsg(""), 3000); }
+                setProfileLoading(false);
+              }} disabled={profileLoading} style={{ padding: "13px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", opacity: profileLoading ? 0.7 : 1 }}>
+                {profileLoading ? "Se salvează..." : "Salvează profilul"}
+              </button>
             </div>
           )}
 
