@@ -231,45 +231,52 @@ export default function SearchPage() {
                 <div style={{ fontSize: 13 }}>Încearcă alte cuvinte cheie sau altă locație</div>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {results.map((r: any) => (
-                  <Link key={r.id} href={`/p/${r.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                    <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", transition: "all 0.2s" }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.3)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "#262626"; (e.currentTarget as HTMLDivElement).style.transform = "none"; }}>
-                      <div style={{ height: isMobile ? 70 : 100, background: "linear-gradient(135deg,#1a1408,#2a2010)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {r.avatar ? (
-                          <img src={r.avatar} style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", objectFit: "cover", border: "3px solid rgba(201,169,110,0.4)" }} />
-                        ) : (
-                          <div style={{ width: 50, height: 50, borderRadius: r.accountType==="company"?"10px":"50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#fff", border: "3px solid rgba(201,169,110,0.4)" }}>
-                            {r.name?.split(" ").map((n: string) => n[0]).join("").slice(0,2).toUpperCase()}
+                                  <Link key={r.id} href={`/p/${r.slug || r.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  {(() => {
+                    const accentColors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
+                    const sqColors = [["#c9a96e","#8b5e3c","#5a3a20"],["#5a8de0","#3a6abf","#1a4a9e"],["#4caf82","#2a8f62","#0a6f42"],["#e8b84b","#c9902a","#a06810"],["#e05a5a","#c03a3a","#a02020"],["#a78de0","#7a5abf","#5a3a9e"]];
+                    const idx = results.indexOf(r);
+                    const accent = accentColors[idx % accentColors.length];
+                    const sq = sqColors[idx % sqColors.length];
+                    return (
+                      <div style={{ background: "#161616", border: "1px solid #262626", borderRadius: 14, overflow: "hidden", display: "flex", height: 120, transition: "all .2s" }}
+                        onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = "rgba(201,169,110,0.4)"; el.style.transform = "translateY(-2px)"; el.style.boxShadow = "0 8px 24px rgba(0,0,0,.3)"; }}
+                        onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = "#262626"; el.style.transform = "none"; el.style.boxShadow = "none"; }}>
+                        <div style={{ width: 120, flexShrink: 0, background: "#1a1408", display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: 6, padding: 12, position: "relative", overflow: "hidden" }}>
+                          {r.gallery?.[0]
+                            ? <img src={r.gallery[0]} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                            : sq.map((c: string, i: number) => <div key={i} style={{ width: 24, height: 24, borderRadius: 6, background: c, opacity: 1 - i * 0.25, flexShrink: 0 }} />)
+                          }
+                          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: accent }} />
+                        </div>
+                        <div style={{ flex: 1, padding: "12px 16px", display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontSize: 15, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 2 }}>{r.name}</div>
+                              <div style={{ fontSize: 11, color: "#777" }}>📍 {r.oras || "România"} · {r.accountType === "company" ? "🏢 Firmă" : "👤 Persoană"}</div>
+                            </div>
+                            <div style={{ textAlign: "right", flexShrink: 0 }}>
+                              {r.rating && <div style={{ fontSize: 13, fontWeight: 700, color: "#c9a96e" }}>★ {r.rating}</div>}
+                              <div style={{ fontSize: 11, color: "#777", marginTop: 2 }}>{r.services?.[0]?.price ? `${r.services[0].price} lei` : "—"}</div>
+                            </div>
                           </div>
-                        )}
-                        <div style={{ position: "absolute", top: 8, left: 8, padding: "3px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700, background: r.accountType==="company"?"rgba(90,141,224,0.2)":"rgba(201,169,110,0.2)", color: r.accountType==="company"?"#5a8de0":"#c9a96e", border: `1px solid ${r.accountType==="company"?"rgba(90,141,224,0.3)":"rgba(201,169,110,0.3)"}` }}>
-                          {r.accountType==="company"?"🏢 Firmă":"👤 Persoană"}
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 10, fontWeight: 600, background: "rgba(76,175,130,0.15)", color: "#4caf82" }}>● Disponibil</div>
+                            {(r.services || []).slice(0, 2).map((s: any, i: number) => (
+                              <div key={i} style={{ padding: "2px 8px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 5, fontSize: 10, color: "#c9a96e" }}>{s.name}</div>
+                            ))}
+                          </div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div style={{ fontSize: 11, color: "#555" }}>de la <strong style={{ color: "#c9a96e", fontSize: 13 }}>{r.services?.[0]?.price ? `${r.services[0].price} lei` : "—"}</strong></div>
+                            <div style={{ padding: "5px 12px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 7, fontSize: 11, color: "#c9a96e", fontWeight: 600 }}>Vezi profil →</div>
+                          </div>
                         </div>
                       </div>
-                      <div style={{ padding: "12px 14px" }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                          <div style={{ fontSize: 14, fontWeight: 700 }}>{r.name}</div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "#c9a96e" }}>★ {r.rating || "—"}</div>
-                        </div>
-                        <div style={{ fontSize: 11, color: "#777", marginBottom: 8 }}>📍 {r.oras || "România"}</div>
-                        <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 8 }}>
-                          {(r.services || []).slice(0,2).map((s: any, i: number) => (
-                            <div key={i} style={{ padding: "3px 8px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 5, fontSize: 10, color: "#c9a96e" }}>{s.name}</div>
-                          ))}
-                          {(r.services || []).length > 2 && (
-                            <div style={{ padding: "3px 8px", background: "#1e1e1e", border: "1px solid #262626", borderRadius: 5, fontSize: 10, color: "#777" }}>+{r.services.length-2}</div>
-                          )}
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid #262626" }}>
-                          <div style={{ fontSize: 11, color: "#4caf82", fontWeight: 600 }}>● Disponibil</div>
-                          <div style={{ fontSize: 12, color: "#777" }}>de la <span style={{ fontWeight: 700, color: "#c9a96e" }}>{r.services?.[0]?.price ? `${r.services[0].price} lei` : "—"}</span></div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
+                    );
+                  })()}
+                </Link>
                 ))}
               </div>
             )}
