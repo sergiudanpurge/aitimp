@@ -33,6 +33,11 @@ export default function SearchPage() {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [availability, setAvailability] = useState("orice");
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
+  const [timeStart, setTimeStart] = useState("08:00");
+  const [timeEnd, setTimeEnd] = useState("18:00");
   const [filters, setFilters] = useState({
     type: "toate", rating: "toate", available: false, verified: false,
   });
@@ -82,60 +87,105 @@ export default function SearchPage() {
     boxSizing: "border-box" as const, width: "100%",
   };
 
-  const FilterPanel = () => (
-    <div style={{ padding: isMobile ? "16px" : "24px 20px" }}>
+  const FilterPanel = () => {
+    const chk = (active: boolean) => ({
+      width: 18, height: 18, borderRadius: 5,
+      border: `1px solid ${active ? "#c9a96e" : "#262626"}`,
+      background: active ? "#c9a96e" : "#1e1e1e",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 11, color: "#0a0a0a", flexShrink: 0,
+    } as const);
+    const inp = { background: "#1e1e1e", border: "1px solid #262626", borderRadius: 8, color: "#f0ede8", fontSize: 12, padding: "7px 10px", outline: "none", fontFamily: "var(--font-outfit)", width: "100%" } as const;
+    const sec = { fontSize: 10, fontWeight: 600 as const, color: "#555", textTransform: "uppercase" as const, letterSpacing: "0.8px", marginBottom: 12 };
+    const div = { height: 1, background: "#1e1e1e", margin: "0 0 20px" };
+    return (
+    <div style={{ padding: isMobile ? "16px" : "20px 18px" }}>
+
+      {/* 1. TIP PRESTATOR */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Tip prestator</div>
-        {[["toate","Toate"],["company","Firme"],["private","Persoane fizice"]].map(([val, label]) => (
-          <div key={val} onClick={() => setFilters({...filters, type: val})} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", cursor: "pointer" }}>
-            <div style={{ width: 18, height: 18, borderRadius: 5, border: `1px solid ${filters.type===val?"#c9a96e":"#262626"}`, background: filters.type===val?"#c9a96e":"#1e1e1e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#0a0a0a", flexShrink: 0 }}>
-              {filters.type===val?"✓":""}
-            </div>
+        <div style={sec}>Tip prestator</div>
+        {([["toate","Toate"],["company","Firme"],["private","Persoane fizice"]] as [string,string][]).map(([val, label]) => (
+          <div key={val} onClick={() => setFilters({...filters, type: val})} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", cursor: "pointer" }}>
+            <div style={chk(filters.type === val)}>{filters.type === val ? "✓" : ""}</div>
             <span style={{ fontSize: 13 }}>{label}</span>
           </div>
         ))}
-      </div>
-      <div style={{ height: 1, background: "#262626", margin: "4px 0 20px" }} />
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Rating minim</div>
-        {[["toate","Orice rating"],["5","5★ și peste"],["4","4★ și peste"],["3","3★ și peste"]].map(([val, label]) => (
-          <div key={val} onClick={() => setFilters({...filters, rating: val})} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", cursor: "pointer" }}>
-            <div style={{ width: 18, height: 18, borderRadius: 5, border: `1px solid ${filters.rating===val?"#c9a96e":"#262626"}`, background: filters.rating===val?"#c9a96e":"#1e1e1e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#0a0a0a", flexShrink: 0 }}>
-              {filters.rating===val?"✓":""}
-            </div>
-            <span style={{ fontSize: 13, color: val==="toate"?"#f0ede8":"#c9a96e" }}>{label}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{ height: 1, background: "#262626", margin: "4px 0 20px" }} />
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Preț (RON)</div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input type="number" placeholder="Min" value={pretMin} onChange={e => setPretMin(e.target.value)}
-            style={{ width: "50%", background: "#161616", border: "1px solid #262626", borderRadius: 8, color: "#f0ede8", fontSize: 13, padding: "8px 10px", outline: "none", fontFamily: "var(--font-outfit)" }} />
-          <input type="number" placeholder="Max" value={pretMax} onChange={e => setPretMax(e.target.value)}
-            style={{ width: "50%", background: "#161616", border: "1px solid #262626", borderRadius: 8, color: "#f0ede8", fontSize: 13, padding: "8px 10px", outline: "none", fontFamily: "var(--font-outfit)" }} />
+        <div onClick={() => setFilters({...filters, favorite: !(filters as any).favorite})} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", cursor: "pointer" }}>
+          <div style={chk(!!(filters as any).favorite)}>{(filters as any).favorite ? "✓" : ""}</div>
+          <span style={{ fontSize: 13 }}>⭐ Favorite</span>
         </div>
       </div>
-      <div style={{ height: 1, background: "#262626", margin: "4px 0 20px" }} />
+
+      <div style={div} />
+
+      {/* 2. DISPONIBILITATE */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#777", textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 12 }}>Alte filtre</div>
-        {[["verified","Profil verificat"],["available","Disponibil azi"]].map(([key, label]) => (
-          <div key={key} onClick={() => setFilters({...filters, [key]: !(filters as any)[key]})} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", cursor: "pointer" }}>
-            <div style={{ width: 18, height: 18, borderRadius: 5, border: `1px solid ${(filters as any)[key]?"#c9a96e":"#262626"}`, background: (filters as any)[key]?"#c9a96e":"#1e1e1e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#0a0a0a", flexShrink: 0 }}>
-              {(filters as any)[key]?"✓":""}
+        <div style={sec}>Disponibilitate</div>
+        {([["orice","Orice zi"],["azi","Disponibil azi"],["perioada","Perioadă"]] as [string,string][]).map(([val, label]) => (
+          <div key={val} onClick={() => setAvailability(val)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", cursor: "pointer" }}>
+            <div style={{ width: 18, height: 18, borderRadius: "50%", border: `1px solid ${availability === val ? "#c9a96e" : "#262626"}`, background: "#1e1e1e", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              {availability === val && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#c9a96e" }} />}
             </div>
             <span style={{ fontSize: 13 }}>{label}</span>
           </div>
         ))}
+        {availability === "perioada" && (
+          <div style={{ marginTop: 10, display: "flex", flexDirection: "column" as const, gap: 8 }}>
+            <div>
+              <div style={{ fontSize: 10, color: "#555", marginBottom: 4 }}>Data start</div>
+              <input type="date" value={dateStart} onChange={e => setDateStart(e.target.value)} style={inp} />
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: "#555", marginBottom: 4 }}>Data sfârșit</div>
+              <input type="date" value={dateEnd} onChange={e => setDateEnd(e.target.value)} style={inp} />
+            </div>
+            <div style={{ height: 1, background: "#262626", margin: "4px 0" }} />
+            <div style={{ fontSize: 10, color: "#555", marginBottom: 6 }}>Interval orar</div>
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <input type="time" value={timeStart} onChange={e => setTimeStart(e.target.value)} style={{ ...inp, width: "50%" }} />
+              <span style={{ color: "#555", fontSize: 12, flexShrink: 0 }}>—</span>
+              <input type="time" value={timeEnd} onChange={e => setTimeEnd(e.target.value)} style={{ ...inp, width: "50%" }} />
+            </div>
+            <div onClick={() => { setTimeStart("00:00"); setTimeEnd("23:59"); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", cursor: "pointer" }}>
+              <div style={chk(timeStart === "00:00" && timeEnd === "23:59")}>{timeStart === "00:00" && timeEnd === "23:59" ? "✓" : ""}</div>
+              <span style={{ fontSize: 12, color: "#aaa" }}>Toată ziua</span>
+            </div>
+          </div>
+        )}
       </div>
+
+      <div style={div} />
+
+      {/* 3. PRET */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={sec}>Preț (RON)</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <input type="number" placeholder="Min" value={pretMin} onChange={e => setPretMin(e.target.value)} style={{ ...inp, width: "50%" }} />
+          <input type="number" placeholder="Max" value={pretMax} onChange={e => setPretMax(e.target.value)} style={{ ...inp, width: "50%" }} />
+        </div>
+      </div>
+
+      <div style={div} />
+
+      {/* 4. RATING */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={sec}>Rating minim</div>
+        {([["toate","Orice rating"],["5","★★★★★  5+"],["4","★★★★  4+"],["3","★★★  3+"]] as [string,string][]).map(([val, label]) => (
+          <div key={val} onClick={() => setFilters({...filters, rating: val})} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", cursor: "pointer" }}>
+            <div style={chk(filters.rating === val)}>{filters.rating === val ? "✓" : ""}</div>
+            <span style={{ fontSize: 13, color: val === "toate" ? "#f0ede8" : "#c9a96e" }}>{label}</span>
+          </div>
+        ))}
+      </div>
+
       {isMobile && (
-        <button onClick={() => setShowFilters(false)} style={{ width: "100%", padding: 12, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+        <button onClick={() => { search(); setShowFilters(false); }} style={{ width: "100%", padding: 12, background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
           Aplică filtrele
         </button>
       )}
     </div>
   );
+  }
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#f0ede8", fontFamily: "var(--font-outfit)" }}>
       <div style={{ maxWidth: 1400, margin: "0 auto" }}>
