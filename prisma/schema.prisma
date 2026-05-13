@@ -26,6 +26,10 @@ description     String?
   facebook        String?
   website         String?
   tiktok          String?
+    youtube         String?
+    linkedin        String?
+    whatsapp        String?
+    contactEmail    String?
   showEmail       Boolean  @default(false)
   showPhone       Boolean  @default(false)
 isActive        Boolean  @default(true) 
