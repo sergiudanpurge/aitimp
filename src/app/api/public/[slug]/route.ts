@@ -3,56 +3,81 @@ import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
-export async function GET(request: Request, context: any) {
+export async function GET(request: Request, { params }: { params: { slug: string } }) {
   try {
-    const params = await context.params
-    const slug = params.slug
-    console.log("Public profile slug:", slug)
+    const { slug } = await params
 
     const user = await prisma.user.findUnique({
       where: { id: slug },
-      include: {
-        provider: { include: { services: true } },
+      select: {
+        id: true, name: true, email: true, role: true, accountType: true,
+        avatar: true, phone: true, judet: true, oras: true, description: true,
+        facebook: true, instagram: true, tiktok: true, website: true,
+        youtube: true, linkedin: true, whatsapp: true, contactEmail: true,
+        showEmail: true, showPhone: true, companyId: true,
+        company: { select: { id: true, name: true, avatar: true, oras: true, judet: true } },
+        provider: {
+          select: {
+            id: true, gallery: true, rating: true, reviewCount: true,
+            workStart: true, workEnd: true,
+            services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true } }
+          }
+        },
         employees: {
-          include: {
-            provider: { include: { services: true } }
+          where: { isActive: true },
+          select: {
+            id: true, name: true, avatar: true, description: true, oras: true,
+            instagram: true, facebook: true,
+            provider: {
+              select: {
+                id: true, gallery: true, rating: true, reviewCount: true,
+                workStart: true, workEnd: true,
+                services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true } }
+              }
+            }
           }
         }
       }
     })
 
-    console.log("User found:", user?.id, user?.name)
+    if (!user) return NextResponse.json({ error: "Profil negasit" }, { status: 404 })
 
-    if (!user) return NextResponse.json(null, { status: 404 })
-
-    const result = {
-      id: user.id,
-      name: user.name,
-      avatar: user.avatar,
-      accountType: user.accountType,
-      oras: user.oras,
-      judet: user.judet,
-      phone: user.phone,
-      email: user.email,
-      cui: user.cui,
-      description: user.provider?.description || null,
-      rating: user.provider?.rating || null,
-      reviewCount: user.provider?.reviewCount || 0,
-      reviews: [],
-      employees: user.accountType === "company" ? (user.employees || []).map((emp: any) => ({
-        id: emp.id,
-        name: emp.name,
-        avatar: emp.avatar,
-        rating: emp.provider?.rating || null,
-        services: emp.provider?.services || [],
-      })) : [],
-      services: user.provider?.services || [],
-      provider: user.provider || null,
+    // Fetch recenzii fara relatii (Review nu are relatii in schema)
+    let rawReviews: any[] = []
+    if (user.accountType === "company") {
+      const empProviderIds = (user as any).employees.map((e: any) => e.provider?.id).filter(Boolean)
+      rawReviews = await prisma.review.findMany({
+        where: { providerId: { in: empProviderIds } },
+        orderBy: { createdAt: "desc" }, take: 20
+      })
+    } else if ((user as any).provider) {
+      rawReviews = await prisma.review.findMany({
+        where: { providerId: (user as any).provider.id },
+        orderBy: { createdAt: "desc" }, take: 20
+      })
     }
 
-    return NextResponse.json(result)
+    // Fetch clienti separat
+    const clientIds = [...new Set(rawReviews.map(r => r.clientId))]
+    const clients = await prisma.user.findMany({
+      where: { id: { in: clientIds } },
+      select: { id: true, name: true, avatar: true }
+    })
+    const clientMap = Object.fromEntries(clients.map(c => [c.id, c]))
+
+    const reviews = rawReviews.map(r => ({
+      ...r,
+      client: clientMap[r.clientId] || { name: "Client", avatar: null }
+    }))
+
+    return NextResponse.json({
+      provider: user,
+      employees: (user as any).employees || [],
+      services: (user as any).provider?.services || [],
+      reviews,
+    })
   } catch (error) {
     console.error("Public profile error:", error)
-    return NextResponse.json(null, { status: 500 })
+    return NextResponse.json({ error: "Eroare server" }, { status: 500 })
   }
 }

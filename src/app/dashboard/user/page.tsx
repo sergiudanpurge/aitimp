@@ -34,6 +34,9 @@ export default function UserProfilePage() {
   const [profileForm, setProfileForm] = useState({ name: "", phone: "", description: "", judet: "", oras: "", adresa: "", facebook: "", instagram: "", tiktok: "", website: "", youtube: "", linkedin: "", whatsapp: "", contactEmail: "" });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
+  const [showAddService, setShowAddService] = useState(false);
+  const [newService, setNewService] = useState({ name: "", duration: "1", price: "", icon: "✂️" });
+  const [serviceLoading, setServiceLoading] = useState(false);
 
   const s = {
     bg: "#0a0a0a", surface: "#161616", surface2: "#1e1e1e",
@@ -81,6 +84,23 @@ export default function UserProfilePage() {
   const rezervariFinalizate = bookings.filter(b => b.status === "completed").length;
 
   const inputStyle = { width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const };
+
+  const saveService = async () => {
+    if (!newService.name || !newService.price) return;
+    setServiceLoading(true);
+    const res = await fetch("/api/services", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newService.name, duration: parseInt(newService.duration), price: parseFloat(newService.price), icon: newService.icon }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      setServices(prev => [...prev, d.service]);
+      setNewService({ name: "", duration: "1", price: "", icon: "✂️" });
+      setShowAddService(false);
+    }
+    setServiceLoading(false);
+  };
 
   const changePassword = async () => {
     if (passwords.new !== passwords.confirm) { setError("Parolele nu coincid!"); return; }
@@ -141,9 +161,93 @@ const getSectionTitle = () => {
 
   if (!user) return <div style={{ minHeight: "100vh", background: s.bg }} />;
 
+  // Modal inline
+    <div onClick={() => setShowAddService(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 16, padding: 24, width: "100%", maxWidth: 480 }}>
+        <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>+ Adauga serviciu</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Icon</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["✂️","💆","💅","🎨","🔧","💻","📸","🏋️","🚗","🧹","⭐","💈"].map(ic => (
+                <button key={ic} onClick={() => setNewService({...newService, icon: ic})} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${newService.icon === ic ? s.accent : s.border}`, background: newService.icon === ic ? "rgba(201,169,110,0.15)" : s.surface2, fontSize: 18, cursor: "pointer" }}>{ic}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Nume serviciu *</div>
+            <input value={newService.name} onChange={e => setNewService({...newService, name: e.target.value})} placeholder="ex: Tuns + Styling" style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
+              onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Durata</div>
+              <select value={newService.duration} onChange={e => setNewService({...newService, duration: e.target.value})} style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", cursor: "pointer" }}>
+                {[1,2,3,4,6,8].map(d => <option key={d} value={d}>{d * 30} min</option>)}
+              </select>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Pret (lei) *</div>
+              <input type="number" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} placeholder="ex: 50" style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
+                onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
+            <button onClick={() => setShowAddService(false)} style={{ flex: 1, padding: "11px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: s.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anuleaza</button>
+            <button onClick={saveService} disabled={serviceLoading || !newService.name || !newService.price} style={{ flex: 2, padding: "11px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", opacity: (!newService.name || !newService.price) ? 0.5 : 1 }}>
+              {serviceLoading ? "Se adauga..." : "Adauga serviciu"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
   return (
     <div style={{ minHeight: "100vh", background: s.bg, color: "#f0ede8", fontFamily: "var(--font-outfit)", display: "flex" }}>
 
+      {/* MODAL ADAUGA SERVICIU */}
+      {showAddService && (
+        <div onClick={() => setShowAddService(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 16, padding: 24, width: "100%", maxWidth: 480 }}>
+            <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>+ Adauga serviciu</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Icon</div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {["✂️","💆","💅","🎨","🔧","💻","📸","🏋️","🚗","🧹","⭐","💈"].map(ic => (
+                    <button key={ic} onClick={() => setNewService({...newService, icon: ic})} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${newService.icon === ic ? s.accent : s.border}`, background: newService.icon === ic ? "rgba(201,169,110,0.15)" : s.surface2, fontSize: 18, cursor: "pointer" }}>{ic}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Nume serviciu *</div>
+                <input value={newService.name} onChange={e => setNewService({...newService, name: e.target.value})} placeholder="ex: Tuns + Styling" style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
+                  onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Durata</div>
+                  <select value={newService.duration} onChange={e => setNewService({...newService, duration: e.target.value})} style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", cursor: "pointer" }}>
+                    {[1,2,3,4,6,8].map(d => <option key={d} value={d}>{d * 30} min</option>)}
+                  </select>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Pret (lei) *</div>
+                  <input type="number" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} placeholder="ex: 50" style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
+                    onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
+                <button onClick={() => setShowAddService(false)} style={{ flex: 1, padding: "11px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: s.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anuleaza</button>
+                <button onClick={saveService} disabled={serviceLoading || !newService.name || !newService.price} style={{ flex: 2, padding: "11px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", opacity: (!newService.name || !newService.price) ? 0.5 : 1 }}>
+                  {serviceLoading ? "Se adauga..." : "Adauga serviciu"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* SIDEBAR */}
       {!isMobile && (
         <div style={{ width: 220, background: "#111", borderRight: `1px solid ${s.border}`, position: "fixed", top: 0, left: 0, bottom: 0, display: "flex", flexDirection: "column", zIndex: 50 }}>
@@ -530,7 +634,7 @@ const getSectionTitle = () => {
           {activeSection === "servicii" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button style={{ padding: "9px 18px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>+ Adaugă serviciu</button>
+                <button onClick={() => setShowAddService(true)} style={{ padding: "9px 18px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>+ Adaugă serviciu</button>
               </div>
               {services.length === 0 ? (
                 <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: "40px 20px", textAlign: "center", color: s.muted }}>

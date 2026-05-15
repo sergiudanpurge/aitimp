@@ -1,15 +1,15 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const fs = require('fs');
+let code = fs.readFileSync('./src/app/dashboard/user/page.tsx', 'utf8');
 
-async function clean() {
-  await prisma.review.deleteMany();
-  await prisma.booking.deleteMany();
-  await prisma.availabilitySlot.deleteMany();
-  await prisma.service.deleteMany({ where: { provider: { user: { email: { contains: 'demo' } } } } });
-  await prisma.provider.deleteMany({ where: { user: { email: { contains: 'demo' } } } });
-  await prisma.user.deleteMany({ where: { email: { contains: 'demo' } } });
-  console.log('Gata! Date demo sterse.');
-  await prisma.$disconnect();
-}
+// Stergem restul vechiului AddServiceModal
+code = code.replace(
+  `  // Modal inline mai jos in JSX
+  const _unused = () => (`,
+  `  // Modal inline`
+);
 
-clean().catch(console.error);
+// Stergem si ) : null; care a ramas
+code = code.replace(`  ) : null;`, ``);
+
+fs.writeFileSync('./src/app/dashboard/user/page.tsx', code);
+console.log('Done:', fs.statSync('./src/app/dashboard/user/page.tsx').size);

@@ -1,367 +1,446 @@
-"use client"
-
+"use client";
 import Navbar from "@/components/Navbar";
 import { useResponsive } from "@/hooks/useResponsive";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+
+const SOCIAL_ICONS: any = {
+  facebook: { color: "#1877F2", icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
+  instagram: { color: "#E4405F", icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>' },
+  tiktok: { color: "#010101", icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.17 8.17 0 004.77 1.52V6.76a4.85 4.85 0 01-1-.07z"/></svg>' },
+  linkedin: { color: "#0A66C2", icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>' },
+  website: { color: "#c9a96e", icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>' },
+  youtube: { color: "#FF0000", icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>' },
+  whatsapp: { color: "#25D366", icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' },
+};
 
 export default function ProviderPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
+  const { isMobile } = useResponsive();
 
   const [provider, setProvider] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [employees, setEmployees] = useState<any[]>([]);
   const [activeEmployee, setActiveEmployee] = useState<any>(null);
   const [services, setServices] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedService, setSelectedService] = useState<any>(null);
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const [slots, setSlots] = useState<string[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [rezervare, setRezervare] = useState<any>(null);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const days = [
-    { name: "Lun", num: 5, avail: false },
-    { name: "Mar", num: 6, avail: true },
-    { name: "Mie", num: 7, avail: true },
-    { name: "Joi", num: 8, avail: true },
-    { name: "Vin", num: 9, avail: true },
-    { name: "Sâm", num: 10, avail: false },
-    { name: "Dum", num: 11, avail: false },
-  ];
-
-  const mockSlots = ["09:00","09:30","10:00","10:30","11:00","11:30","12:00","14:00","14:30","15:00","15:30","16:00"];
+  const [myBookings, setMyBookings] = useState<any[]>([]);
 
   const s = {
     bg: "#0a0a0a", surface: "#161616", surface2: "#1e1e1e",
     border: "#262626", accent: "#c9a96e", muted: "#777",
-    green: "#4caf82", yellow: "#e8b84b", red: "#e05a5a",
+    green: "#4caf82", yellow: "#e8b84b", red: "#e05a5a", blue: "#5a8de0",
   };
 
   useEffect(() => {
-    fetch(`/api/providers/${slug}`).then(r => r.json()).then(d => {
+    fetch(`/api/public/${slug}`).then(r => r.json()).then(d => {
       setProvider(d.provider);
       setEmployees(d.employees || []);
-      if (d.provider?.accountType === "company") {
-  if (d.employees?.length > 0) {
-    setActiveEmployee(d.employees[0]);
-    setServices(d.employees[0].services || []);
-  } else {
-    // Firma fara angajati - serviciile sunt ale firmei
-    setServices(d.services || []);
-  }
-} else {
-  setServices(d.services || []);
-}
+      setReviews(d.reviews || []);
+      if (d.employees?.length > 0) {
+        setActiveEmployee(d.employees[0]);
+        setServices(d.employees[0].provider?.services || []);
+      } else {
+        setServices(d.services || []);
+      }
       setLoading(false);
     }).catch(() => setLoading(false));
+
+    fetch("/api/auth/me").then(r => r.json()).then(d => {
+      if (!d.error) {
+        setCurrentUser(d.user);
+        fetch("/api/bookings").then(r => r.json()).then(b => setMyBookings(b.bookings || []));
+      }
+    });
   }, [slug]);
 
-  const selectEmployee = (emp: any) => {
-    setActiveEmployee(emp);
-    setServices(emp.services || []);
-    setSelectedService(null);
-    setSelectedDay(null);
-    setSelectedSlot(null);
-    setRezervare(null);
-  };
-
-  const selectService = (svc: any) => {
-    setSelectedService(svc);
-    setSelectedDay(null);
-    setSelectedSlot(null);
-  };
-
-  const selectDay = (day: any) => {
-    if (!day.avail) return;
-    setSelectedDay(day.num);
-    setSelectedSlot(null);
-    setSlots(mockSlots);
-  };
-
-  const selectSlot = (slot: string) => {
-    setSelectedSlot(slot);
-    setRezervare({
-      serviciu: selectedService?.name,
-      data: `${days.find(d => d.num === selectedDay)?.name} ${selectedDay} Mai`,
-      ora: slot,
-      pret: selectedService?.price,
-      status: "pending",
-    });
-  };
-
-  const doRezervare = async () => {
-    try {
-      const res = await fetch(`/api/providers/${slug}`).then(r => r.json());
-      const realProviderId = isCompany
-        ? activeEmployee?.provider?.id || res.employees?.find((e: any) => e.id === activeEmployee?.id)?.provider?.id
-        : res.services?.[0]?.providerId;
-      if (!realProviderId) { alert("Eroare: provider negăsit!"); return; }
-      const bookRes = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          providerId: realProviderId,
-          serviceId: selectedService?.id,
-          date: `${selectedDay} Mai 2025`,
-          time: selectedSlot,
-        })
-      });
-      const data = await bookRes.json();
-      if (bookRes.ok) {
-        setRezervare((prev: any) => ({ ...prev, status: "pending", id: data.booking.id }));
-      } else {
-        alert(data.error || "Eroare la rezervare");
-      }
-    } catch { alert("Eroare de conexiune"); }
-  };
-
   const isCompany = provider?.accountType === "company";
-  const { isMobile, isTablet } = useResponsive();
+  const gallery = provider?.provider?.gallery || activeEmployee?.provider?.gallery || [];
+  const avgRating = reviews.length > 0 ? (reviews.reduce((a: number, r: any) => a + r.rating, 0) / reviews.length).toFixed(1) : null;
+
+  const myBookingWithThis = myBookings.filter(b => {
+    const empIds = employees.map(e => e.provider?.id);
+    return empIds.includes(b.providerId) || b.providerId === provider?.provider?.id;
+  });
+  const hasCollaborated = myBookingWithThis.some(b => b.status === "completed");
+  const pendingBooking = myBookingWithThis.find(b => b.status === "pending" || b.status === "accepted");
+
+  const toggleFavorite = (svcId: string) => {
+    setFavorites(prev => prev.includes(svcId) ? prev.filter(f => f !== svcId) : [...prev, svcId]);
+  };
 
   if (loading) return <div style={{ minHeight: "100vh", background: s.bg }} />;
-  if (!provider) return <div style={{ minHeight: "100vh", background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", color: s.muted }}>Profilul nu a fost găsit.</div>;
+  if (!provider) return (
+    <div style={{ minHeight: "100vh", background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", color: s.muted }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>😕</div>
+        <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, color: "#f0ede8", marginBottom: 8 }}>Profilul nu a fost gasit</div>
+        <button onClick={() => router.push("/search")} style={{ padding: "10px 24px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 9, color: s.accent, fontSize: 13, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Cauta prestatori →</button>
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ background: s.bg, color: "#f0ede8", minHeight: "100vh", fontFamily: "var(--font-outfit)" }}>
+      <Navbar />
 
-     {/* HOME BUTTON */}
-<Navbar />
-      </div>
-      {/* HEADER BANNER */}
-      <div style={{ height: 160, marginTop: 52, background: isCompany ? "linear-gradient(135deg,#1a1408,#2a2010)" : "linear-gradient(135deg,#0e1520,#152030)" }} />
-      {/* HEADER CONTENT */}
-<div style={{ padding: isMobile ? "0 16px 20px" : "0 32px 24px", display: "flex", alignItems: "flex-end", flexWrap: "wrap", gap: isMobile ? 12 : 20, marginTop: -36 }}>
-          {isCompany ? (
-          <div style={{ width: 72, height: 72, borderRadius: 14, background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 26, fontWeight: 700, color: "#fff", border: `3px solid ${s.bg}`, flexShrink: 0 }}>
-            {provider.avatar ? <img src={provider.avatar} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 14 }} /> : provider.name?.charAt(0)}
-          </div>
-        ) : (
-          <div style={{ width: 88, height: 88, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 32, fontWeight: 700, color: "#fff", border: `4px solid ${s.bg}`, flexShrink: 0 }}>
-            {provider.avatar ? <img src={provider.avatar} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} /> : provider.name?.charAt(0)}
-          </div>
-        )}
-        <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "var(--font-playfair)", fontSize: 22, fontWeight: 700, marginBottom: 4 }}>{provider.name}</div>
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            {provider.oras && <span style={{ fontSize: 12, color: s.muted }}>📍 {provider.oras}{provider.judet ? `, ${provider.judet}` : ""}</span>}
-            {provider.cui && <span style={{ fontSize: 12, color: s.muted }}>CUI: {provider.cui}</span>}
-            {provider.adresa && <span style={{ fontSize: 12, color: s.muted }}>{provider.adresa}</span>}
-          </div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", padding: "6px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, color: s.accent }}>
-            ★ 4.92 <span style={{ color: s.muted, fontWeight: 400 }}>(127 recenzii)</span>
-          </div>
-          <div style={{ display: "flex", gap: 6 }}>
-            {provider.instagram && <a href={provider.instagram} target="_blank" title="Instagram" style={{ width: 32, height: 32, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="#c9a96e"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>}
-            {provider.facebook && <a href={provider.facebook} target="_blank" title="Facebook" style={{ width: 32, height: 32, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="#c9a96e"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>}
-            {provider.tiktok && <a href={provider.tiktok} target="_blank" title="TikTok" style={{ width: 32, height: 32, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="#c9a96e"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>}
-            {provider.website && <a href={provider.website} target="_blank" title="Website" style={{ width: 32, height: 32, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="#c9a96e"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-1 16.057v-3.05c-1.354.083-2.737.455-3.556 1.099-.122-.336-.188-.693-.188-1.063 0-1.447 1.037-2.657 2.444-2.939V7.943c0-.552.448-1 1-1s1 .448 1 1v2.161c1.407.282 2.444 1.492 2.444 2.939 0 .37-.066.727-.188 1.063-.819-.644-2.202-1.016-3.556-1.099v3.05c0 .552-.448 1-1 1s-1-.448-1-1z"/></svg></a>}
-          </div>
-        </div>
-      </div>
-
-      {/* DESCRIERE + DETALII */}
-      <div style={{ padding: isMobile ? "0 16px 16px" : "0 32px 20px", borderBottom: `1px solid ${s.border}` }}>
-        {provider.description && <div style={{ fontSize: 13, color: "#a0a0a0", lineHeight: 1.7, marginBottom: 14 }}>{provider.description}</div>}
-        {(provider.showPhone && provider.phone) || (provider.showEmail && provider.email) ? (
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {provider.showPhone && provider.phone && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: "8px 14px" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#c9a96e"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{provider.phone}</span>
-              </div>
-            )}
-            {provider.showEmail && provider.email && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: "8px 14px" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#c9a96e"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{provider.email}</span>
-              </div>
-            )}
-          </div>
-        ) : null}
-      </div>
-      {/* TABURI ANGAJATI */}
-      {isCompany && employees.length > 0 && (
-        <div style={{ padding: "0 32px", borderBottom: `1px solid ${s.border}`, display: "flex", overflowX: "auto" }}>
-          {employees.map((emp: any) => (
-            <div key={emp.id} onClick={() => selectEmployee(emp)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", borderBottom: `2px solid ${activeEmployee?.id === emp.id ? s.accent : "transparent"}`, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0, color: activeEmployee?.id === emp.id ? s.accent : s.muted, transition: "all 0.15s" }}>
-              <div style={{ width: 26, height: 26, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>
-                {emp.name?.charAt(0)}
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>{emp.name}</div>
-                <div style={{ fontSize: 11, color: s.accent }}>★ 4.9</div>
-              </div>
-            </div>
-          ))}
+      {/* LIGHTBOX */}
+      {lightboxImg && (
+        <div onClick={() => setLightboxImg(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <img src={lightboxImg} style={{ maxWidth: "90vw", maxHeight: "90vh", borderRadius: 12, objectFit: "contain" }} />
+          <button onClick={() => setLightboxImg(null)} style={{ position: "absolute", top: 20, right: 20, width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.1)", border: "none", color: "#fff", fontSize: 20, cursor: "pointer" }}>✕</button>
         </div>
       )}
 
-      {/* SECTIUNEA PRINCIPALA */}
-      <div style={{ padding: isMobile ? "16px" : "24px 32px" }}>
+      {/* BANNER */}
+      <div style={{ height: 160, marginTop: 58, background: "linear-gradient(135deg,#1a1408,#2a2010,#1a1408)", position: "relative", overflow: "hidden", zIndex: 0 }}>
+        {gallery[0] && <img src={gallery[0]} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.25 }} />}
+      </div>
 
-        {/* HEADER ANGAJAT ACTIV */}
-        {isCompany && activeEmployee && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
-              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
-                {activeEmployee.name?.charAt(0)}
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: isMobile ? "0 16px 40px" : "0 24px 60px" }}>
+
+        {/* HEADER CARD */}
+        <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 16, marginTop: -40, marginBottom: 20, position: "relative", zIndex: 1 }}>
+          <div style={{ padding: isMobile ? "0 16px 20px" : "0 28px 24px", display: "flex", alignItems: "flex-end", gap: 18, flexWrap: "wrap" }}>
+            <div style={{ width: isMobile ? 64 : 80, height: isMobile ? 64 : 80, borderRadius: isCompany ? 16 : "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-playfair)", fontSize: isMobile ? 24 : 30, fontWeight: 700, color: "#fff", border: `4px solid ${s.surface}`, flexShrink: 0, overflow: "hidden", marginTop: -32, flexShrink: 0 }}>
+              {provider.avatar ? <img src={provider.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : provider.name?.charAt(0)}
+            </div>
+            <div style={{ flex: 1, paddingBottom: 4, minWidth: 160 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 20 : 26, fontWeight: 700 }}>{provider.name}</div>
+                {isCompany && <div style={{ padding: "3px 10px", borderRadius: 6, background: "rgba(90,141,224,0.15)", border: "1px solid rgba(90,141,224,0.3)", fontSize: 11, color: s.blue, fontWeight: 700 }}>🏢 Firma</div>}
               </div>
-              <div>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700 }}>{activeEmployee.name}</div>
-                <div style={{ fontSize: 13, color: s.accent, marginTop: 2 }}>★ 4.97 · {services.length} servicii</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 6 }}>
+                {provider.oras && <span style={{ fontSize: 13, color: s.muted }}>📍 {provider.oras}{provider.judet && `, ${provider.judet}`}</span>}
+                {avgRating && <span style={{ fontSize: 13, color: s.accent }}>★ {avgRating} ({reviews.length} recenzii)</span>}
+                {provider.phone && provider.showPhone && <span style={{ fontSize: 13, color: s.muted }}>📞 {provider.phone}</span>}
               </div>
             </div>
-            <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
-              {[["0", "Rezervări"], ["0", "Clienți"], ["★ 4.9", "Rating"], [services.length.toString(), "Servicii"]].map(([val, label]) => (
-                <div key={label} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, padding: "12px 16px", textAlign: "center", flex: 1 }}>
-                  <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, color: s.accent }}>{val}</div>
-                  <div style={{ fontSize: 10, color: s.muted, marginTop: 2 }}>{label}</div>
-                </div>
+            <div style={{ display: "flex", gap: 8, paddingBottom: 4, flexWrap: "wrap" }}>
+              {currentUser && (
+                <button onClick={() => router.push(`/chat/${provider.id}`)} style={{ padding: "10px 20px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                  💬 Trimite mesaj
+                </button>
+              )}
+              <button onClick={() => router.push("/search")} style={{ padding: "10px 16px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 13, color: s.muted, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                ← Inapoi
+              </button>
+            </div>
+          </div>
+
+          {/* BIO */}
+          {provider.description && (
+            <div style={{ padding: isMobile ? "0 16px 16px" : "0 28px 20px", fontSize: 14, color: "#c0bdb8", lineHeight: 1.8 }}>
+              {provider.description}
+            </div>
+          )}
+
+          {/* SOCIAL */}
+          {Object.keys(SOCIAL_ICONS).some(k => provider[k]) && (
+            <div style={{ padding: isMobile ? "0 16px 16px" : "0 28px 20px", display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {Object.entries(SOCIAL_ICONS).filter(([k]) => provider[k]).map(([k, v]: any) => (
+                <a key={k} href={provider[k]} target="_blank" rel="noopener noreferrer"
+                  style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: v.color, textDecoration: "none", transition: "transform .15s" }}
+                  onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1.1)"}
+                  onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.transform = "scale(1)"}
+                  title={k}>
+                  <span dangerouslySetInnerHTML={{ __html: v.icon }} />
+                </a>
               ))}
             </div>
-          </>
-        )}
+          )}
 
-        {/* REZERVARE ACTIVA */}
-        {rezervare && (
-          <div style={{ borderRadius: 12, padding: "14px 16px", marginBottom: 20, background: rezervare.status === "pending" ? "rgba(232,184,75,0.08)" : rezervare.status === "accepted" ? "rgba(76,175,130,0.08)" : "rgba(224,90,90,0.08)", border: `1px solid ${rezervare.status === "pending" ? "rgba(232,184,75,0.25)" : rezervare.status === "accepted" ? "rgba(76,175,130,0.25)" : "rgba(224,90,90,0.25)"}` }}>
-            <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 10, color: rezervare.status === "pending" ? s.yellow : rezervare.status === "accepted" ? s.green : s.red }}>
-              {rezervare.status === "pending" ? "⏳ Rezervare în așteptare" : rezervare.status === "accepted" ? "✅ Rezervare confirmată" : "❌ Rezervare anulată"}
-            </div>
-            {[["Serviciu", rezervare.serviciu], ["Data", rezervare.data], ["Ora", rezervare.ora], ["Preț", `${rezervare.pret} lei`]].map(([label, val]) => (
-              <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 5 }}>
-                <span style={{ color: s.muted }}>{label}</span>
-                <span style={{ fontWeight: 600, color: label === "Preț" ? s.accent : "#f0ede8" }}>{val}</span>
-              </div>
-            ))}
-            <div style={{ fontSize: 11, color: s.muted, marginTop: 8 }}>
-              Aștepți confirmarea de la {isCompany ? activeEmployee?.name : provider.name}
-            </div>
-          </div>
-        )}
-
-{/* LISTA SERVICII */}
-        <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden", marginBottom: 14 }}>
-          <div style={{ padding: "14px 18px", borderBottom: `1px solid ${s.border}`, fontSize: 13, fontWeight: 600, color: s.muted }}>
-            Selectează un serviciu
-          </div>
-          <div style={{ maxHeight: 340, overflowY: "auto" }}>
-            {services.length === 0 ? (
-              <div style={{ padding: "40px 20px", textAlign: "center", color: s.muted, fontSize: 13 }}>Niciun serviciu disponibil.</div>
-            ) : services.map((svc: any, i: number) => (
-              <div key={i} onClick={() => selectService(svc)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderBottom: i < services.length - 1 ? `1px solid ${s.surface2}` : "none", cursor: "pointer", background: selectedService?.id === svc.id ? "rgba(201,169,110,0.06)" : "transparent", borderLeft: `3px solid ${selectedService?.id === svc.id ? s.accent : "transparent"}`, transition: "background 0.15s" }}>
-                <div style={{ fontSize: 22, width: 36, textAlign: "center", flexShrink: 0 }}>{svc.icon || "✂️"}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{svc.name}</div>
-                  <div style={{ fontSize: 11, color: s.muted }}>{svc.duration * 30} min · {svc.duration} slot{svc.duration > 1 ? "uri" : ""}</div>
-                </div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: s.accent }}>{svc.price} lei</div>
+          {/* STATS */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: `1px solid ${s.border}` }}>
+            {[
+              [services.length.toString(), "Servicii"],
+              [reviews.length.toString(), "Recenzii"],
+              [avgRating || "—", "Rating"],
+              [employees.length > 0 ? employees.length.toString() : "1", isCompany ? "Angajati" : "Ani exp."],
+            ].map(([val, label], i) => (
+              <div key={i} style={{ padding: isMobile ? "10px 8px" : "14px", borderRight: i < 3 ? `1px solid ${s.border}` : "none", textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 18 : 22, fontWeight: 700, color: s.accent }}>{val}</div>
+                <div style={{ fontSize: 10, color: s.muted, marginTop: 2 }}>{label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* BUTON MESAJ */}
-        <button onClick={() => {
-          const chatWith = isCompany && activeEmployee ? activeEmployee.id : provider.id;
-          window.location.href = `/chat/${chatWith}`;
-        }} style={{ width: "100%", padding: 12, background: "transparent", color: s.accent, border: `1px solid rgba(201,169,110,0.3)`, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 14 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#c9a96e"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-          Trimite mesaj {isCompany && activeEmployee ? `lui ${activeEmployee.name}` : provider.name}
-        </button>
-
-        {/* CALENDAR DROPDOWN */}
-        {selectedService && (
-          <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: 16, marginBottom: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: s.accent, marginBottom: 12 }}>
-              Alege ziua — Mai 2025 · {selectedService.name}
+        {/* REZERVARE ACTIVA */}
+        {pendingBooking && (
+          <div style={{ background: "rgba(232,184,75,0.08)", border: "1px solid rgba(232,184,75,0.3)", borderRadius: 14, padding: isMobile ? 14 : 18, marginBottom: 20, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <div style={{ fontSize: 28 }}>{pendingBooking.status === "accepted" ? "✅" : "⏳"}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>
+                {pendingBooking.status === "accepted" ? "Rezervare confirmata!" : "Rezervare in asteptare"}
+              </div>
+              <div style={{ fontSize: 12, color: s.muted }}>{pendingBooking.service?.name} · {pendingBooking.date} · {pendingBooking.time}</div>
             </div>
-            <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-              {days.map(day => (
-                <div key={day.num} onClick={() => selectDay(day)} style={{ flex: 1, textAlign: "center", padding: "8px 4px", borderRadius: 7, cursor: day.avail ? "pointer" : "not-allowed", border: `1px solid ${selectedDay === day.num ? s.accent : day.avail ? "rgba(201,169,110,0.2)" : "transparent"}`, background: selectedDay === day.num ? "rgba(201,169,110,0.12)" : "transparent", opacity: day.avail ? 1 : 0.25 }}>
-                  <div style={{ fontSize: 9, color: selectedDay === day.num ? s.accent : s.muted, marginBottom: 3 }}>{day.name}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: selectedDay === day.num ? s.accent : "#f0ede8" }}>{day.num}</div>
+            <div style={{ padding: "5px 14px", borderRadius: 8, background: pendingBooking.status === "accepted" ? "rgba(76,175,130,0.15)" : "rgba(232,184,75,0.15)", color: pendingBooking.status === "accepted" ? s.green : s.yellow, fontSize: 12, fontWeight: 700 }}>
+              {pendingBooking.status === "accepted" ? "Confirmat" : "In asteptare"}
+            </div>
+          </div>
+        )}
+
+        {/* INTERACTIUNI */}
+        {currentUser && (myBookingWithThis.length > 0) && (
+          <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20, marginBottom: 20 }}>
+            <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>🤝 Istoricul tau cu {provider.name}</div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: 10, marginBottom: hasCollaborated ? 14 : 0 }}>
+              {[
+                [myBookingWithThis.length.toString(), "Rezervari totale", s.accent],
+                [myBookingWithThis.filter(b => b.status === "completed").length.toString(), "Finalizate", s.green],
+                [myBookingWithThis.filter(b => b.status === "pending").length.toString(), "In asteptare", s.yellow],
+              ].map(([val, label, color]) => (
+                <div key={label} style={{ background: s.surface2, borderRadius: 10, padding: "12px 14px" }}>
+                  <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, color }}>{val}</div>
+                  <div style={{ fontSize: 11, color: s.muted, marginTop: 2 }}>{label}</div>
                 </div>
               ))}
             </div>
-            {selectedDay && (
-              <>
-                <div style={{ fontSize: 11, color: s.muted, marginBottom: 8 }}>Sloturi disponibile:</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
-                  {slots.map((slot) => {
-                    const isBusy = ["10:00","10:30","14:30"].includes(slot);
-                    const isPend = slot === "11:00";
-                    const isSel = selectedSlot === slot;
+            {hasCollaborated && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "rgba(76,175,130,0.08)", border: "1px solid rgba(76,175,130,0.2)", borderRadius: 10 }}>
+                <span style={{ fontSize: 20 }}>✅</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: s.green }}>Client verificat</div>
+                  <div style={{ fontSize: 11, color: s.muted }}>Ai colaborat deja cu acest prestator</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: 20, alignItems: "flex-start" }}>
+
+          {/* COLOANA STANGA */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+            {/* ANGAJATI (doar pentru firme) */}
+            {isCompany && employees.length > 0 && (
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>Echipa noastra</div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {employees.map((emp: any) => (
+                    <div key={emp.id} onClick={() => { setActiveEmployee(emp); setServices(emp.provider?.services || []); setSelectedService(null); }}
+                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12, border: `1px solid ${activeEmployee?.id === emp.id ? "rgba(201,169,110,0.5)" : s.border}`, background: activeEmployee?.id === emp.id ? "rgba(201,169,110,0.08)" : s.surface2, cursor: "pointer", transition: "all .2s" }}>
+                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", overflow: "hidden", flexShrink: 0 }}>
+                        {emp.avatar ? <img src={emp.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : emp.name?.charAt(0)}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>{emp.name}</div>
+                        <div style={{ fontSize: 11, color: s.muted }}>{(emp.provider?.services || []).length} servicii</div>
+                      </div>
+                      {activeEmployee?.id === emp.id && <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.accent }} />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* SERVICII */}
+            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>
+                Servicii {activeEmployee && isCompany ? `— ${activeEmployee.name}` : ""}
+              </div>
+              {services.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "20px 0", color: s.muted, fontSize: 13 }}>Niciun serviciu disponibil</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {services.map((svc: any, idx: number) => {
+                    const colors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
+                    const isFav = favorites.includes(svc.id);
+                    const hasThisBooking = myBookingWithThis.some(b => b.serviceId === svc.id && (b.status === "pending" || b.status === "accepted"));
                     return (
-                      <div key={slot} onClick={() => !isBusy && !isPend && selectSlot(slot)} style={{ padding: "6px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: isBusy || isPend ? "not-allowed" : "pointer", border: `1px solid ${isSel ? s.accent : isBusy ? s.surface2 : isPend ? "rgba(232,184,75,0.3)" : "rgba(76,175,130,0.3)"}`, background: isSel ? "rgba(201,169,110,0.15)" : isBusy ? s.surface : isPend ? "rgba(232,184,75,0.08)" : "rgba(76,175,130,0.08)", color: isSel ? s.accent : isBusy ? "#444" : isPend ? s.yellow : s.green, textDecoration: isBusy ? "line-through" : "none" }}>
-                        {slot}
+                      <div key={svc.id} style={{ display: "flex", alignItems: "center", gap: 0, background: s.surface2, borderRadius: 12, overflow: "hidden", border: `1px solid ${selectedService?.id === svc.id ? "rgba(201,169,110,0.4)" : s.border}`, transition: "all .2s", cursor: "pointer" }}
+                        onClick={() => setSelectedService(selectedService?.id === svc.id ? null : svc)}>
+                        <div style={{ width: 4, height: "100%", background: colors[idx % colors.length], flexShrink: 0, minHeight: 70 }} />
+                        <div style={{ flex: 1, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.name}</div>
+                              {hasThisBooking && <div style={{ padding: "2px 7px", borderRadius: 4, background: "rgba(232,184,75,0.15)", color: s.yellow, fontSize: 10, fontWeight: 700, flexShrink: 0 }}>⏳ Rezervat</div>}
+                            </div>
+                            {svc.description && <div style={{ fontSize: 12, color: s.muted, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.description}</div>}
+                            <div style={{ fontSize: 11, color: s.muted, marginTop: 4 }}>⏱ {svc.duration * 30} min</div>
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0 }}>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: s.accent }}>{svc.price} lei</div>
+                            <button onClick={e => { e.stopPropagation(); toggleFavorite(svc.id); }}
+                              style={{ width: 28, height: 28, borderRadius: 7, background: isFav ? "rgba(201,169,110,0.2)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFav ? s.accent : s.border}`, color: isFav ? s.accent : s.muted, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              {isFav ? "★" : "☆"}
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-                <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
-                  {[["rgba(76,175,130,0.2)", "rgba(76,175,130,0.4)", "Liber"], ["rgba(232,184,75,0.2)", "rgba(232,184,75,0.4)", "Așteptare"], ["#1e1e1e", "#333", "Ocupat"]].map(([bg, border, label]) => (
-                    <div key={label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: s.muted }}>
-                      <div style={{ width: 8, height: 8, borderRadius: 2, background: bg as string, border: `1px solid ${border}` }} />
-                      {label}
+              )}
+              {selectedService && (
+                <div style={{ marginTop: 14, padding: 16, background: "rgba(201,169,110,0.06)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 12 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Rezerva: {selectedService.name}</div>
+                  <div style={{ fontSize: 12, color: s.muted, marginBottom: 12 }}>{selectedService.duration * 30} min · {selectedService.price} lei</div>
+                  {currentUser ? (
+                    <button style={{ width: "100%", padding: "11px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                      Solicita rezervare
+                    </button>
+                  ) : (
+                    <button onClick={() => router.push("/login")} style={{ width: "100%", padding: "11px", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                      Autentifica-te pentru a rezerva
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* GALERIE */}
+            {gallery.length > 0 && (
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>Galerie foto</div>
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${isMobile ? 2 : 3}, 1fr)`, gap: 8 }}>
+                  {gallery.map((img: string, i: number) => (
+                    <div key={i} onClick={() => setLightboxImg(img)} style={{ aspectRatio: "1", borderRadius: 10, overflow: "hidden", cursor: "pointer", border: `1px solid ${s.border}` }}>
+                      <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .2s" }}
+                        onMouseEnter={e => (e.currentTarget as HTMLImageElement).style.transform = "scale(1.05)"}
+                        onMouseLeave={e => (e.currentTarget as HTMLImageElement).style.transform = "scale(1)"} />
                     </div>
                   ))}
                 </div>
-                {selectedSlot && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <button onClick={() => {
-  const chatWith = isCompany && activeEmployee ? activeEmployee.id : provider.id;
-  window.location.href = `/chat/${chatWith}`;
-}} style={{ width: "100%", padding: 10, background: "transparent", color: s.accent, border: `1px solid rgba(201,169,110,0.3)`, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="#c9a96e"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-  Trimite mesaj
-</button>
-                  </div>
-                )}
-              </>
+              </div>
             )}
+
+            {/* RECENZII */}
+            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Recenzii {reviews.length > 0 ? `(${reviews.length})` : ""}</div>
+                {avgRating && <div style={{ fontSize: 14, color: s.accent, fontWeight: 700 }}>★ {avgRating}</div>}
+              </div>
+              {reviews.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "20px 0", color: s.muted, fontSize: 13 }}>
+                  Nicio recenzie inca. Fii primul care lasa o parere!
+                </div>
+              ) : reviews.map((rev: any, i: number) => (
+                <div key={i} style={{ paddingBottom: 16, marginBottom: 16, borderBottom: i < reviews.length - 1 ? `1px solid ${s.surface2}` : "none" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", overflow: "hidden", flexShrink: 0 }}>
+                        {rev.client?.avatar ? <img src={rev.client.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : rev.client?.name?.charAt(0)}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{rev.client?.name || "Client"}</div>
+                        <div style={{ fontSize: 10, color: s.muted }}>Client verificat</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 13, color: s.accent }}>{"★".repeat(rev.rating)}{"☆".repeat(5-rev.rating)}</div>
+                      <div style={{ fontSize: 10, color: s.muted }}>{new Date(rev.createdAt).toLocaleDateString("ro-RO")}</div>
+                    </div>
+                  </div>
+                  {rev.comment && <div style={{ fontSize: 13, color: "#c8c5c0", lineHeight: 1.7 }}>{rev.comment}</div>}
+                </div>
+              ))}
+            </div>
           </div>
-        )}
-      </div>
-      {/* GALERIE */}
-      <div style={{ padding: isMobile ? "0 16px 16px" : "0 32px 24px" }}>
-        <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, marginBottom: 14 }}>Galerie</div>
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 8 }}>
-          {[1,2,3,4].map(i => (
-            <div key={i} style={{ height: 100, borderRadius: 10, background: `linear-gradient(135deg, #1a1408, #${i % 2 === 0 ? "2a2010" : "1a2008"})`, border: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: s.muted, fontSize: 22 }}>
-              📷
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* REVIEWS */}
-      <div style={{ padding: isMobile ? "16px" : "24px 32px", borderTop: `1px solid ${s.border}` }}>
-        <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
-          Recenzii {isCompany && activeEmployee ? activeEmployee.name : provider.name}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {[
-            { name: "Radu M.", stars: 5, text: "Serviciu excelent, foarte profesionist!", service: "Tuns + Styling", av: "R" },
-            { name: "Elena K.", stars: 5, text: "Rezultat exact cum am vrut. Revin cu siguranță!", service: "Vopsit complet", av: "E" },
-          ].map((r, i) => (
-            <div key={i} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: 14, display: "flex", gap: 12 }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#3a2a1a,#5a4a2a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: s.accent, flexShrink: 0 }}>
-                {r.av}
+          {/* COLOANA DREAPTA */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+            {/* CTA REZERVARE */}
+            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: 20 }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Rezerva acum</div>
+              <div style={{ fontSize: 12, color: s.muted, marginBottom: 16 }}>Selecteaza un serviciu din lista</div>
+              {selectedService ? (
+                <div>
+                  <div style={{ padding: "12px 14px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 10, marginBottom: 12 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{selectedService.name}</div>
+                    <div style={{ fontSize: 12, color: s.muted, marginTop: 4 }}>{selectedService.duration * 30} min · {selectedService.price} lei</div>
+                  </div>
+                  {currentUser ? (
+                    <button style={{ width: "100%", padding: "13px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                      Solicita rezervare
+                    </button>
+                  ) : (
+                    <button onClick={() => router.push("/login")} style={{ width: "100%", padding: "13px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                      Autentifica-te →
+                    </button>
+                  )}
+                  <button onClick={() => setSelectedService(null)} style={{ width: "100%", marginTop: 8, padding: "9px", background: "transparent", border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 13, color: s.muted, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                    Anuleaza selectia
+                  </button>
+                </div>
+              ) : (
+                <div style={{ textAlign: "center", padding: "20px 0", color: s.muted, fontSize: 13 }}>
+                  👆 Selecteaza un serviciu
+                </div>
+              )}
+            </div>
+
+            {/* COMPANIE PARINTE - doar pentru angajati */}
+            {!isCompany && provider.company && (
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: 16 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Parte din echipa</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", padding: "8px", background: s.surface2, borderRadius: 10, border: `1px solid ${s.border}`, transition: "border-color .2s" }}
+                  onClick={() => router.push(`/p/${provider.company.id}`)}
+                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.4)"}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = s.border}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 700, color: "#fff", overflow: "hidden", flexShrink: 0 }}>
+                    {provider.company.avatar ? <img src={provider.company.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : provider.company.name?.charAt(0)}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{provider.company.name}</div>
+                    <div style={{ fontSize: 12, color: s.muted }}>📍 {provider.company.oras}{provider.company.judet && `, ${provider.company.judet}`}</div>
+                  </div>
+                  <div style={{ fontSize: 20, color: s.muted, flexShrink: 0 }}>›</div>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{r.name}</div>
-                <div style={{ color: s.accent, fontSize: 11, marginBottom: 4 }}>{"★".repeat(r.stars)}</div>
-                <div style={{ fontSize: 12, color: "#a0a0a0", lineHeight: 1.6 }}>{r.text}</div>
-                <div style={{ display: "inline-block", marginTop: 6, fontSize: 10, color: s.muted, background: s.surface2, padding: "3px 8px", borderRadius: 5 }}>{r.service}</div>
+            )}
+
+            {/* FAVORITE */}
+            {favorites.length > 0 && (
+              <div style={{ background: s.surface, border: "1px solid rgba(201,169,110,0.2)", borderRadius: 14, padding: 16 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 600, marginBottom: 12, color: s.accent }}>★ Servicii favorite</div>
+                {services.filter(s => favorites.includes(s.id)).map((svc: any) => (
+                  <div key={svc.id} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${s.surface2}`, fontSize: 13 }}>
+                    <span>{svc.name}</span>
+                    <span style={{ color: s.accent, fontWeight: 700 }}>{svc.price} lei</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* CONTACT */}
+            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: 16 }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Contact</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {currentUser && (
+                  <button onClick={() => router.push(`/chat/${provider.id}`)} style={{ width: "100%", padding: "11px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 10, fontSize: 13, fontWeight: 600, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    💬 Trimite mesaj
+                  </button>
+                )}
+                {provider.whatsapp && (
+                  <a href={`https://wa.me/${provider.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+                    style={{ width: "100%", padding: "11px", background: "rgba(37,211,102,0.1)", border: "1px solid rgba(37,211,102,0.2)", borderRadius: 10, fontSize: 13, fontWeight: 600, color: "#25D366", cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, textDecoration: "none" }}>
+                    📱 WhatsApp
+                  </a>
+                )}
+                {provider.showEmail && provider.email && (
+                  <a href={`mailto:${provider.contactEmail || provider.email}`}
+                    style={{ width: "100%", padding: "11px", background: "rgba(90,141,224,0.1)", border: "1px solid rgba(90,141,224,0.2)", borderRadius: 10, fontSize: 13, fontWeight: 600, color: s.blue, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, textDecoration: "none" }}>
+                    ✉️ Email
+                  </a>
+                )}
               </div>
             </div>
-          ))}
+
+          </div>
         </div>
       </div>
-
     </div>
   );
 }
