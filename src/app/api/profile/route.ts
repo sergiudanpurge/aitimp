@@ -20,7 +20,7 @@ export async function PUT(request: Request) {
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
 
     const body = await request.json()
-    const { name, phone, judet, oras, adresa, description, instagram, facebook, website, tiktok, youtube, linkedin } = body
+    const { name, phone, judet, oras, adresa, description, instagram, facebook, website, tiktok, youtube, linkedin, whatsapp, contactEmail } = body
 
     const data: any = {}
     if (name !== undefined) data.name = name

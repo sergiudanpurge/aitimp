@@ -42,11 +42,28 @@ export async function GET() {
         contactEmail: true,
         showEmail: true,
         showPhone: true,
+        provider: {
+          select: {
+            gallery: true,
+            description: true,
+            rating: true,
+            reviewCount: true,
+          }
+        },
       }
     })
 
     if (!user) return NextResponse.json({ error: "User negasit" }, { status: 404 })
-    return NextResponse.json({ user })
+    
+    // Merge provider data in user
+    const userWithGallery = {
+      ...user,
+      gallery: (user as any).provider?.gallery || [],
+      rating: (user as any).provider?.rating || 0,
+      reviewCount: (user as any).provider?.reviewCount || 0,
+    }
+    
+    return NextResponse.json({ user: userWithGallery })
   } catch {
     return NextResponse.json({ error: "Token invalid" }, { status: 401 })
   }

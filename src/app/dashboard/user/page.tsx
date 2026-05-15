@@ -237,20 +237,7 @@ const getSectionTitle = () => {
                   </div>
                 )}
 
-                {user.gallery && user.gallery.length > 0 && (
-                  <div style={{ padding: "0 20px 14px", display: "flex", gap: 6 }}>
-                    {user.gallery.slice(0, 6).map((img: string, i: number) => (
-                      <div key={i} style={{ width: 48, height: 48, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: `1px solid ${s.border}` }}>
-                        <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      </div>
-                    ))}
-                    {user.gallery.length > 6 && (
-                      <div style={{ width: 48, height: 48, borderRadius: 8, background: s.surface2, border: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: s.muted, flexShrink: 0 }}>
-                        +{user.gallery.length - 6}
-                      </div>
-                    )}
-                  </div>
-                )}
+                
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderTop: `1px solid ${s.border}` }}>
                   {[[bookings.length.toString(),"Rezervări"],[services.length.toString(),"Servicii"],["4.94","Rating"],["0","Recenzii"]].map(([val,label],i) => (
@@ -293,6 +280,25 @@ const getSectionTitle = () => {
                   </div>
                 ))}
               </div>
+
+              {/* GALERIE */}
+              {user.gallery && user.gallery.length > 0 && (
+                <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Galerie foto</div>
+                    <button onClick={() => setActiveSection("editare-profil")} style={{ fontSize: 11, color: s.accent, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Gestioneaza →</button>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${isMobile ? "80px" : "100px"}, 1fr))`, gap: 8 }}>
+                    {user.gallery.map((img: string, i: number) => (
+                      <div key={i} style={{ aspectRatio: "1", borderRadius: 10, overflow: "hidden", border: `1px solid ${s.border}`, cursor: "pointer" }}>
+                        <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .2s" }}
+                          onMouseEnter={e => (e.currentTarget as HTMLImageElement).style.transform = "scale(1.05)"}
+                          onMouseLeave={e => (e.currentTarget as HTMLImageElement).style.transform = "scale(1)"} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* SECTIUNEA PRESTATOR */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
@@ -338,22 +344,7 @@ const getSectionTitle = () => {
                   </div>
                 )}
 
-                {/* Galerie preview */}
-                {user.gallery && user.gallery.length > 0 && (
-                  <>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>Galerie</div>
-                      <button onClick={() => setActiveSection("editare-profil")} style={{ fontSize: 11, color: s.accent, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Gestionează →</button>
-                    </div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-                      {user.gallery.slice(0, 4).map((img: string, i: number) => (
-                        <div key={i} style={{ width: 70, height: 70, borderRadius: 10, overflow: "hidden", border: `1px solid ${s.border}` }}>
-                          <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
+                
               </div>
             </div>
           )}
