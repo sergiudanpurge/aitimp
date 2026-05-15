@@ -147,12 +147,12 @@ export default function EmployeeDashboard() {
         <div style={{ width: 220, background: "#111", borderRight: `1px solid ${s.border}`, position: "fixed", top: 0, left: 0, bottom: 0, display: "flex", flexDirection: "column", zIndex: 50 }}>
           <div style={{ padding: "24px 20px 20px", borderBottom: `1px solid ${s.border}` }}>
             <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, color: s.accent }}>aitimp.ro</div>
-            <div style={{ fontSize: 11, color: s.muted, marginTop: 4 }}>Panou Angajat</div>
+            <div style={{ fontSize: 12, color: s.muted, marginTop: 4 }}>Panou Angajat</div>
           </div>
           <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 4, overflowY: "auto" }}>
             {sidebarSections.map((item: any, i) => {
               if (item.section) return (
-                <div key={i} style={{ fontSize: 10, color: "#444", textTransform: "uppercase" as const, letterSpacing: "0.8px", padding: "10px 12px 4px" }}>
+                <div key={i} style={{ fontSize: 11, color: "#444", textTransform: "uppercase" as const, letterSpacing: "0.8px", padding: "10px 12px 4px" }}>
                   {item.section === "prestator" ? "Prestator" : item.section === "client" ? "Client" : "Cont"}
                 </div>
               );
@@ -168,7 +168,7 @@ export default function EmployeeDashboard() {
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", overflow: "hidden" }}>
                 {user.avatar ? <img src={user.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : user.name?.charAt(0)}
               </div>
-              <div><div style={{ fontSize: 13, fontWeight: 600 }}>{user.name}</div><div style={{ fontSize: 11, color: s.muted }}>Angajat</div></div>
+              <div><div style={{ fontSize: 13, fontWeight: 600 }}>{user.name}</div><div style={{ fontSize: 12, color: s.muted }}>Angajat</div></div>
             </div>
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function EmployeeDashboard() {
                   <div style={{ display: "flex", gap: 8, paddingBottom: 8, flexWrap: "wrap" }}>
                     <div style={{ padding: "5px 12px", borderRadius: 8, background: "rgba(90,141,224,0.1)", border: "1px solid rgba(90,141,224,0.2)", fontSize: 11, color: s.blue, fontWeight: 600 }}>👤 Client</div>
                     <div style={{ padding: "5px 12px", borderRadius: 8, background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", fontSize: 11, color: s.accent, fontWeight: 600 }}>🔧 Angajat</div>
-                    <button onClick={() => setActiveSection("editare-profil")} style={{ padding: "5px 12px", borderRadius: 8, background: s.surface2, border: `1px solid ${s.border}`, fontSize: 11, color: s.muted, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✏️ Editează</button>
+                    <button onClick={() => setActiveSection("editare-profil")} style={{ padding: "5px 12px", borderRadius: 8, background: s.surface2, border: `1px solid ${s.border}`, fontSize: 12, color: s.muted, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✏️ Editează</button>
                   </div>
                 </div>
                 {profileForm.description && <div style={{ padding: "0 20px 12px", fontSize: 13, color: s.muted, lineHeight: 1.7 }}>{profileForm.description}</div>}
@@ -242,7 +242,7 @@ export default function EmployeeDashboard() {
                     <div key={i} style={{ padding: isMobile ? "10px 8px" : "12px 16px", borderRight: i < 3 ? `1px solid ${s.border}` : "none", textAlign: "center", cursor: "pointer" }}
                       onClick={() => setActiveSection(i === 0 ? "rezervari-client" : i === 1 ? "cereri" : "servicii")}>
                       <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 16 : 20, fontWeight: 700, color: s.accent }}>{val}</div>
-                      <div style={{ fontSize: 10, color: s.muted, marginTop: 2 }}>{label}</div>
+                      <div style={{ fontSize: 12, color: s.muted, marginTop: 2 }}>{label}</div>
                     </div>
                   ))}
                 </div>
@@ -258,8 +258,8 @@ export default function EmployeeDashboard() {
                 ].map(([val, label, color, sub]) => (
                   <div key={label} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: "14px 16px" }}>
                     <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 20 : 24, fontWeight: 700, color }}>{val}</div>
-                    <div style={{ fontSize: 11, color: s.muted, marginTop: 3 }}>{label}</div>
-                    <div style={{ fontSize: 10, color: "#555", marginTop: 1 }}>{sub}</div>
+                    <div style={{ fontSize: 12, color: s.muted, marginTop: 3 }}>{label}</div>
+                    <div style={{ fontSize: 11, color: "#555", marginTop: 1 }}>{sub}</div>
                   </div>
                 ))}
               </div>
@@ -275,7 +275,7 @@ export default function EmployeeDashboard() {
                   ].map(([val,label,color]) => (
                     <div key={label as string} style={{ background: s.surface2, borderRadius: 10, padding: "12px 14px" }}>
                       <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 18 : 22, fontWeight: 700, color: color as string }}>{val}</div>
-                      <div style={{ fontSize: 11, color: s.muted, marginTop: 3 }}>{label}</div>
+                      <div style={{ fontSize: 12, color: s.muted, marginTop: 3 }}>{label}</div>
                     </div>
                   ))}
                 </div>
@@ -292,10 +292,10 @@ export default function EmployeeDashboard() {
                     <div style={{ width: 34, height: 34, borderRadius: 8, background: s.surface2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>📅</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.service?.name || "Serviciu"}</div>
-                      <div style={{ fontSize: 11, color: s.muted }}>{b.date} {b.time && `· ${b.time}`}</div>
+                      <div style={{ fontSize: 12, color: s.muted }}>{b.date} {b.time && `· ${b.time}`}</div>
                     </div>
                     <div style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, fontWeight: 700, background: statusConfig[b.status]?.bg, color: statusConfig[b.status]?.color, flexShrink: 0 }}>{statusConfig[b.status]?.label}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: s.accent }}>{b.totalPrice} lei</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: s.accent }}>{b.totalPrice} lei</div>
                   </div>
                 ))}
               </div>
@@ -318,9 +318,9 @@ export default function EmployeeDashboard() {
                         <div style={{ width: 3, height: 32, borderRadius: 2, background: colors[idx % colors.length], flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.name}</div>
-                          <div style={{ fontSize: 11, color: s.muted }}>{svc.duration * 30} min</div>
+                          <div style={{ fontSize: 12, color: s.muted }}>{svc.duration * 30} min</div>
                         </div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: s.accent }}>{svc.price} lei</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: s.accent }}>{svc.price} lei</div>
                       </div>
                     );
                   })}
@@ -340,7 +340,7 @@ export default function EmployeeDashboard() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.client?.name} — {b.service?.name}</div>
-                        <div style={{ fontSize: 11, color: s.muted }}>{b.date} · {b.time}</div>
+                        <div style={{ fontSize: 12, color: s.muted }}>{b.date} · {b.time}</div>
                       </div>
                       <div style={{ display: "flex", gap: 5 }}>
                         <button style={{ padding: "5px 10px", borderRadius: 6, background: "rgba(76,175,130,0.1)", border: "1px solid rgba(76,175,130,0.3)", color: s.green, fontSize: 11, cursor: "pointer", fontWeight: 600 }}>✓</button>
@@ -378,9 +378,9 @@ export default function EmployeeDashboard() {
                       { label: "Pret mediu", val: avgPrice + " lei", sub: "per serviciu", color: s.yellow },
                     ].map(stat => (
                       <div key={stat.label} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: "14px 16px" }}>
-                        <div style={{ fontSize: 10, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>{stat.label}</div>
+                        <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>{stat.label}</div>
                         <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 15 : 18, fontWeight: 700, color: stat.color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stat.val}</div>
-                        <div style={{ fontSize: 10, color: "#555", marginTop: 3 }}>{stat.sub}</div>
+                        <div style={{ fontSize: 11, color: "#555", marginTop: 3 }}>{stat.sub}</div>
                       </div>
                     ))}
                   </div>
@@ -405,8 +405,8 @@ export default function EmployeeDashboard() {
                                 <div style={{ height: "100%", width: pct+"%", background: colors[idx%colors.length], borderRadius: 3 }} />
                               </div>
                               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                                <span style={{ fontSize: 10, color: s.muted }}>{svcBk.length} rezervari</span>
-                                <span style={{ fontSize: 10, color: s.muted }}>{svc.price} lei · {svc.duration*30} min</span>
+                                <span style={{ fontSize: 12, color: s.muted }}>{svcBk.length} rezervari</span>
+                                <span style={{ fontSize: 12, color: s.muted }}>{svc.price} lei · {svc.duration*30} min</span>
                               </div>
                             </div>
                           </div>
@@ -447,13 +447,13 @@ export default function EmployeeDashboard() {
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <div style={{ display: "flex", gap: 6 }}>
-                              <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(76,175,130,0.15)", color: s.green }}>● Activ</div>
-                              <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 10, fontWeight: 700, background: "rgba(201,169,110,0.1)", color: s.accent }}>{svc.duration * 30} min</div>
+                              <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700, background: "rgba(76,175,130,0.15)", color: s.green }}>● Activ</div>
+                              <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700, background: "rgba(201,169,110,0.1)", color: s.accent }}>{svc.duration * 30} min</div>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                               <span style={{ fontSize: 15, fontWeight: 700, color: s.accent }}>{svc.price} lei</span>
                               <div style={{ display: "flex", gap: 5 }}>
-                                <button style={{ padding: "5px 10px", borderRadius: 7, background: s.surface2, color: "#f0ede8", border: `1px solid ${s.border}`, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Editează</button>
+                                <button style={{ padding: "5px 10px", borderRadius: 7, background: s.surface2, color: "#f0ede8", border: `1px solid ${s.border}`, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Editează</button>
                                 <button style={{ padding: "5px 8px", borderRadius: 7, background: "rgba(224,90,90,0.08)", color: s.red, border: "1px solid rgba(224,90,90,0.2)", fontSize: 11, cursor: "pointer" }}>Șterge</button>
                               </div>
                             </div>
@@ -483,7 +483,7 @@ export default function EmployeeDashboard() {
                 {[[pending.length.toString(),"În așteptare",s.yellow],[accepted.length.toString(),"Confirmate",s.green],[completed.length.toString(),"Finalizate",s.accent]].map(([val,label,color]) => (
                   <div key={label} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: "14px 16px" }}>
                     <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 20 : 24, fontWeight: 700, color }}>{val}</div>
-                    <div style={{ fontSize: 11, color: s.muted, marginTop: 3 }}>{label}</div>
+                    <div style={{ fontSize: 12, color: s.muted, marginTop: 3 }}>{label}</div>
                   </div>
                 ))}
               </div>
@@ -584,13 +584,13 @@ export default function EmployeeDashboard() {
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Date personale</div>
                 {([["name","Nume complet","Numele tău complet"],["phone","Telefon","07xx xxx xxx"]] as [string,string,string][]).map(([k,l,p]) => (
                   <div key={k}>
-                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{l}</div>
+                    <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{l}</div>
                     <input value={(profileForm as any)[k]} onChange={e => setProfileForm({ ...profileForm, [k]: e.target.value })} placeholder={p} style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
                   </div>
                 ))}
                 <div>
-                  <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Descriere / Bio</div>
+                  <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Descriere / Bio</div>
                   <textarea value={profileForm.description} onChange={e => setProfileForm({ ...profileForm, description: e.target.value })} placeholder="Descrie-te pe scurt..." rows={3}
                     style={{ ...inputStyle, resize: "vertical" as const }}
                     onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
@@ -598,7 +598,7 @@ export default function EmployeeDashboard() {
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
                   <div>
-                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Județ</div>
+                    <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Județ</div>
                     <select value={profileForm.judet} onChange={e => setProfileForm({ ...profileForm, judet: e.target.value })}
                       style={{ ...inputStyle, cursor: "pointer" }}>
                       <option value="">Selectează județul</option>
@@ -606,7 +606,7 @@ export default function EmployeeDashboard() {
                     </select>
                   </div>
                   <div>
-                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Oraș</div>
+                    <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Oraș</div>
                     <input value={profileForm.oras} onChange={e => setProfileForm({ ...profileForm, oras: e.target.value })} placeholder="ex: Oradea" style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
                   </div>
@@ -618,7 +618,7 @@ export default function EmployeeDashboard() {
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Rețele sociale</div>
                 {SOCIAL_PLATFORMS.map(p => (
                   <div key={p.key}>
-                    <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{p.label}</div>
+                    <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{p.label}</div>
                     <input value={(profileForm as any)[p.key]} onChange={e => setProfileForm({ ...profileForm, [p.key]: e.target.value })}
                       placeholder={`https://${p.key}.com/username`} style={inputStyle}
                       onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
@@ -632,17 +632,30 @@ export default function EmployeeDashboard() {
                 <div style={{ fontSize: 13, color: s.muted }}>Adaugă până la 10 poze care apar pe profilul tău public.</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
                   {(user.gallery || []).map((img: string, i: number) => (
-                    <div key={i} style={{ aspectRatio: "1", borderRadius: 10, overflow: "hidden", position: "relative", background: s.surface2 }}>
+                    <div key={i} style={{ aspectRatio: "1", borderRadius: 10, overflow: "hidden", position: "relative", background: s.surface2, border: i === 0 ? `2px solid ${s.accent}` : `1px solid ${s.border}` }}>
                       <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(224,90,90,0.9)", color: "#fff", border: "none", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                      {i === 0 && <div style={{ position: "absolute", top: 4, left: 4, padding: "2px 7px", borderRadius: 5, background: "rgba(201,169,110,0.9)", color: "#0a0a0a", fontSize: 9, fontWeight: 700 }}>BANNER</div>}
+                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", gap: 2, padding: 4, background: "linear-gradient(to top,rgba(0,0,0,0.8),transparent)" }}>
+                        {i !== 0 && <button onClick={e => { e.stopPropagation(); const g=[...(user.gallery||[])]; g.splice(i,1); g.unshift(img); setUser({...user,gallery:g}); fetch("/api/profile/gallery/reorder",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gallery:g})}); }} style={{ flex:1,padding:"3px",borderRadius:4,background:"rgba(201,169,110,0.8)",color:"#0a0a0a",border:"none",fontSize:9,fontWeight:700,cursor:"pointer" }}>📌</button>}
+                        <button onClick={e => { e.stopPropagation(); const g=(user.gallery||[]).filter((_:string,gi:number)=>gi!==i); setUser({...user,gallery:g}); fetch("/api/profile/gallery",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({index:i})}); }} style={{ flex:1,padding:"3px",borderRadius:4,background:"rgba(224,90,90,0.8)",color:"#fff",border:"none",fontSize:9,fontWeight:700,cursor:"pointer" }}>✕</button>
+                      </div>
                     </div>
                   ))}
                   {(user.gallery?.length || 0) < 10 && (
                     <label style={{ aspectRatio: "1", borderRadius: 10, border: `2px dashed ${s.border}`, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 6 }}
                       onMouseEnter={e => (e.currentTarget.style.borderColor = s.accent)} onMouseLeave={e => (e.currentTarget.style.borderColor = s.border)}>
                       <div style={{ fontSize: 24, color: s.muted }}>+</div>
-                      <div style={{ fontSize: 10, color: s.muted }}>Adaugă foto</div>
-                      <input type="file" accept="image/*" multiple style={{ display: "none" }} />
+                      <div style={{ fontSize: 12, color: s.muted }}>Adaugă foto</div>
+                      <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => {
+                        const files = Array.from(e.target.files || []);
+                        files.forEach(file => {
+                          const fd = new FormData();
+                          fd.append("file", file);
+                          fetch("/api/profile/gallery", { method: "POST", body: fd })
+                            .then(r => r.json())
+                            .then(d => { if (d.url) setUser((prev: any) => ({ ...prev, gallery: [...(prev.gallery || []), d.url] })); });
+                        });
+                      }} />
                     </label>
                   )}
                 </div>
@@ -663,7 +676,7 @@ export default function EmployeeDashboard() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {([["current","Parola curentă","Parola actuală"],["new","Parolă nouă","Minim 8 caractere"],["confirm","Confirmă parola","Repetă parola"]] as [string,string,string][]).map(([k,l,p]) => (
                     <div key={k}>
-                      <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>{l}</div>
+                      <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>{l}</div>
                       <input type="password" value={(passwords as any)[k]} onChange={e => setPasswords({ ...passwords, [k]: e.target.value })} placeholder={p} style={inputStyle}
                         onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
                     </div>

@@ -1,21 +1,24 @@
 const fs = require('fs');
 let code = fs.readFileSync('./src/app/dashboard/employee/page.tsx', 'utf8');
 
-const startMarker = '\r\n\r\n              {/* CA SI CLIENT */}\r\n              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>\r\n                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.blue }}>👤 Ca și Client</div>';
+// Inlocuim fontSize: 10 cu 11 si fontSize: 11 cu 12 pentru text normal (nu badges/labels)
+let count10 = 0, count11 = 0;
 
-const endMarker = '\r\n\r\n              {/* SERVICII + CERERI */}';
+// fontSize 10 -> 11 (text normal, nu shorthand)
+code = code.replace(/fontSize: 10, color: s\.muted/g, (m) => { count10++; return 'fontSize: 11, color: s.muted'; });
+code = code.replace(/fontSize: 10, color: "#/g, (m) => { count10++; return 'fontSize: 11, color: "#'; });
+code = code.replace(/fontSize: 10, fontWeight: 600/g, (m) => { count10++; return 'fontSize: 11, fontWeight: 600'; });
+code = code.replace(/fontSize: 10, fontWeight: 700/g, (m) => { count10++; return 'fontSize: 12, fontWeight: 700'; });
 
-const startIdx = code.indexOf(startMarker, 26000); // A doua aparitie
-const endIdx = code.indexOf(endMarker, startIdx);
+// fontSize 11 text -> 12
+code = code.replace(/fontSize: 11, color: s\.muted/g, (m) => { count11++; return 'fontSize: 12, color: s.muted'; });
+code = code.replace(/fontSize: 11, fontWeight: 600/g, (m) => { count11++; return 'fontSize: 12, fontWeight: 600'; });
 
-console.log('Start:', startIdx);
-console.log('End:', endIdx);
+// fontSize 13 unde lipseste
+code = code.replace(/fontSize: 13, fontWeight: 700, color: s\.accent/g, 'fontSize: 14, fontWeight: 700, color: s.accent');
 
-if (startIdx > -1 && endIdx > -1) {
-  code = code.substring(0, startIdx) + code.substring(endIdx);
-  console.log('✅ Bloc sters!');
-  fs.writeFileSync('./src/app/dashboard/employee/page.tsx', code);
-  console.log('Done:', fs.statSync('./src/app/dashboard/employee/page.tsx').size);
-} else {
-  console.log('❌ Negasit');
-}
+console.log('Schimbari fontSize 10:', count10);
+console.log('Schimbari fontSize 11:', count11);
+
+fs.writeFileSync('./src/app/dashboard/employee/page.tsx', code);
+console.log('Done:', fs.statSync('./src/app/dashboard/employee/page.tsx').size);
