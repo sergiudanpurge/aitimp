@@ -16,38 +16,38 @@ export async function GET() {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
     const fullUser = await prisma.user.findUnique({
-      where: { id: user.id as string },
+      where: { id: user.id },
       select: { role: true, accountType: true }
     })
-    let bookings;
+    let reviews;
     if (fullUser?.accountType === "company") {
       const employees = await prisma.user.findMany({
-        where: { companyId: user.id as string },
+        where: { companyId: user.id },
         select: { provider: { select: { id: true } } }
       })
       const providerIds = employees.map((e) => e.provider?.id).filter(Boolean)
-      bookings = await prisma.booking.findMany({
+      reviews = await prisma.review.findMany({
         where: { providerId: { in: providerIds } },
-        include: { service: true, provider: { include: { user: true } }, client: { select: { id: true, name: true, email: true, avatar: true } } },
+        include: { client: { select: { id: true, name: true, avatar: true } }, provider: { include: { user: { select: { id: true, name: true, avatar: true } } } } },
         orderBy: { createdAt: "desc" }
       })
     } else if (fullUser?.role === "employee") {
       const provider = await prisma.provider.findUnique({ where: { userId: user.id }, select: { id: true } })
-      bookings = await prisma.booking.findMany({
+      reviews = await prisma.review.findMany({
         where: { providerId: provider?.id },
-        include: { service: true, provider: { include: { user: true } }, client: { select: { id: true, name: true, email: true, avatar: true } } },
+        include: { client: { select: { id: true, name: true, avatar: true } } },
         orderBy: { createdAt: "desc" }
       })
     } else {
-      bookings = await prisma.booking.findMany({
+      reviews = await prisma.review.findMany({
         where: { clientId: user.id },
-        include: { service: true, provider: { include: { user: true } }, client: { select: { id: true, name: true, email: true, avatar: true } } },
+        include: { provider: { include: { user: { select: { id: true, name: true, avatar: true } } } } },
         orderBy: { createdAt: "desc" }
       })
     }
-    return NextResponse.json({ bookings })
+    return NextResponse.json({ reviews })
   } catch (error) {
-    console.error("Bookings error:", error)
+    console.error("Reviews error:", error)
     return NextResponse.json({ error: "Eroare server" }, { status: 500 })
   }
 }

@@ -1,6 +1,4 @@
-const fs = require('fs');
 
-const seed = `
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
@@ -192,7 +190,7 @@ async function main() {
     }
   }
 
-  console.log('\\n✅ SEED COMPLET!');
+  console.log('\n✅ SEED COMPLET!');
   console.log('📧 Conturi demo:');
   console.log('   Admin:   admin.demo@aitimp.ro / parola123');
   console.log('   Angajat: mirel.demo@aitimp.ro / parola123');
@@ -207,7 +205,3 @@ function formatDate(date, offsetDays) {
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect());
-`;
-
-fs.writeFileSync('./prisma/seed.js', seed);
-console.log('✅ Seed creat!');

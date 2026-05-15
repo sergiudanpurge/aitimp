@@ -1,44 +1,119 @@
 const fs = require('fs');
 
-const code = `"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-
-const DAYS = ["Luni", "Mar\u021bi", "Miercuri", "Joi", "Vineri", "S\u00e2mb\u0103t\u0103", "Duminic\u0103"];
-const defaultSchedule = DAYS.reduce((acc, day, i) => ({ ...acc, [day]: { active: i < 5, start: "09:00", end: "18:00", open: false } }), {});
-
-export default function EmployeeProfile() {
-  const { useRouter: r, useParams: p } = { useRouter, useParams };
-  const router = useRouter();
-  const params = useParams();
-  const id = params.id;
-  const [employee, setEmployee] = useState(null);
-  const [services, setServices] = useState([]);
-  const [activeTab, setActiveTab] = useState("program");
-  const [msg, setMsg] = useState("");
-  const [schedule, setSchedule] = useState(defaultSchedule);
-
-  useEffect(() => {
-    fetch("/api/employees/" + id).then(r => r.json()).then(d => {
-      setEmployee(d.employee);
-      if (d.services) setServices(d.services);
-    });
-  }, [id]);
-
-  if (!employee) return (
-    <DashboardLayout title="Se incarca...">
-      <div style={{ color: "#777" }}>Se incarca...</div>
-    </DashboardLayout>
-  );
-
-  return (
-    <DashboardLayout title={employee.name}>
-      <div style={{ color: "#f0ede8" }}>Profil: {employee.name}</div>
-    </DashboardLayout>
-  );
+const bookingsCode = `import { NextResponse } from "next/server"
+import { PrismaClient } from "@prisma/client"
+import { jwtVerify } from "jose"
+import { cookies } from "next/headers"
+const prisma = new PrismaClient()
+const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "aitimp-secret-2025")
+async function getUser() {
+  const cookieStore = await cookies()
+  const token = cookieStore.get("auth-token")?.value
+  if (!token) return null
+  const { payload } = await jwtVerify(token, secret)
+  return payload
+}
+export async function GET() {
+  try {
+    const user = await getUser()
+    if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
+    const fullUser = await prisma.user.findUnique({
+      where: { id: user.id as string },
+      select: { role: true, accountType: true }
+    })
+    let bookings;
+    if (fullUser?.accountType === "company") {
+      const employees = await prisma.user.findMany({
+        where: { companyId: user.id as string },
+        select: { provider: { select: { id: true } } }
+      })
+      const providerIds = employees.map((e) => e.provider?.id).filter(Boolean)
+      bookings = await prisma.booking.findMany({
+        where: { providerId: { in: providerIds } },
+        include: { service: true, provider: { include: { user: true } }, client: { select: { id: true, name: true, email: true, avatar: true } } },
+        orderBy: { createdAt: "desc" }
+      })
+    } else if (fullUser?.role === "employee") {
+      const provider = await prisma.provider.findUnique({ where: { userId: user.id }, select: { id: true } })
+      bookings = await prisma.booking.findMany({
+        where: { providerId: provider?.id },
+        include: { service: true, provider: { include: { user: true } }, client: { select: { id: true, name: true, email: true, avatar: true } } },
+        orderBy: { createdAt: "desc" }
+      })
+    } else {
+      bookings = await prisma.booking.findMany({
+        where: { clientId: user.id },
+        include: { service: true, provider: { include: { user: true } }, client: { select: { id: true, name: true, email: true, avatar: true } } },
+        orderBy: { createdAt: "desc" }
+      })
+    }
+    return NextResponse.json({ bookings })
+  } catch (error) {
+    console.error("Bookings error:", error)
+    return NextResponse.json({ error: "Eroare server" }, { status: 500 })
+  }
 }`;
 
-fs.writeFileSync('./src/app/dashboard/employees/[id]/page.tsx', code);
-console.log('Done:', fs.statSync('./src/app/dashboard/employees/[id]/page.tsx').size);
+fs.writeFileSync('./src/app/api/bookings/route.ts', bookingsCode);
+console.log('✅ Bookings fixed!');
+
+const dir = './src/app/api/reviews';
+if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+const reviewsCode = `import { NextResponse } from "next/server"
+import { PrismaClient } from "@prisma/client"
+import { jwtVerify } from "jose"
+import { cookies } from "next/headers"
+const prisma = new PrismaClient()
+const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "aitimp-secret-2025")
+async function getUser() {
+  const cookieStore = await cookies()
+  const token = cookieStore.get("auth-token")?.value
+  if (!token) return null
+  const { payload } = await jwtVerify(token, secret)
+  return payload
+}
+export async function GET() {
+  try {
+    const user = await getUser()
+    if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
+    const fullUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { role: true, accountType: true }
+    })
+    let reviews;
+    if (fullUser?.accountType === "company") {
+      const employees = await prisma.user.findMany({
+        where: { companyId: user.id },
+        select: { provider: { select: { id: true } } }
+      })
+      const providerIds = employees.map((e) => e.provider?.id).filter(Boolean)
+      reviews = await prisma.review.findMany({
+        where: { providerId: { in: providerIds } },
+        include: { client: { select: { id: true, name: true, avatar: true } }, provider: { include: { user: { select: { id: true, name: true, avatar: true } } } } },
+        orderBy: { createdAt: "desc" }
+      })
+    } else if (fullUser?.role === "employee") {
+      const provider = await prisma.provider.findUnique({ where: { userId: user.id }, select: { id: true } })
+      reviews = await prisma.review.findMany({
+        where: { providerId: provider?.id },
+        include: { client: { select: { id: true, name: true, avatar: true } } },
+        orderBy: { createdAt: "desc" }
+      })
+    } else {
+      reviews = await prisma.review.findMany({
+        where: { clientId: user.id },
+        include: { provider: { include: { user: { select: { id: true, name: true, avatar: true } } } } },
+        orderBy: { createdAt: "desc" }
+      })
+    }
+    return NextResponse.json({ reviews })
+  } catch (error) {
+    console.error("Reviews error:", error)
+    return NextResponse.json({ error: "Eroare server" }, { status: 500 })
+  }
+}`;
+
+fs.writeFileSync(`${dir}/route.ts`, reviewsCode);
+console.log('✅ Reviews API creat!');
+console.log('Done!');
