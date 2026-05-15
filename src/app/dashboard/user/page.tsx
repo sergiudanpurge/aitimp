@@ -536,9 +536,13 @@ const getSectionTitle = () => {
                 <div style={{ fontSize: 13, color: s.muted }}>Adaugă până la 10 poze care apar pe profilul tău public.</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
                   {(user.gallery || []).map((img: string, i: number) => (
-                    <div key={i} style={{ aspectRatio: "1", borderRadius: 10, overflow: "hidden", position: "relative", background: s.surface2 }}>
+                    <div key={i} style={{ aspectRatio: "1", borderRadius: 10, overflow: "hidden", position: "relative", background: s.surface2, border: i === 0 ? `2px solid ${s.accent}` : `1px solid ${s.border}` }}>
                       <img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button style={{ position: "absolute", top: 4, right: 4, width: 22, height: 22, borderRadius: "50%", background: "rgba(224,90,90,0.9)", color: "#fff", border: "none", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                      {i === 0 && <div style={{ position: "absolute", top: 4, left: 4, padding: "2px 7px", borderRadius: 5, background: "rgba(201,169,110,0.9)", color: "#0a0a0a", fontSize: 9, fontWeight: 700 }}>BANNER</div>}
+                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", gap: 2, padding: 4, background: "linear-gradient(to top,rgba(0,0,0,0.8),transparent)" }}>
+                        {i !== 0 && <button onClick={e => { e.stopPropagation(); const g=[...(user.gallery||[])]; g.splice(i,1); g.unshift(img); setUser({...user,gallery:g}); fetch("/api/profile/gallery/reorder",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gallery:g})}); }} style={{ flex:1,padding:"3px",borderRadius:4,background:"rgba(201,169,110,0.8)",color:"#0a0a0a",border:"none",fontSize:9,fontWeight:700,cursor:"pointer" }}>📌</button>}
+                        <button onClick={e => { e.stopPropagation(); const g=(user.gallery||[]).filter((_:string,gi:number)=>gi!==i); setUser({...user,gallery:g}); fetch("/api/profile/gallery",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({index:i})}); }} style={{ flex:1,padding:"3px",borderRadius:4,background:"rgba(224,90,90,0.8)",color:"#fff",border:"none",fontSize:9,fontWeight:700,cursor:"pointer" }}>✕</button>
+                      </div>
                     </div>
                   ))}
                   {(user.gallery?.length || 0) < 10 && (
