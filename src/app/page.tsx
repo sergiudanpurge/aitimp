@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 export default function HomePage() {
   return (
     <div style={{ background: "#090806" }}>
-      <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1400, margin: "0 auto", overflowX: "hidden" }}>
         <Navbar />
         <main>
           <HeroSection />

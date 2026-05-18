@@ -52,9 +52,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="ro" className={playfair.variable + " " + outfit.variable}>
-      <body>
-        <div ref={cursorRef} style={{ position: "fixed", width: 8, height: 8, background: "#C9A84C", borderRadius: "50%", pointerEvents: "none", zIndex: 9999, transform: "translate(-50%,-50%)", transition: "transform 0.2s", top: 0, left: 0 }} />
-        <div ref={ringRef} style={{ position: "fixed", width: 36, height: 36, border: "1.5px solid rgba(201,168,76,0.45)", borderRadius: "50%", pointerEvents: "none", zIndex: 9998, transform: "translate(-50%,-50%)", transition: "width 0.3s, height 0.3s", top: 0, left: 0 }} />
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta name="theme-color" content="#0a0a0a" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
+      <body style={{ overflowX: "hidden", margin: 0, padding: 0 }}>
+        {typeof window !== "undefined" && window.innerWidth > 768 && <>
+          <div ref={cursorRef} style={{ position: "fixed", width: 8, height: 8, background: "#C9A84C", borderRadius: "50%", pointerEvents: "none", zIndex: 9999, transform: "translate(-50%,-50%)", transition: "transform 0.2s", top: 0, left: 0 }} />
+          <div ref={ringRef} style={{ position: "fixed", width: 36, height: 36, border: "1.5px solid rgba(201,168,76,0.45)", borderRadius: "50%", pointerEvents: "none", zIndex: 9998, transform: "translate(-50%,-50%)", transition: "width 0.3s, height 0.3s", top: 0, left: 0 }} />
+        </>}
         <ScrollReveal>{children}</ScrollReveal>
       </body>
     </html>

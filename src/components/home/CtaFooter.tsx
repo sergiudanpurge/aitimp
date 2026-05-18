@@ -5,7 +5,7 @@ import Link from "next/link";
 export function CtaSection() {
   return (
     <section style={{ padding: "clamp(64px, 10vw, 140px) clamp(16px, 5vw, 64px)", textAlign: "center", position: "relative", overflow: "hidden", background: "#090806" }}>
-      <div style={{ position: "absolute", width: 700, height: 400, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "radial-gradient(ellipse, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", width: "min(700px, 100vw)", height: 400, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "radial-gradient(ellipse, rgba(201,168,76,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
       <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(2rem,5vw,4.8rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: 20, position: "relative", zIndex: 2 }}>
         Timpul tău e <em style={{ fontStyle: "italic", color: "#C9A84C" }}>prețios.</em><br />
         Folosește-l bine.

@@ -1,4 +1,5 @@
 "use client";
+import { useResponsive } from "@/hooks/useResponsive";
 import Navbar from "@/components/Navbar";
 
 import { useState } from "react";
@@ -6,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
+  const { isMobile } = useResponsive();
   const router = useRouter();
   const searchParams = useSearchParams();
   const verified = searchParams.get("verified");
@@ -41,7 +43,7 @@ export default function LoginPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#090806", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px", position: "relative" }}>
-      <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(201,168,76,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.035) 1px,transparent 1px)", backgroundSize: "60px 60px", WebkitMaskImage: "radial-gradient(ellipse 70% 70% at 50% 50%,black 30%,transparent 100%)" }} />
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "linear-gradient(rgba(201,168,76,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.035) 1px,transparent 1px)", backgroundSize: "60px 60px", WebkitMaskImage: "radial-gradient(ellipse 70% 70% at 50% 50%,black 30%,transparent 100%)" }} />
       <div style={{ position: "absolute", width: 600, height: 400, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
 
       <div style={{ width: "100%", maxWidth: 460, position: "relative", zIndex: 2 }}>
@@ -94,7 +96,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <button onClick={handleSubmit} disabled={loading} style={{ width: "100%", background: "#C9A84C", color: "#090806", border: "none", borderRadius: 10, padding: 15, fontSize: "0.9rem", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 20 }}>
+            <button onClick={handleSubmit} disabled={loading} style={{ width: "100%", background: "#C9A84C", color: "#090806", border: "none", borderRadius: 10, padding: "16px 15px", fontSize: "1rem", minHeight: 52, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 20 }}>
               {loading ? "Se încarcă..." : "Intră în cont"}
             </button>
 

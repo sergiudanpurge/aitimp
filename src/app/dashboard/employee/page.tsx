@@ -1006,7 +1006,7 @@ export default function EmployeeDashboard() {
 
       {/* BOTTOM NAV MOBILE */}
       {isMobile && (
-        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: 60, background: "#111", borderTop: `1px solid ${s.border}`, display: "flex", zIndex: 100 }}>
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, height: 64, background: "#111", borderTop: `1px solid ${s.border}`, display: "flex", zIndex: 100 }}>
           {bottomNavItems.map(item => (
             <button key={item.id} onClick={() => setActiveSection(item.id)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, background: "none", border: "none", color: activeSection === item.id ? s.accent : s.muted, fontSize: 9, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
               <div style={{ fontSize: 18 }}>{item.icon}</div>

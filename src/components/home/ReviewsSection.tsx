@@ -1,4 +1,5 @@
 "use client";
+import { useResponsive } from "@/hooks/useResponsive";
 
 const reviews = [
   { text: "Am găsit un instalator în 10 minute și a venit a doua zi dimineața.", name: "Radu M.", role: "Client · București", icon: "👨", type: "Client" },
@@ -7,6 +8,7 @@ const reviews = [
 ];
 
 export default function ReviewsSection() {
+  const { isMobile } = useResponsive();
   return (
     <section id="recenzii" style={{ padding: "clamp(48px, 8vw, 120px) clamp(16px, 5vw, 64px)", background: "#0f0e0b", borderTop: "1px solid rgba(201,168,76,0.12)" }}>
       <div style={{ textAlign: "center", marginBottom: "64px" }}>

@@ -1,4 +1,5 @@
 "use client";
+import { useResponsive } from "@/hooks/useResponsive";
 
 const steps = [
   { n: "1", title: "Caută & alege", desc: "Filtrezi după categorie, locație și rating. Vezi disponibilitatea în timp real." },
@@ -15,8 +16,9 @@ const mockProviders = [
 ];
 
 export default function HowItWorks() {
+  const { isMobile } = useResponsive();
   return (
-    <section id="cum-functioneaza" style={{ padding: "clamp(48px, 8vw, 120px) clamp(16px, 5vw, 64px)", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "clamp(32px, 5vw, 80px)", alignItems: "start", background: "#090806" }}>
+    <section id="cum-functioneaza" style={{ padding: "clamp(48px, 8vw, 120px) clamp(16px, 5vw, 64px)", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(300px, 1fr))", gap: "clamp(32px, 5vw, 80px)", alignItems: "start", background: "#090806" }}>
       
       {/* Stânga - pași */}
       <div>

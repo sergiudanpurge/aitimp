@@ -1,4 +1,5 @@
 "use client";
+import { useResponsive } from "@/hooks/useResponsive";
 
 const services = [
   { icon: "✂️", name: "Coafură & Beauty", desc: "Frizeri, saloane, makeup artiști, nail art — arată impecabil fără bătaie de cap.", count: "340+ prestatori" },
@@ -12,6 +13,7 @@ const services = [
 ];
 
 export default function ServicesSection() {
+  const { isMobile } = useResponsive();
   return (
     <section id="servicii" style={{ padding: "clamp(48px, 8vw, 100px) clamp(16px, 5vw, 64px)", background: "#0f0e0b" }}>
       <div style={{ textAlign: "center", marginBottom: "64px" }}>
@@ -24,7 +26,7 @@ export default function ServicesSection() {
           Servicii pentru <em style={{ fontStyle: "italic", color: "#C9A84C" }}>orice nevoie</em>
         </h2>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fill, minmax(260px, 1fr))", gap: "16px" }}>
         {services.map((s, i) => (
           <div key={i} style={{
             background: s.extra ? "rgba(201,168,76,0.05)" : "#181510",
