@@ -102,6 +102,7 @@ export default function EmployeeDashboard() {
   const [profileForm, setProfileForm] = useState({ name: "", phone: "", description: "", judet: "", oras: "", adresa: "", facebook: "", instagram: "", tiktok: "", linkedin: "", website: "", youtube: "", whatsapp: "", contactEmail: "" });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
+  const [emailVisible, setEmailVisible] = useState(true);
   const [reviews, setReviews] = useState<any[]>([]);
   const [activeChatContact, setActiveChatContact] = useState<any>(MOCK_CONTACTS_EMP[0]);
   const [chatMsgs, setChatMsgs] = useState<any[]>(MOCK_MSGS_EMP["c1"]);
@@ -151,26 +152,28 @@ export default function EmployeeDashboard() {
   const totalIncasat = completed.reduce((a, b) => a + (b.totalPrice || 0), 0);
 
   const sidebarSections = [
-    { section: "prestator" },
+    { section: "Client" },
     { id: "dashboard", icon: "⚡", label: "Dashboard" },
+    { id: "editare-profil", icon: "✏️", label: "Editeaza Profilul" },
+    { id: "rezervari-client", icon: "🗓", label: "Rezervarile mele" },
+    { id: "recenzii-oferite-emp", icon: "⭐", label: "Recenzii oferite" },
+    { section: "Prestator" },
     { id: "servicii", icon: "✂️", label: "Serviciile mele" },
-    { id: "calendar", icon: "🗓", label: "Calendarul meu" },
-    { id: "cereri", icon: "📋", label: "Cereri primite" },
-    { id: "financiar", icon: "📊", label: "Situație financiară" },
-    { section: "client" },
-    { id: "rezervari-client", icon: "📅", label: "Rezervările mele" },
+    { id: "calendar", icon: "📅", label: "Calendarul meu" },
+    { id: "cereri", icon: "📋", label: "Programari" },
+    { id: "recenzii-primite-emp", icon: "💬", label: "Recenzii primite" },
+    { section: "Cont" },
     { id: "mesaje", icon: "💬", label: "Mesaje" },
-    { section: "cont" },
-    { id: "editare-profil", icon: "✏️", label: "Editează profilul" },
-    { id: "setari", icon: "⚙️", label: "Setări" },
+    { id: "financiar", icon: "📊", label: "Situatie financiara" },
+    { id: "setari", icon: "⚙️", label: "Setari" },
   ];
 
   const bottomNavItems = [
-    { id: "dashboard", icon: "⚡", label: "Dashboard" },
-    { id: "servicii", icon: "✂️", label: "Servicii" },
-    { id: "cereri", icon: "📋", label: "Cereri" },
-    { id: "rezervari-client", icon: "📅", label: "Rezervări" },
-    { id: "setari", icon: "⚙️", label: "Setări" },
+    { id: "dashboard", icon: "⚡", label: "Home" },
+    { id: "rezervari-client", icon: "🗓", label: "Rezervari" },
+    { id: "cereri", icon: "📋", label: "Programari" },
+    { id: "mesaje", icon: "💬", label: "Mesaje" },
+    { id: "setari", icon: "⚙️", label: "Cont" },
   ];
 
   const getSectionTitle = () => {
@@ -180,6 +183,13 @@ export default function EmployeeDashboard() {
       "rezervari-client": "Rezervările mele", mesaje: "Mesaje",
       "editare-profil": "Editează profilul", setari: "Setări",
     };
+    titles["rezervari-client"] = "Rezervarile mele";
+    titles["recenzii-oferite-emp"] = "Recenzii oferite";
+    titles["recenzii-primite-emp"] = "Recenzii primite";
+    titles["cereri"] = "Programari";
+    titles["editare-profil"] = "Editeaza Profilul";
+    titles["servicii"] = "Serviciile mele";
+    titles["calendar"] = "Calendarul meu";
     return titles[activeSection] || "Dashboard";
   };
 
@@ -234,8 +244,8 @@ export default function EmployeeDashboard() {
           <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 4, overflowY: "auto" }}>
             {sidebarSections.map((item: any, i) => {
               if (item.section) return (
-                <div key={i} style={{ fontSize: 11, color: "#444", textTransform: "uppercase" as const, letterSpacing: "0.8px", padding: "10px 12px 4px" }}>
-                  {item.section === "prestator" ? "Prestator" : item.section === "client" ? "Client" : "Cont"}
+                <div key={i} style={{ fontSize: 10, color: "#444", textTransform: "uppercase" as const, letterSpacing: "0.8px", padding: "10px 12px 4px" }}>
+                  {item.section}
                 </div>
               );
               return (
@@ -263,9 +273,14 @@ export default function EmployeeDashboard() {
         <div style={{ height: 58, background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 16px" : "0 28px", position: "sticky", top: 0, zIndex: 40 }}>
           <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 16 : 18, fontWeight: 600 }}>{getSectionTitle()}</div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <button onClick={() => setActiveSection("editare-profil")} style={{ padding: "7px 14px", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-              {isMobile ? "✏️" : "✏️ Editează profilul"}
-            </button>
+            {!isMobile && (
+              <>
+                <a href="/" style={{ padding: "7px 12px", borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, textDecoration: "none", fontFamily: "var(--font-outfit)" }}>🏠 Home</a>
+                <a href="/despre" style={{ padding: "7px 12px", borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, textDecoration: "none", fontFamily: "var(--font-outfit)" }}>Despre noi</a>
+                <a href="/contact" style={{ padding: "7px 12px", borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, textDecoration: "none", fontFamily: "var(--font-outfit)" }}>Contact</a>
+                <button onClick={() => router.push("/search")} style={{ padding: "7px 14px", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>🔍 Cauta servicii</button>
+              </>
+            )}
             <a href={`/p/${user.id}`} target="_blank" style={{ padding: "7px 14px", background: "rgba(201,169,110,0.1)", border: `1px solid rgba(201,169,110,0.2)`, borderRadius: 8, fontSize: 12, color: s.accent, textDecoration: "none", fontWeight: 600 }}>
               {isMobile ? "👁" : "👁 Profil public"}
             </a>
@@ -348,7 +363,7 @@ export default function EmployeeDashboard() {
 
               {/* CA SI CLIENT */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.blue }}>👤 Ca și Client</div>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.blue }}>👤 Client</div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: 10, marginBottom: 16 }}>
                   {[
                     [bookings.filter((b:any) => b.clientId === user?.id).length.toString(), "Rezervări efectuate", s.accent],
@@ -380,6 +395,34 @@ export default function EmployeeDashboard() {
                     <div style={{ fontSize: 14, fontWeight: 700, color: s.accent }}>{b.totalPrice} lei</div>
                   </div>
                 ))}
+              </div>
+
+                            {user.gallery && user.gallery.length > 0 && (
+                <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 14 : 18 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 600 }}>Galerie foto</div>
+                    <button onClick={() => setActiveSection("editare-profil")} style={{ fontSize: 11, color: s.accent, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Gestioneaza →</button>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${isMobile ? "72px" : "90px"}, 1fr))`, gap: 6 }}>
+                    {user.gallery.slice(0,6).map((img: string, i: number) => (
+                      <div key={i} style={{ aspectRatio: "1", borderRadius: 8, overflow: "hidden" }}><img src={img} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20, borderTop: "3px solid rgba(201,169,110,0.4)" }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.accent }}>🔧 Prestator</div>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: 10, marginBottom: 16 }}>
+                  {[[bookings.length.toString(),"Programari",s.accent],[bookings.filter((b:any)=>b.status==="pending").length.toString(),"In asteptare",s.yellow],[bookings.filter((b:any)=>b.status==="completed").reduce((a:number,b:any)=>a+(b.totalPrice||0),0)+" lei","Incasat",s.green]].map(([val,label,color])=>(
+                    <div key={label} style={{ background: s.surface2, borderRadius: 10, padding: "12px 14px" }}><div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile?18:22, fontWeight: 700, color }}>{val}</div><div style={{ fontSize: 11, color: s.muted, marginTop: 3 }}>{label}</div></div>
+                  ))}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>Serviciile mele</div>
+                  <button onClick={() => setActiveSection("servicii")} style={{ fontSize: 11, color: s.accent, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Vezi toate →</button>
+                </div>
+                {services.slice(0,3).map((svc:any,idx:number)=>{const colors=["#c9a96e","#5a8de0","#4caf82"]; return(<div key={svc.id} style={{ display:"flex",alignItems:"center",gap:12,padding:"9px 0",borderBottom:idx<2?`1px solid ${s.surface2}`:"none"}}><div style={{width:3,height:32,borderRadius:2,background:colors[idx%3],flexShrink:0}}/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{svc.name}</div><div style={{fontSize:11,color:s.muted}}>{svc.duration*30} min</div></div><div style={{fontSize:14,fontWeight:700,color:s.accent}}>{svc.price} lei</div></div>);})}
               </div>
 
               {/* SERVICII + CERERI */}
@@ -434,6 +477,52 @@ export default function EmployeeDashboard() {
               </div>
             </div>
           )}
+          {/* ===== RECENZII OFERITE EMP ===== */}
+          {activeSection === "recenzii-oferite-emp" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Recenzii oferite de mine</div>
+                {[{ rating:5, comment:"Serviciu excelent!", target:"Color Craft Studio", date:"10 mai 2025" }].map((rev, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{rev.target}</div>
+                        <div style={{ fontSize: 12, color: s.accent }}>{"★".repeat(rev.rating)}{"☆".repeat(5-rev.rating)}</div>
+                        <div style={{ fontSize: 11, color: s.muted }}>{rev.date}</div>
+                      </div>
+                      <div style={{ fontSize: 13, color: "#c0bdb8" }}>{rev.comment}</div>
+                    </div>
+                    <button style={{ padding: "6px 12px", borderRadius: 8, background: "rgba(224,90,90,0.1)", border: "1px solid rgba(224,90,90,0.3)", color: s.red, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>🗑 Sterge</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ===== RECENZII PRIMITE EMP ===== */}
+          {activeSection === "recenzii-primite-emp" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                  <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Recenzii primite</div>
+                  <div style={{ fontSize: 14, color: s.accent, fontWeight: 700 }}>★ 4.9</div>
+                </div>
+                {reviews.length === 0 ? (<div style={{ textAlign: "center", padding: "30px 0", color: s.muted, fontSize: 13 }}>Nicio recenzie inca</div>) : reviews.map((rev: any, i: number) => (
+                  <div key={i} style={{ padding: "14px 0", borderBottom: i < reviews.length-1 ? `1px solid ${s.surface2}` : "none" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff" }}>{rev.client?.name?.charAt(0)||"C"}</div>
+                        <div><div style={{ fontSize: 13, fontWeight: 700 }}>{rev.client?.name||"Client"}</div><div style={{ fontSize: 10, color: s.muted }}>Client verificat</div></div>
+                      </div>
+                      <div style={{ fontSize: 13, color: s.accent }}>{"★".repeat(rev.rating)}{"☆".repeat(5-rev.rating)}</div>
+                    </div>
+                    {rev.comment && <div style={{ fontSize: 13, color: "#c0bdb8", lineHeight: 1.6 }}>{rev.comment}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* ===== SERVICII ===== */}
           {activeSection === "servicii" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -807,6 +896,14 @@ export default function EmployeeDashboard() {
               {/* DATE PERSONALE */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 24, display: "flex", flexDirection: "column", gap: 14 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Date personale</div>
+              <div>
+                <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Email</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input value={user?.email || ""} disabled style={{ flex: 1, padding: "11px 14px", background: "rgba(255,255,255,0.03)", border: `1px solid ${s.border}`, borderRadius: 10, color: s.muted, fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", cursor: "not-allowed" }} />
+                  <button onClick={() => setEmailVisible(!emailVisible)} style={{ padding: "11px 14px", borderRadius: 10, border: `1px solid ${emailVisible ? "rgba(76,175,130,0.4)" : s.border}`, background: emailVisible ? "rgba(76,175,130,0.1)" : s.surface2, color: emailVisible ? s.green : s.muted, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", whiteSpace: "nowrap" as const }}>{emailVisible ? "👁 Vizibil" : "🙈 Ascuns"}</button>
+                </div>
+                <div style={{ fontSize: 11, color: s.muted, marginTop: 4 }}>Controleaza daca emailul apare pe profilul public</div>
+              </div>
                 {([["name","Nume complet","Numele tău complet"],["phone","Telefon","07xx xxx xxx"]] as [string,string,string][]).map(([k,l,p]) => (
                   <div key={k}>
                     <div style={{ fontSize: 12, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{l}</div>

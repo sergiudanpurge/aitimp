@@ -154,28 +154,28 @@ export default function UserProfilePage() {
   );
 
   const sidebarSections = [
-    { section: "client-header" },
-    { id: "profil", icon: "⚡", label: "Dashboard" },
-    { id: "editare-profil", icon: "✏️", label: "Editează profilul" },
-    { id: "rezervari", icon: "📅", label: "Rezervările mele" },
-    { id: "mesaje", icon: "💬", label: "Mesaje" },
-    { id: "recenzii-date", icon: "⭐", label: "Recenzii date" },
-    { section: "prestator-header" },
+    { section: "Client" },
+    { id: "dashboard", icon: "⚡", label: "Dashboard" },
+    { id: "editare-profil", icon: "✏️", label: "Editeaza Profilul" },
+    { id: "rezervari", icon: "🗓", label: "Rezervarile mele" },
+    { id: "recenzii-date", icon: "⭐", label: "Recenzii oferite" },
+    { section: "Prestator" },
     { id: "servicii", icon: "✂️", label: "Serviciile mele" },
-    { id: "calendar", icon: "🗓", label: "Calendarul meu" },
-    { id: "cereri", icon: "📋", label: "Cereri primite" },
-    { id: "recenzii-primite", icon: "⭐", label: "Recenzii primite" },
-    { section: "cont-header" },
-    { id: "setari", icon: "⚙️", label: "Setări" },
-    { id: "financiar", icon: "📊", label: "Situație financiară" },
+    { id: "calendar", icon: "📅", label: "Calendarul meu" },
+    { id: "cereri", icon: "📋", label: "Programari" },
+    { id: "recenzii-primite", icon: "💬", label: "Recenzii primite" },
+    { section: "Cont" },
+    { id: "mesaje", icon: "💬", label: "Mesaje" },
+    { id: "setari", icon: "⚙️", label: "Setari" },
+    { id: "financiar", icon: "📊", label: "Situatie financiara" },
   ];
 
   const bottomNavItems = [
-    { id: "profil", icon: "🏠", label: "Profil" },
-    { id: "rezervari", icon: "📅", label: "Rezervări" },
-    { id: "servicii", icon: "✂️", label: "Servicii" },
-    { id: "cereri", icon: "📋", label: "Cereri" },
-    { id: "setari", icon: "⚙️", label: "Setări" },
+    { id: "dashboard", icon: "⚡", label: "Home" },
+    { id: "rezervari", icon: "🗓", label: "Rezervari" },
+    { id: "cereri", icon: "📋", label: "Programari" },
+    { id: "mesaje", icon: "💬", label: "Mesaje" },
+    { id: "setari", icon: "⚙️", label: "Cont" },
   ];
 
 const getSectionTitle = () => {
@@ -288,7 +288,7 @@ const getSectionTitle = () => {
             {sidebarSections.map((item: any, i) => {
               if (item.section) return (
                 <div key={i} style={{ fontSize: 10, color: "#444", textTransform: "uppercase" as const, letterSpacing: "0.8px", padding: "10px 12px 4px" }}>
-                  {item.section === "client-header" ? "Client" : item.section === "prestator-header" ? "Prestator" : "Cont"}
+                  {item.section}
                 </div>
               );
               return (
@@ -314,8 +314,14 @@ const getSectionTitle = () => {
         <div style={{ height: 58, background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${s.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 16px" : "0 28px", position: "sticky", top: 0, zIndex: 40 }}>
           <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 16 : 18, fontWeight: 600 }}>{getSectionTitle()}</div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <button onClick={() => setActiveSection("editare-profil")} style={{ padding: "7px 14px", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-  {isMobile ? "✏️" : "✏️ Editează profilul"}
+            
+              {!isMobile && <>
+                <a href="/" style={{ padding: "7px 12px", background: "transparent", border: "none", borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", textDecoration: "none", fontFamily: "var(--font-outfit)" }}>🏠 Home</a>
+                <a href="/despre" style={{ padding: "7px 12px", background: "transparent", border: "none", borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", textDecoration: "none", fontFamily: "var(--font-outfit)" }}>Despre noi</a>
+                <a href="/contact" style={{ padding: "7px 12px", background: "transparent", border: "none", borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", textDecoration: "none", fontFamily: "var(--font-outfit)" }}>Contact</a>
+              </>}
+              <button onClick={() => router.push("/search")} style={{ padding: "7px 14px", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 8, fontSize: 12, color: s.muted, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+  {isMobile ? "🔍" : "🔍 Cauta servicii"}
 </button>
             <a href={`/p/${user.id}`} target="_blank" style={{ padding: "7px 14px", background: "rgba(201,169,110,0.1)", border: `1px solid rgba(201,169,110,0.2)`, borderRadius: 8, fontSize: 12, color: s.accent, textDecoration: "none", fontWeight: 600 }}>
               {isMobile ? "👁" : "👁 Profil public"}
@@ -345,7 +351,8 @@ const getSectionTitle = () => {
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 4 }}>
                       {(profileForm.oras || profileForm.judet) && <span style={{ fontSize: 12, color: s.muted }}>📍 {profileForm.oras}{profileForm.judet && `, ${profileForm.judet}`}</span>}
                       {profileForm.phone && <span style={{ fontSize: 12, color: s.muted }}>📞 {profileForm.phone}</span>}
-                      <span style={{ fontSize: 12, color: s.muted }}>· Membru din 2025</span>
+                      {user.email && <span style={{ fontSize: 12, color: s.muted }}>✉️ {user.email}</span>}
+                      
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, paddingBottom: 8, flexWrap: "wrap" }}>
@@ -385,7 +392,7 @@ const getSectionTitle = () => {
 
               {/* SECTIUNEA CLIENT */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.blue }}>👤 Ca și Client</div>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.blue }}>👤 Client</div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: 10, marginBottom: 16 }}>
                   {[[bookings.length.toString(),"Rezervări efectuate",s.accent],[inAsteptareClient.toString(),"În așteptare",s.yellow],[totalCheltuit + " lei","Total cheltuit",s.green]].map(([val,label,color]) => (
                     <div key={label} style={{ background: s.surface2, borderRadius: 10, padding: "12px 14px" }}>
@@ -436,7 +443,7 @@ const getSectionTitle = () => {
 
               {/* SECTIUNEA PRESTATOR */}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.accent }}>🔧 Ca și Prestator</div>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.accent }}>🔧 Prestator</div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
                   {[
                     [rezervariFinalizate.toString(),"Finalizate",s.green,"luna curentă"],
@@ -518,6 +525,10 @@ const getSectionTitle = () => {
               </div>
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 24, display: "flex", flexDirection: "column", gap: 14 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Date personale</div>
+              <div>
+                <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Email (nu poate fi modificat)</div>
+                <input value={user?.email || ""} disabled style={{ width: "100%", padding: "11px 14px", background: "rgba(255,255,255,0.03)", border: `1px solid ${s.border}`, borderRadius: 10, color: s.muted, fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const, cursor: "not-allowed" }} />
+              </div>
                 {([["name","Nume complet","Numele tău complet"],["phone","Telefon","07xx xxx xxx"]] as [string,string,string][]).map(([k,l,p]) => (
                   <div key={k}>
                     <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>{l}</div>
