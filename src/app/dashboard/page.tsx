@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calEmployee, setCalEmployee] = useState("all");
+  const [calSelectedDay, setCalSelectedDay] = useState<number | null>(null);
 
   const s = {
     bg: "#0a0a0a", surface: "#161616", surface2: "#1e1e1e",
@@ -58,6 +59,26 @@ export default function AdminDashboard() {
     fetch("/api/bookings").then(r => r.json()).then(d => setBookings(d.bookings || []));
     fetch("/api/services").then(r => r.json()).then(d => setServices(d.services || []));
   }, []);
+
+  // Mock bookings pentru vizualizare calendar
+  const today = new Date();
+  const m = today.getMonth();
+  const y = today.getFullYear();
+  const mockCalBookings = [
+    { id:"m1", date: new Date(y,m,today.getDate()-2).toISOString(), time:"09:00", status:"accepted", totalPrice:45, service:{name:"Tuns + Styling"}, client:{name:"Dorin Mihai"}, employeeId: employees[0]?.id || "emp1" },
+    { id:"m2", date: new Date(y,m,today.getDate()-2).toISOString(), time:"11:00", status:"accepted", totalPrice:250, service:{name:"Vopsit complet"}, client:{name:"Ana Constantin"}, employeeId: employees[1]?.id || "emp2" },
+    { id:"m3", date: new Date(y,m,today.getDate()-1).toISOString(), time:"10:00", status:"completed", totalPrice:180, service:{name:"Balayage"}, client:{name:"Maria Ionescu"}, employeeId: employees[0]?.id || "emp1" },
+    { id:"m4", date: new Date(y,m,today.getDate()).toISOString(), time:"09:30", status:"accepted", totalPrice:45, service:{name:"Tuns"}, client:{name:"Radu Georgescu"}, employeeId: employees[0]?.id || "emp1" },
+    { id:"m5", date: new Date(y,m,today.getDate()).toISOString(), time:"11:00", status:"pending", totalPrice:120, service:{name:"Coafat ocazie"}, client:{name:"Elena Pop"}, employeeId: employees[1]?.id || "emp2" },
+    { id:"m6", date: new Date(y,m,today.getDate()).toISOString(), time:"14:00", status:"accepted", totalPrice:70, service:{name:"Tuns + Spalat"}, client:{name:"Paul Stanescu"}, employeeId: employees[0]?.id || "emp1" },
+    { id:"m7", date: new Date(y,m,today.getDate()+1).toISOString(), time:"09:00", status:"pending", totalPrice:200, service:{name:"Keratina"}, client:{name:"Ioana Munteanu"}, employeeId: employees[1]?.id || "emp2" },
+    { id:"m8", date: new Date(y,m,today.getDate()+1).toISOString(), time:"11:30", status:"accepted", totalPrice:45, service:{name:"Tuns"}, client:{name:"Mihai Popa"}, employeeId: employees[0]?.id || "emp1" },
+    { id:"m9", date: new Date(y,m,today.getDate()+3).toISOString(), time:"10:00", status:"accepted", totalPrice:180, service:{name:"Vopsit"}, client:{name:"Sara Ionescu"}, employeeId: employees[1]?.id || "emp2" },
+    { id:"m10", date: new Date(y,m,today.getDate()+3).toISOString(), time:"14:30", status:"pending", totalPrice:45, service:{name:"Tuns + Styling"}, client:{name:"Alex Dumitrescu"}, employeeId: employees[0]?.id || "emp1" },
+    { id:"m11", date: new Date(y,m,today.getDate()+5).toISOString(), time:"09:00", status:"accepted", totalPrice:250, service:{name:"Balayage"}, client:{name:"Cristina Nae"}, employeeId: employees[1]?.id || "emp2" },
+    { id:"m12", date: new Date(y,m,today.getDate()+7).toISOString(), time:"10:30", status:"pending", totalPrice:70, service:{name:"Tuns + Spalat"}, client:{name:"Luca Vasile"}, employeeId: employees[0]?.id || "emp1" },
+  ];
+  const allCalBookings = [...bookings, ...mockCalBookings];
 
   const pending = bookings.filter(b => b.status === "pending");
   const accepted = bookings.filter(b => b.status === "accepted");
@@ -715,13 +736,13 @@ export default function AdminDashboard() {
                     const today = new Date();
                     return cells.map((day, idx) => {
                       const isToday = day && today.getDate() === day && today.getMonth() === calMonth && today.getFullYear() === calYear;
-                      const dayBookings = day ? bookings.filter(b => {
+                      const dayBookings = day ? allCalBookings.filter(b => {
                         if (!b.date) return false;
                         const bd = new Date(b.date);
                         return bd.getDate() === day && bd.getMonth() === calMonth && bd.getFullYear() === calYear && (calEmployee === "all" || b.employeeId === calEmployee);
                       }) : [];
                       return (
-                        <div key={idx} style={{ minHeight: isMobile ? 60 : 90, borderRight: (idx + 1) % 7 !== 0 ? `1px solid ${s.border}` : "none", borderBottom: `1px solid ${s.border}`, padding: isMobile ? "4px" : "6px", opacity: day ? 1 : 0.3, background: isToday ? "rgba(201,169,110,0.05)" : "transparent" }}>
+                        <div key={idx} onClick={() => day && setCalSelectedDay(calSelectedDay === day ? null : day)} style={{ minHeight: isMobile ? 60 : 90, borderRight: (idx + 1) % 7 !== 0 ? `1px solid ${s.border}` : "none", borderBottom: `1px solid ${s.border}`, padding: isMobile ? "4px" : "6px", opacity: day ? 1 : 0.3, background: calSelectedDay === day ? "rgba(201,169,110,0.08)" : isToday ? "rgba(201,169,110,0.05)" : "transparent", cursor: day ? "pointer" : "default", transition: "background .15s" }}>
                           {day && (
                             <>
                               <div style={{ fontSize: 11, fontWeight: isToday ? 700 : 400, color: isToday ? s.accent : "#f0ede8", marginBottom: 4, width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: isToday ? "rgba(201,169,110,0.2)" : "transparent" }}>{day}</div>
@@ -740,6 +761,42 @@ export default function AdminDashboard() {
                   })()}
                 </div>
               </div>
+
+              {/* DETALII ZI SELECTATA */}
+              {calSelectedDay && (() => {
+                const dayBk = allCalBookings.filter(b => {
+                  if (!b.date) return false;
+                  const bd = new Date(b.date);
+                  return bd.getDate() === calSelectedDay && bd.getMonth() === calMonth && bd.getFullYear() === calYear && (calEmployee === "all" || b.employeeId === calEmployee);
+                });
+                return dayBk.length > 0 ? (
+                  <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>
+                      📅 {new Date(calYear, calMonth, calSelectedDay).toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" })} — {dayBk.length} rezervari
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {dayBk.sort((a,b) => a.time?.localeCompare(b.time)).map((b: any, i: number) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: s.surface2, borderRadius: 10, borderLeft: `3px solid ${b.status === "accepted" ? s.green : b.status === "pending" ? s.yellow : s.accent}` }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: s.accent, flexShrink: 0, minWidth: 40 }}>{b.time}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600 }}>{b.client?.name}</div>
+                            <div style={{ fontSize: 11, color: s.muted }}>{b.service?.name} · {b.totalPrice} lei</div>
+                          </div>
+                          <div style={{ fontSize: 10, padding: "3px 9px", borderRadius: 6, fontWeight: 700, background: b.status === "accepted" ? "rgba(76,175,130,0.15)" : b.status === "pending" ? "rgba(232,184,75,0.15)" : "rgba(201,169,110,0.15)", color: b.status === "accepted" ? s.green : b.status === "pending" ? s.yellow : s.accent, flexShrink: 0 }}>
+                            {b.status === "accepted" ? "Confirmat" : b.status === "pending" ? "In asteptare" : "Finalizat"}
+                          </div>
+                          {b.status === "pending" && (
+                            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                              <button style={{ padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,130,0.15)", border: "1px solid rgba(76,175,130,0.3)", color: s.green, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✓</button>
+                              <button style={{ padding: "4px 10px", borderRadius: 6, background: "rgba(224,90,90,0.15)", border: "1px solid rgba(224,90,90,0.3)", color: s.red, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✕</button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
             </div>
           )}
 

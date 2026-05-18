@@ -1,19 +1,13 @@
 const fs = require('fs');
-let code = fs.readFileSync('./src/app/chat/[userId]/page.tsx', 'utf8');
+let code = fs.readFileSync('./src/app/dashboard/employee/page.tsx', 'utf8');
 
-// Gasim si inlocuim render-ul conditional al ContactsList
-const oldRender = `{(!isMobile || showContacts) && <ContactsList />}`;
-const newRender = `<ContactsList />`;
+// Gasim linia cu profileLoading
+const idx = code.indexOf('const [profileLoading, setProfileLoading]');
+const lineEnd = code.indexOf('\r\n', idx) + 2;
+console.log('Inserare dupa:', code.substring(idx, lineEnd));
 
-if (code.includes(oldRender)) {
-  code = code.replace(oldRender, newRender);
-  console.log('✅ ContactsList mereu vizibil!');
-} else {
-  // Cautam orice varianta cu ContactsList render
-  const idx = code.indexOf('<ContactsList />');
-  console.log('ContactsList render la:', idx);
-  console.log('Context:', code.substring(idx - 100, idx + 50));
-}
+const newStates = `  const [calMonth, setCalMonth] = useState(new Date().getMonth());\r\n  const [calYear, setCalYear] = useState(new Date().getFullYear());\r\n  const [calSelectedDay, setCalSelectedDay] = useState<number | null>(null);\r\n`;
 
-fs.writeFileSync('./src/app/chat/[userId]/page.tsx', code);
-console.log('Done:', fs.statSync('./src/app/chat/[userId]/page.tsx').size);
+code = code.substring(0, lineEnd) + newStates + code.substring(lineEnd);
+fs.writeFileSync('./src/app/dashboard/employee/page.tsx', code);
+console.log('Done:', fs.statSync('./src/app/dashboard/employee/page.tsx').size);

@@ -28,6 +28,9 @@ export default function EmployeeDashboard() {
   const [profileForm, setProfileForm] = useState({ name: "", phone: "", description: "", judet: "", oras: "", adresa: "", facebook: "", instagram: "", tiktok: "", linkedin: "", website: "", youtube: "", whatsapp: "", contactEmail: "" });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
+  const [calYear, setCalYear] = useState(new Date().getFullYear());
+  const [calSelectedDay, setCalSelectedDay] = useState<number | null>(null);
   const [passwords, setPasswords] = useState({ current: "", new: "", confirm: "" });
   const [pwMsg, setPwMsg] = useState("");
   const [pwError, setPwError] = useState("");
@@ -469,10 +472,109 @@ export default function EmployeeDashboard() {
 
           {/* ===== CALENDAR ===== */}
           {activeSection === "calendar" && (
-            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: "40px 20px", textAlign: "center", color: s.muted }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>🗓</div>
-              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#f0ede8", marginBottom: 8 }}>Calendarul meu</div>
-              <div style={{ fontSize: 13 }}>Calendarul cu sloturi reale vine în curând</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {(() => {
+                const mockBk = [
+                  { id:"e1", date: new Date(2026,4,16).toISOString(), time:"09:00", status:"completed", totalPrice:45, service:{name:"Tuns + Styling"}, client:{name:"Dorin Mihai"} },
+                  { id:"e2", date: new Date(2026,4,17).toISOString(), time:"11:00", status:"completed", totalPrice:180, service:{name:"Vopsit complet"}, client:{name:"Ana Constantin"} },
+                  { id:"e3", date: new Date(2026,4,18).toISOString(), time:"09:30", status:"accepted", totalPrice:45, service:{name:"Tuns"}, client:{name:"Radu Ionescu"} },
+                  { id:"e4", date: new Date(2026,4,18).toISOString(), time:"13:00", status:"pending", totalPrice:120, service:{name:"Coafat ocazie"}, client:{name:"Maria Pop"} },
+                  { id:"e5", date: new Date(2026,4,18+1).toISOString(), time:"10:00", status:"accepted", totalPrice:70, service:{name:"Tuns + Spalat"}, client:{name:"Elena Vasile"} },
+                  { id:"e6", date: new Date(2026,4,18+1).toISOString(), time:"14:00", status:"pending", totalPrice:200, service:{name:"Keratina"}, client:{name:"Paul Stanescu"} },
+                  { id:"e7", date: new Date(2026,4,18+3).toISOString(), time:"11:00", status:"accepted", totalPrice:250, service:{name:"Balayage"}, client:{name:"Sara Munteanu"} },
+                ];
+                const allBk = [...(bookings||[]), ...mockBk];
+                return (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <button onClick={() => setCalMonth(m => m === 0 ? 11 : m - 1)} style={{ width: 32, height: 32, borderRadius: 8, background: s.surface, border: `1px solid ${s.border}`, color: "#f0ede8", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+                        <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, minWidth: 140, textAlign: "center" }}>
+                          {new Date(calYear, calMonth).toLocaleDateString("ro-RO", { month: "long", year: "numeric" })}
+                        </div>
+                        <button onClick={() => setCalMonth(m => m === 11 ? 0 : m + 1)} style={{ width: 32, height: 32, borderRadius: 8, background: s.surface, border: `1px solid ${s.border}`, color: "#f0ede8", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
+                        <button onClick={() => { setCalMonth(new Date().getMonth()); setCalYear(new Date().getFullYear()); }} style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(201,169,110,0.1)", border: `1px solid rgba(201,169,110,0.2)`, color: s.accent, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Azi</button>
+                      </div>
+                      <button style={{ padding: "7px 14px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>+ Rezervare manuala</button>
+                    </div>
+                    <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                      {[["#4caf82","Confirmat"],["#e8b84b","In asteptare"],["#c9a96e","Finalizat"]].map(([color,label]) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: "50%", background: color }} />
+                          <span style={{ fontSize: 12, color: s.muted }}>{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", borderBottom: `1px solid ${s.border}` }}>
+                        {["Lun","Mar","Mie","Joi","Vin","Sam","Dum"].map(dz => (
+                          <div key={dz} style={{ padding: isMobile ? "8px 4px" : "10px", textAlign: "center", fontSize: 11, fontWeight: 600, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>{dz}</div>
+                        ))}
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}>
+                        {(() => {
+                          const firstDay = new Date(calYear, calMonth, 1).getDay();
+                          const offset = firstDay === 0 ? 6 : firstDay - 1;
+                          const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+                          const cells: (number|null)[] = [];
+                          for (let i = 0; i < offset; i++) cells.push(null);
+                          for (let dz = 1; dz <= daysInMonth; dz++) cells.push(dz);
+                          const todayD = new Date();
+                          return cells.map((day, idx2) => {
+                            const isToday = day && todayD.getDate() === day && todayD.getMonth() === calMonth && todayD.getFullYear() === calYear;
+                            const dayBk = day ? allBk.filter(b => { if (!b.date) return false; const bd = new Date(b.date); return bd.getDate() === day && bd.getMonth() === calMonth && bd.getFullYear() === calYear; }) : [];
+                            return (
+                              <div key={idx2} onClick={() => day && setCalSelectedDay(calSelectedDay === day ? null : day)}
+                                style={{ minHeight: isMobile ? 60 : 90, borderRight: (idx2+1)%7!==0 ? `1px solid ${s.border}` : "none", borderBottom: `1px solid ${s.border}`, padding: isMobile ? "4px" : "6px", opacity: day ? 1 : 0.3, background: calSelectedDay === day ? "rgba(201,169,110,0.08)" : isToday ? "rgba(201,169,110,0.05)" : "transparent", cursor: day ? "pointer" : "default" }}>
+                                {day && (<>
+                                  <div style={{ fontSize: 11, fontWeight: isToday ? 700 : 400, color: isToday ? s.accent : "#f0ede8", marginBottom: 4, width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: isToday ? "rgba(201,169,110,0.2)" : "transparent" }}>{day}</div>
+                                  {!isMobile && dayBk.slice(0,2).map((b:any,bi:number) => (
+                                    <div key={bi} style={{ fontSize: 9, padding: "2px 5px", borderRadius: 3, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", background: b.status==="accepted"?"rgba(76,175,130,0.2)":b.status==="pending"?"rgba(232,184,75,0.2)":"rgba(201,169,110,0.2)", color: b.status==="accepted"?s.green:b.status==="pending"?s.yellow:s.accent }}>
+                                      {b.time} {b.client?.name?.split(" ")[0]} — {b.service?.name}
+                                    </div>
+                                  ))}
+                                  {dayBk.length > 2 && !isMobile && <div style={{ fontSize: 9, color: s.muted }}>+{dayBk.length-2}</div>}
+                                  {isMobile && dayBk.length > 0 && <div style={{ width: 6, height: 6, borderRadius: "50%", background: s.accent, margin: "0 auto" }} />}
+                                </>)}
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </div>
+                    {calSelectedDay && (() => {
+                      const dayBk = allBk.filter(b => { if (!b.date) return false; const bd = new Date(b.date); return bd.getDate() === calSelectedDay && bd.getMonth() === calMonth && bd.getFullYear() === calYear; });
+                      return dayBk.length > 0 ? (
+                        <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+                          <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>
+                            📅 {new Date(calYear, calMonth, calSelectedDay).toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" })} — {dayBk.length} rezervari
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {dayBk.sort((a:any,b:any)=>a.time?.localeCompare(b.time)).map((b:any,bi:number) => (
+                              <div key={bi} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: s.surface2, borderRadius: 10, borderLeft: `3px solid ${b.status==="accepted"?s.green:b.status==="pending"?s.yellow:s.accent}` }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: s.accent, flexShrink: 0, minWidth: 40 }}>{b.time}</div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 13, fontWeight: 600 }}>{b.client?.name}</div>
+                                  <div style={{ fontSize: 11, color: s.muted }}>{b.service?.name} · {b.totalPrice} lei</div>
+                                </div>
+                                <div style={{ fontSize: 10, padding: "3px 9px", borderRadius: 6, fontWeight: 700, background: b.status==="accepted"?"rgba(76,175,130,0.15)":b.status==="pending"?"rgba(232,184,75,0.15)":"rgba(201,169,110,0.15)", color: b.status==="accepted"?s.green:b.status==="pending"?s.yellow:s.accent }}>
+                                  {b.status==="accepted"?"Confirmat":b.status==="pending"?"In asteptare":"Finalizat"}
+                                </div>
+                                {b.status==="pending" && (
+                                  <div style={{ display: "flex", gap: 6 }}>
+                                    <button style={{ padding: "4px 10px", borderRadius: 6, background: "rgba(76,175,130,0.15)", border: "1px solid rgba(76,175,130,0.3)", color: s.green, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✓</button>
+                                    <button style={{ padding: "4px 10px", borderRadius: 6, background: "rgba(224,90,90,0.15)", border: "1px solid rgba(224,90,90,0.3)", color: s.red, fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>✕</button>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null;
+                    })()}
+                  </>
+                );
+              })()}
             </div>
           )}
 
