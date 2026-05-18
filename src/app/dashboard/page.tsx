@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
+import RezervariMele from "@/components/dashboard/RezervariMele";
 
 const SOCIAL_PLATFORMS = [
   { key: "facebook", label: "Facebook", color: "#1877F2", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
@@ -125,6 +126,13 @@ const MOCK_REVIEWS = [
       }
     }
   }
+];
+
+const MOCK_REZERVARI_ADMIN = [
+  { id:"ra1", date:"2026-05-10", time:"10:00", status:"completed", totalPrice:150, service:{name:"Consultanta juridica", icon:"💼"}, provider:{user:{name:"Avocat Ion Popescu"}} },
+  { id:"ra2", date:"2026-05-18", time:"14:00", status:"accepted", totalPrice:200, service:{name:"Service auto", icon:"🔧"}, provider:{user:{name:"Auto Expert SRL"}} },
+  { id:"ra3", date:"2026-05-25", time:"09:00", status:"pending", totalPrice:80, service:{name:"Curatenie birouri", icon:"🧹"}, provider:{user:{name:"Clean Pro"}} },
+  { id:"ra4", date:"2026-06-02", time:"11:00", status:"pending", totalPrice:300, service:{name:"Audit financiar", icon:"📊"}, provider:{user:{name:"Contabil Expert"}} },
 ];
 
 export default function AdminDashboard() {
@@ -860,6 +868,15 @@ export default function AdminDashboard() {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* ===== REZERVARILE MELE ={/* ===== REZERVARILE MELE ===== */}
+          {activeSection === "rezervarile-mele" && (
+            <RezervariMele bookings={[]} mockBookings={[
+  { id:"ra1", date:"2026-05-10", time:"10:00", status:"completed", totalPrice:150, service:{name:"Consultanta juridica", icon:"💼"}, provider:{user:{name:"Avocat Ion"}} },
+  { id:"ra2", date:"2026-05-18", time:"14:00", status:"accepted", totalPrice:200, service:{name:"Service auto", icon:"🔧"}, provider:{user:{name:"Auto Expert SRL"}} },
+  { id:"ra3", date:"2026-05-25", time:"09:00", status:"pending", totalPrice:80, service:{name:"Curatenie birouri", icon:"🧹"}, provider:{user:{name:"Clean Pro"}} },
+]} showProvider={true} />
           )}
 
           {/* ===== CHAT ===== */}

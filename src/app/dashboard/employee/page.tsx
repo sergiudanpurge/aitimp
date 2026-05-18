@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import Link from "next/link";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
+import RezervariMele from "@/components/dashboard/RezervariMele";
 
 const SOCIAL_PLATFORMS = [
   { key: "facebook", label: "Facebook", color: "#1877F2", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
@@ -794,31 +795,11 @@ export default function EmployeeDashboard() {
 
           {/* ===== REZERVARI CLIENT ===== */}
           {activeSection === "rezervari-client" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                  <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Rezervările mele ca și Client</div>
-                  <a href="/search" style={{ fontSize: 11, color: s.accent, textDecoration: "none", fontWeight: 600 }}>+ Caută servicii →</a>
-                </div>
-                {bookings.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "40px 0", color: s.muted }}>
-                    <div style={{ fontSize: 36, marginBottom: 12 }}>📅</div>
-                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, color: "#f0ede8", marginBottom: 8 }}>Nicio rezervare</div>
-                    <a href="/search" style={{ color: s.accent, fontSize: 13, textDecoration: "none" }}>Caută un serviciu →</a>
-                  </div>
-                ) : bookings.map((b: any, i: number) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: i < bookings.length - 1 ? `1px solid ${s.surface2}` : "none" }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 10, background: s.surface2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>📅</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{b.service?.name || "Serviciu"}</div>
-                      <div style={{ fontSize: 12, color: s.muted }}>{b.date} {b.time && `· ${b.time}`}</div>
-                    </div>
-                    <div style={{ fontSize: 10, padding: "4px 10px", borderRadius: 6, fontWeight: 700, background: statusConfig[b.status]?.bg, color: statusConfig[b.status]?.color, flexShrink: 0 }}>{statusConfig[b.status]?.label}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: s.accent, flexShrink: 0 }}>{b.totalPrice} lei</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <RezervariMele bookings={bookings} mockBookings={[
+  { id:"re1", date:"2026-05-10", time:"09:00", status:"completed", totalPrice:200, service:{name:"Consultanta", icon:"💼"}, provider:{user:{name:"Auto Expert SRL"}} },
+  { id:"re2", date:"2026-05-18", time:"14:00", status:"accepted", totalPrice:80, service:{name:"Service auto", icon:"🔧"}, provider:{user:{name:"Auto Expert SRL"}} },
+  { id:"re3", date:"2026-05-25", time:"10:00", status:"pending", totalPrice:150, service:{name:"Curatenie", icon:"🧹"}, provider:{user:{name:"Clean Pro"}} },
+]} showProvider={true} />
           )}
 
           {/* ===== MESAJE ===== */}

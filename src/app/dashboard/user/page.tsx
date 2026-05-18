@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import Link from "next/link";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
+import RezervariMele from "@/components/dashboard/RezervariMele";
 
 const JUDETE = ["Alba","Arad","Argeș","Bacău","Bihor","Bistrița-Năsăud","Botoșani","Brăila","Brașov","București","Buzău","Călărași","Caraș-Severin","Cluj","Constanța","Covasna","Dâmbovița","Dolj","Galați","Giurgiu","Gorj","Harghita","Hunedoara","Ialomița","Iași","Ilfov","Maramureș","Mehedinți","Mureș","Neamț","Olt","Prahova","Sălaj","Satu Mare","Sibiu","Suceava","Teleorman","Timiș","Tulcea","Vâlcea","Vaslui","Vrancea"];
 const SOCIAL_PLATFORMS = [
@@ -619,42 +620,13 @@ const getSectionTitle = () => {
 
           {/* ===== REZERVARI ===== */}
           {activeSection === "rezervari" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: 10 }}>
-                {[[bookings.length.toString(),"Total rezervări",s.accent],[inAsteptareClient.toString(),"În așteptare",s.yellow],[`${totalCheltuit} lei`,"Total cheltuit",s.green]].map(([val,label,color]) => (
-                  <div key={label} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, padding: "14px 16px" }}>
-                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 20 : 24, fontWeight: 700, color }}>{val}</div>
-                    <div style={{ fontSize: 11, color: s.muted, marginTop: 3 }}>{label}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {["toate","pending","accepted","completed","cancelled"].map(f => (
-                  <button key={f} onClick={() => setBookingFilter(f)} style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${bookingFilter === f ? s.accent : s.border}`, background: bookingFilter === f ? "rgba(201,169,110,0.1)" : s.surface, color: bookingFilter === f ? s.accent : s.muted, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                    {f === "toate" ? "Toate" : f === "pending" ? "Așteptare" : f === "accepted" ? "Confirmate" : f === "completed" ? "Finalizate" : "Anulate"}
-                  </button>
-                ))}
-              </div>
-              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
-                {(bookingFilter === "toate" ? bookings : bookings.filter(b => b.status === bookingFilter)).length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "40px 0", color: s.muted }}>
-                    <div style={{ fontSize: 36, marginBottom: 12 }}>📅</div>
-                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, color: "#f0ede8", marginBottom: 8 }}>Nicio rezervare</div>
-                    <button onClick={() => router.push("/search")} style={{ marginTop: 8, padding: "9px 20px", background: "rgba(201,169,110,0.1)", border: `1px solid rgba(201,169,110,0.2)`, borderRadius: 8, fontSize: 13, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Caută servicii →</button>
-                  </div>
-                ) : (bookingFilter === "toate" ? bookings : bookings.filter(b => b.status === bookingFilter)).map((b: any, i: number, arr: any[]) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: i < arr.length - 1 ? `1px solid ${s.surface2}` : "none", flexWrap: isMobile ? "wrap" : "nowrap" }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 10, background: s.surface2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{b.service?.icon || "📅"}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{b.service?.name || "Serviciu"}</div>
-                      <div style={{ fontSize: 12, color: s.muted }}>{b.date} {b.time && `· ${b.time}`}</div>
-                    </div>
-                    <div style={{ fontSize: 10, padding: "4px 10px", borderRadius: 6, fontWeight: 700, background: statusConfig[b.status]?.bg, color: statusConfig[b.status]?.color, flexShrink: 0 }}>{statusConfig[b.status]?.label || b.status}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: s.accent, flexShrink: 0 }}>{b.totalPrice} lei</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <RezervariMele bookings={bookings} mockBookings={[
+  { id:"ru1", date:"2026-05-10", time:"10:00", status:"completed", totalPrice:45, service:{name:"Tuns + Styling", icon:"✂️"}, provider:{user:{name:"Mirel Popescu"}} },
+  { id:"ru2", date:"2026-05-15", time:"14:00", status:"completed", totalPrice:180, service:{name:"Vopsit complet", icon:"🎨"}, provider:{user:{name:"Ioana Danila"}} },
+  { id:"ru3", date:"2026-05-18", time:"11:00", status:"accepted", totalPrice:120, service:{name:"Coafat ocazie", icon:"💆"}, provider:{user:{name:"Ioana Danila"}} },
+  { id:"ru4", date:"2026-05-20", time:"09:30", status:"pending", totalPrice:250, service:{name:"Balayage", icon:"💅"}, provider:{user:{name:"Ioana Danila"}} },
+  { id:"ru5", date:"2026-05-23", time:"10:00", status:"accepted", totalPrice:45, service:{name:"Tuns", icon:"✂️"}, provider:{user:{name:"Mirel Popescu"}} },
+]} showProvider={true} />
           )}
 
           {/* ===== MESAJE ===== */}
