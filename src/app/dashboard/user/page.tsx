@@ -61,6 +61,7 @@ export default function UserProfilePage() {
   const [activeChatContact, setActiveChatContact] = useState<any>(MOCK_CONTACTS_USER[0]);
   const [chatMsgs, setChatMsgs] = useState<any[]>(MOCK_MSGS_USER["p1"]);
   const [chatInput, setChatInput] = useState("");
+  const [emailVisible, setEmailVisible] = useState(true);
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calSelectedDay, setCalSelectedDay] = useState<number | null>(null);
@@ -391,7 +392,7 @@ const getSectionTitle = () => {
               </div>
 
               {/* SECTIUNEA CLIENT */}
-              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20, borderTop: "3px solid rgba(90,141,224,0.6)" }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.blue }}>👤 Client</div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3,1fr)", gap: 10, marginBottom: 16 }}>
                   {[[bookings.length.toString(),"Rezervări efectuate",s.accent],[inAsteptareClient.toString(),"În așteptare",s.yellow],[totalCheltuit + " lei","Total cheltuit",s.green]].map(([val,label,color]) => (
@@ -442,7 +443,7 @@ const getSectionTitle = () => {
               )}
 
               {/* SECTIUNEA PRESTATOR */}
-              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
+              <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20, borderTop: "3px solid rgba(201,169,110,0.4)" }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14, color: s.accent }}>🔧 Prestator</div>
                 <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
                   {[

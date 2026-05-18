@@ -141,6 +141,7 @@ export default function AdminDashboard() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [finTab, setFinTab] = useState("global");
   const [reviewFilter, setReviewFilter] = useState("all");
+  const [emailVisible, setEmailVisible] = useState(true);
   const [svcTab, setSvcTab] = useState("firma");
   const [showAddSvc, setShowAddSvc] = useState(false);
   const [newSvc, setNewSvc] = useState({ name: "", duration: "1", price: "", icon: "✂️", employeeId: "firma" });
@@ -384,6 +385,32 @@ export default function AdminDashboard() {
                       <div style={{ fontSize: 11, color: s.muted, marginTop: 3 }}>{label}</div>
                     </div>
                   ))}
+                </div>
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>Rezervarile noastre — azi</div>
+                    <button onClick={() => setActiveSection("rezervarile-mele")} style={{ fontSize: 11, color: s.accent, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Vezi toate →</button>
+                  </div>
+                  {(() => {
+                    const todayBk = [...(bookings||[])].filter(b => { if (!b.date) return false; const d = new Date(b.date); return d.toLocaleDateString("ro-RO") === new Date().toLocaleDateString("ro-RO"); });
+                    const mockTodayBk = [
+                      { id:"t1", time:"10:00", status:"accepted", totalPrice:150, service:{name:"Consultanta"}, provider:{user:{name:"Auto Expert SRL"}} },
+                      { id:"t2", time:"14:30", status:"pending", totalPrice:80, service:{name:"Service"}, provider:{user:{name:"Clean Pro"}} },
+                    ];
+                    const allToday = [...todayBk, ...mockTodayBk];
+                    return allToday.length === 0 ? (
+                      <div style={{ textAlign: "center", color: s.muted, fontSize: 13, padding: "12px 0" }}>Nicio rezervare azi</div>
+                    ) : allToday.map((b:any, i:number) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 0", borderBottom: i < allToday.length-1 ? `1px solid ${s.surface2}` : "none" }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: s.accent, flexShrink: 0, minWidth: 36 }}>{b.time}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.service?.name}</div>
+                          <div style={{ fontSize: 11, color: s.muted }}>{b.provider?.user?.name}</div>
+                        </div>
+                        <div style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, fontWeight: 700, background: b.status==="accepted"?"rgba(76,175,130,0.15)":"rgba(232,184,75,0.15)", color: b.status==="accepted"?s.green:s.yellow }}>{b.status==="accepted"?"Confirmat":"In asteptare"}</div>
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
 
@@ -995,6 +1022,14 @@ export default function AdminDashboard() {
               {profileMsg && <div style={{ background: "rgba(76,175,130,0.1)", border: "1px solid rgba(76,175,130,0.3)", borderRadius: 10, padding: "12px 16px", color: s.green, fontSize: 13 }}>{profileMsg}</div>}
               <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 24, display: "flex", flexDirection: "column", gap: 14 }}>
                 <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Date companie</div>
+                <div>
+                  <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Email</div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input value={user?.email || ""} disabled style={{ flex: 1, padding: "11px 14px", background: "rgba(255,255,255,0.03)", border: `1px solid ${s.border}`, borderRadius: 10, color: s.muted, fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", cursor: "not-allowed" }} />
+                    <button onClick={() => setEmailVisible(!emailVisible)} style={{ padding: "11px 14px", borderRadius: 10, border: `1px solid ${emailVisible ? "rgba(76,175,130,0.4)" : s.border}`, background: emailVisible ? "rgba(76,175,130,0.1)" : s.surface2, color: emailVisible ? s.green : s.muted, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)", whiteSpace: "nowrap" as const }}>{emailVisible ? "👁 Vizibil" : "🙈 Ascuns"}</button>
+                  </div>
+                  <div style={{ fontSize: 11, color: s.muted, marginTop: 4 }}>Controleaza daca emailul apare pe profilul public</div>
+                </div>
               <div>
                 <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6, fontWeight: 600 }}>Email (nu poate fi modificat)</div>
                 <input value={user?.email || ""} disabled style={{ width: "100%", padding: "11px 14px", background: "rgba(255,255,255,0.03)", border: `1px solid ${s.border}`, borderRadius: 10, color: s.muted, fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const, cursor: "not-allowed" }} />
