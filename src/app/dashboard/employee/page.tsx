@@ -41,6 +41,57 @@ const MOCK_MSGS_EMP: Record<string,any[]> = {
   ],
 };
 
+const MOCK_REVIEWS_EMP = [
+  {
+    "id": "r1",
+    "rating": 5,
+    "comment": "Mirel e extraordinar! Stie exact ce vrei chiar daca nu stii sa explici. Cel mai bun coafor din oras, revin cu placere de fiecare data.",
+    "createdAt": "2026-05-16T08:38:47.588Z",
+    "client": {
+      "name": "Dorin Mihai",
+      "avatar": null
+    },
+    "provider": {
+      "user": {
+        "name": "Mirel Popescu",
+        "avatar": null
+      }
+    }
+  },
+  {
+    "id": "r3",
+    "rating": 4,
+    "comment": "Foarte multumit de rezultat. Putin timp de asteptare fata de programare, dar merita din plin. Mirel e mereu atent la detalii.",
+    "createdAt": "2026-05-04T08:38:47.589Z",
+    "client": {
+      "name": "Radu Georgescu",
+      "avatar": null
+    },
+    "provider": {
+      "user": {
+        "name": "Mirel Popescu",
+        "avatar": null
+      }
+    }
+  },
+  {
+    "id": "r5",
+    "rating": 5,
+    "comment": "Salon curat, personal amabil, programare rapida. Il recomand tuturor prietenilor!",
+    "createdAt": "2026-04-18T08:38:47.589Z",
+    "client": {
+      "name": "Paul Stanescu",
+      "avatar": null
+    },
+    "provider": {
+      "user": {
+        "name": "Mirel Popescu",
+        "avatar": null
+      }
+    }
+  }
+];
+
 export default function EmployeeDashboard() {
   const router = useRouter();
   const { isMobile } = useResponsive();
@@ -51,6 +102,7 @@ export default function EmployeeDashboard() {
   const [profileForm, setProfileForm] = useState({ name: "", phone: "", description: "", judet: "", oras: "", adresa: "", facebook: "", instagram: "", tiktok: "", linkedin: "", website: "", youtube: "", whatsapp: "", contactEmail: "" });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [activeChatContact, setActiveChatContact] = useState<any>(MOCK_CONTACTS_EMP[0]);
   const [chatMsgs, setChatMsgs] = useState<any[]>(MOCK_MSGS_EMP["c1"]);
   const [chatInput, setChatInput] = useState("");
@@ -89,6 +141,7 @@ export default function EmployeeDashboard() {
       });
     });
     fetch("/api/services").then(r => r.json()).then(d => setServices(d.services || []));
+    fetch("/api/reviews").then(r => r.json()).then(d => setReviews([...MOCK_REVIEWS_EMP, ...(d.reviews || [])]));
     fetch("/api/bookings").then(r => r.json()).then(d => setBookings(d.bookings || []));
   }, []);
 

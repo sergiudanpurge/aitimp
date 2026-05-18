@@ -44,10 +44,60 @@ export default function ProviderPage() {
   };
 
   useEffect(() => {
+    const mockReviews = [
+  {
+    "id": "r1",
+    "rating": 5,
+    "comment": "Mirel e extraordinar! Stie exact ce vrei chiar daca nu stii sa explici. Cel mai bun coafor din oras, revin cu placere de fiecare data.",
+    "createdAt": "2026-05-16T08:38:47.588Z",
+    "client": {
+      "name": "Dorin Mihai",
+      "avatar": null
+    },
+    "provider": {
+      "user": {
+        "name": "Mirel Popescu",
+        "avatar": null
+      }
+    }
+  },
+  {
+    "id": "r2",
+    "rating": 5,
+    "comment": "Servicii impecabile, atmosfera placuta si preturi corecte. Ioana a fost super profesionista si m-a consiliat perfect pentru culoarea potrivita. Recomand cu toata increderea!",
+    "createdAt": "2026-05-11T08:38:47.589Z",
+    "client": {
+      "name": "Ana Constantin",
+      "avatar": null
+    },
+    "provider": {
+      "user": {
+        "name": "Ioana Danila",
+        "avatar": null
+      }
+    }
+  },
+  {
+    "id": "r3",
+    "rating": 4,
+    "comment": "Foarte multumit de rezultat. Putin timp de asteptare fata de programare, dar merita din plin. Mirel e mereu atent la detalii.",
+    "createdAt": "2026-05-04T08:38:47.589Z",
+    "client": {
+      "name": "Radu Georgescu",
+      "avatar": null
+    },
+    "provider": {
+      "user": {
+        "name": "Mirel Popescu",
+        "avatar": null
+      }
+    }
+  }
+];
     fetch(`/api/public/${slug}`).then(r => r.json()).then(d => {
       setProvider(d.provider);
       setEmployees(d.employees || []);
-      setReviews(d.reviews || []);
+      setReviews([...mockReviews, ...(d.reviews || [])]);
       if (d.employees?.length > 0) {
         setActiveEmployee(d.employees[0]);
         setServices(d.employees[0].provider?.services || []);
