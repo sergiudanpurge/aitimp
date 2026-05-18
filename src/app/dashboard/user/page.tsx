@@ -156,7 +156,7 @@ export default function UserProfilePage() {
 
   const sidebarSections = [
     { section: "Client" },
-    { id: "dashboard", icon: "⚡", label: "Dashboard" },
+    { id: "profil", icon: "⚡", label: "Dashboard" },
     { id: "editare-profil", icon: "✏️", label: "Editeaza Profilul" },
     { id: "rezervari", icon: "🗓", label: "Rezervarile mele" },
     { id: "recenzii-date", icon: "⭐", label: "Recenzii oferite" },
@@ -172,7 +172,7 @@ export default function UserProfilePage() {
   ];
 
   const bottomNavItems = [
-    { id: "dashboard", icon: "⚡", label: "Home" },
+    { id: "profil", icon: "⚡", label: "Home" },
     { id: "rezervari", icon: "🗓", label: "Rezervari" },
     { id: "cereri", icon: "📋", label: "Programari" },
     { id: "mesaje", icon: "💬", label: "Mesaje" },
