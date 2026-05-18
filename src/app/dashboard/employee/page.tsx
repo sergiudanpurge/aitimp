@@ -171,7 +171,7 @@ export default function EmployeeDashboard() {
 
   const bottomNavItems = [
     { id: "dashboard", icon: "⚡", label: "Home" },
-    { id: "rezervari-client", icon: "🗓", label: "Rezervari" },
+    { id: "calendar", icon: "📅", label: "Calendar" },
     { id: "cereri", icon: "📋", label: "Programari" },
     { id: "mesaje", icon: "💬", label: "Mesaje" },
     { id: "setari", icon: "⚙️", label: "Cont" },

@@ -174,7 +174,7 @@ export default function UserProfilePage() {
 
   const bottomNavItems = [
     { id: "profil", icon: "⚡", label: "Home" },
-    { id: "rezervari", icon: "🗓", label: "Rezervari" },
+    { id: "calendar", icon: "📅", label: "Calendar" },
     { id: "cereri", icon: "📋", label: "Programari" },
     { id: "mesaje", icon: "💬", label: "Mesaje" },
     { id: "setari", icon: "⚙️", label: "Cont" },
