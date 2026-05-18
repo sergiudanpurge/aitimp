@@ -18,6 +18,30 @@ const SOCIAL_PLATFORMS = [
   { key: "contactEmail", label: "Email contact", placeholder: "contact@example.ro", color: "#c9a96e", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' },
 ];
 
+const MOCK_CONTACTS_USER = [
+  { id: "p1", name: "Mirel Popescu", lastMsg: "Va asteptam marti la 14:30!", time: "10:33", unread: 1, isOnline: true, avatar: null },
+  { id: "p2", name: "Ioana Danila", lastMsg: "Multumesc pentru rezervare!", time: "Ieri", unread: 0, isOnline: false, avatar: null },
+  { id: "p3", name: "Color Craft Studio", lastMsg: "Cu placere, reveniti oricand!", time: "Lun", unread: 0, isOnline: true, avatar: null },
+];
+const MOCK_MSGS_USER: any = {
+  p1: [
+    { id:1, fromMe:false, text:"Buna ziua! Confirmat programarea pentru marti la 14:30.", time:"10:20", read:true },
+    { id:2, fromMe:true, text:"Multumesc! O sa fiu punctual.", time:"10:22", read:true },
+    { id:3, fromMe:false, text:"Va asteptam marti la 14:30! Daca aveti intrebari nu ezitati.", time:"10:33", read:false },
+  ],
+  p2: [
+    { id:1, fromMe:true, text:"Buna! As dori un balayage, aveti disponibilitate joi?", time:"09:00", read:true },
+    { id:2, fromMe:false, text:"Buna! Da, joi avem de la 11:00. Doriti sa rezervati?", time:"09:15", read:true },
+    { id:3, fromMe:true, text:"Da, va rog la 11:00!", time:"09:20", read:true },
+    { id:4, fromMe:false, text:"Multumesc pentru rezervare!", time:"09:22", read:true },
+  ],
+  p3: [
+    { id:1, fromMe:false, text:"Buna ziua! Cum va putem ajuta?", time:"Lun", read:true },
+    { id:2, fromMe:true, text:"Vreau informatii despre servicii.", time:"Lun", read:true },
+    { id:3, fromMe:false, text:"Cu placere, reveniti oricand!", time:"Lun", read:true },
+  ],
+};
+
 export default function UserProfilePage() {
   const router = useRouter();
   const { isMobile } = useResponsive();
@@ -34,6 +58,9 @@ export default function UserProfilePage() {
   const [profileForm, setProfileForm] = useState({ name: "", phone: "", description: "", judet: "", oras: "", adresa: "", facebook: "", instagram: "", tiktok: "", website: "", youtube: "", linkedin: "", whatsapp: "", contactEmail: "" });
   const [profileMsg, setProfileMsg] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
+  const [activeChatContact, setActiveChatContact] = useState<any>(MOCK_CONTACTS_USER[0]);
+  const [chatMsgs, setChatMsgs] = useState<any[]>(MOCK_MSGS_USER["p1"]);
+  const [chatInput, setChatInput] = useState("");
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calSelectedDay, setCalSelectedDay] = useState<number | null>(null);
@@ -620,14 +647,58 @@ const getSectionTitle = () => {
 
           {/* ===== MESAJE ===== */}
           {activeSection === "mesaje" && (
-            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: "40px 20px", textAlign: "center", color: s.muted }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>💬</div>
-              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, color: "#f0ede8", marginBottom: 8 }}>Mesaje</div>
-              <div style={{ fontSize: 13, marginBottom: 20 }}>Conversațiile tale cu prestatorii apar aici</div>
-              <button onClick={() => router.push("/search")} style={{ padding: "10px 24px", background: "rgba(201,169,110,0.1)", border: `1px solid rgba(201,169,110,0.2)`, borderRadius: 9, fontSize: 13, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Caută un prestator →</button>
+            <div style={{ display: "flex", gap: 0, background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden", height: isMobile ? "70vh" : 560 }}>
+              {/* CONTACTE */}
+              {!isMobile && (
+                <div style={{ width: 240, borderRight: `1px solid ${s.border}`, display: "flex", flexDirection: "column" }}>
+                  <div style={{ padding: "14px 16px", borderBottom: `1px solid ${s.border}`, fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 600 }}>Mesaje</div>
+                  <div style={{ flex: 1, overflowY: "auto" }}>
+                    {MOCK_CONTACTS_USER.map(contact => (
+                      <div key={contact.id} onClick={() => { setActiveChatContact(contact); setChatMsgs(MOCK_MSGS_USER[contact.id] || []); }}
+                        style={{ padding: "10px 14px", display: "flex", alignItems: "center", gap: 10, cursor: "pointer", background: activeChatContact?.id === contact.id ? "rgba(201,169,110,0.08)" : "transparent", borderLeft: activeChatContact?.id === contact.id ? `3px solid ${s.accent}` : "3px solid transparent" }}>
+                        <div style={{ position: "relative", flexShrink: 0 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff" }}>{contact.name.charAt(0)}</div>
+                          {contact.isOnline && <div style={{ position: "absolute", bottom: 1, right: 1, width: 8, height: 8, borderRadius: "50%", background: s.green, border: `2px solid ${s.surface}` }} />}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{contact.name}</div>
+                          <div style={{ fontSize: 11, color: s.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{contact.lastMsg}</div>
+                        </div>
+                        {contact.unread > 0 && <div style={{ width: 16, height: 16, borderRadius: "50%", background: s.accent, color: "#0a0a0a", fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>{contact.unread}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* CONVERSATIE */}
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+                <div style={{ padding: "10px 14px", borderBottom: `1px solid ${s.border}`, display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{activeChatContact?.name?.charAt(0)}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700 }}>{activeChatContact?.name}</div>
+                    <div style={{ fontSize: 11, color: activeChatContact?.isOnline ? s.green : s.muted }}>{activeChatContact?.isOnline ? "Online" : "Offline"}</div>
+                  </div>
+                </div>
+                <div style={{ flex: 1, overflowY: "auto", padding: "14px", display: "flex", flexDirection: "column", gap: 6 }}>
+                  {chatMsgs.map((msg: any, i: number) => (
+                    <div key={i} style={{ display: "flex", flexDirection: msg.fromMe ? "row-reverse" : "row", alignItems: "flex-end", gap: 6 }}>
+                      <div style={{ maxWidth: "75%" }}>
+                        <div style={{ padding: "8px 12px", borderRadius: msg.fromMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px", background: msg.fromMe ? "linear-gradient(135deg,#c9a96e,#a8843d)" : s.surface2, color: msg.fromMe ? "#0a0a0a" : "#f0ede8", fontSize: 13, lineHeight: 1.5 }}>{msg.text}</div>
+                        <div style={{ fontSize: 10, color: s.muted, marginTop: 2, textAlign: msg.fromMe ? "right" : "left" }}>{msg.time} {msg.fromMe && <span style={{ color: msg.read ? s.accent : s.muted }}>✓✓</span>}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ padding: "10px 12px", borderTop: `1px solid ${s.border}`, display: "flex", gap: 8, flexShrink: 0 }}>
+                  <input value={chatInput} onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter" && chatInput.trim()) { const now = new Date(); setChatMsgs(prev => [...prev, { id: Date.now(), fromMe: true, text: chatInput, time: now.getHours()+":"+String(now.getMinutes()).padStart(2,"0"), read: false }]); setChatInput(""); } }}
+                    placeholder="Scrie un mesaj..." style={{ flex: 1, background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 20, padding: "8px 14px", color: "#f0ede8", fontSize: 13, outline: "none", fontFamily: "var(--font-outfit)" }} />
+                  <button onClick={() => { if (!chatInput.trim()) return; const now = new Date(); setChatMsgs(prev => [...prev, { id: Date.now(), fromMe: true, text: chatInput, time: now.getHours()+":"+String(now.getMinutes()).padStart(2,"0"), read: false }]); setChatInput(""); }}
+                    style={{ width: 38, height: 38, borderRadius: "50%", background: chatInput.trim() ? "linear-gradient(135deg,#c9a96e,#a8843d)" : s.surface2, border: "none", color: chatInput.trim() ? "#0a0a0a" : s.muted, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>➤</button>
+                </div>
+              </div>
             </div>
           )}
-
           {/* ===== RECENZII DATE ===== */}
           {activeSection === "recenzii-date" && (
             <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: "40px 20px", textAlign: "center", color: s.muted }}>
