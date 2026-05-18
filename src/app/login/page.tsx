@@ -39,7 +39,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#090806", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: "#090806", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px", position: "relative" }}>
       <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(201,168,76,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.035) 1px,transparent 1px)", backgroundSize: "60px 60px", WebkitMaskImage: "radial-gradient(ellipse 70% 70% at 50% 50%,black 30%,transparent 100%)" }} />
       <div style={{ position: "absolute", width: 600, height: 400, top: "50%", left: "50%", transform: "translate(-50%,-50%)", background: "radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <div style={{ background: "#0f0e0b", border: "1px solid rgba(201,168,76,0.2)", borderRadius: 20, padding: "48px 44px", position: "relative", overflow: "hidden" }}>
+        <div style={{ background: "#0f0e0b", border: "1px solid rgba(201,168,76,0.2)", borderRadius: 20, padding: "clamp(24px, 5vw, 48px) clamp(20px, 5vw, 44px)", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, borderRadius: 20, background: "radial-gradient(ellipse at top, rgba(201,168,76,0.05) 0%, transparent 60%)", pointerEvents: "none" }} />
 
           {verified && (

@@ -29,6 +29,11 @@ export default function ProviderPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
+  const [calYear, setCalYear] = useState(new Date().getFullYear());
+  const [calSelectedDay, setCalSelectedDay] = useState<number | null>(null);
+  const [calSelectedSlot, setCalSelectedSlot] = useState<string | null>(null);
+  const [bookingStep, setBookingStep] = useState<"service" | "calendar" | "slot" | "confirm">("service");
   const [loading, setLoading] = useState(true);
   const [myBookings, setMyBookings] = useState<any[]>([]);
 
@@ -73,6 +78,66 @@ export default function ProviderPage() {
 
   const toggleFavorite = (svcId: string) => {
     setFavorites(prev => prev.includes(svcId) ? prev.filter(f => f !== svcId) : [...prev, svcId]);
+  };
+
+  // === CALENDAR HELPERS ===
+  const slotInterval = provider?.provider?.slotInterval || 30; // min
+  const workStart = provider?.provider?.workStart || "09:00";
+  const workEnd = provider?.provider?.workEnd || "18:00";
+  const bufferMinutes = 15; // buffer intre servicii
+
+  const generateSlots = (start: string, end: string, interval: number): string[] => {
+    const slots: string[] = [];
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    let h = sh, m = sm;
+    while (h < eh || (h === eh && m < em)) {
+      slots.push(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`);
+      m += interval;
+      if (m >= 60) { h++; m -= 60; }
+    }
+    return slots;
+  };
+
+  const getMockOccupied = (day: number, month: number): string[] => {
+    const seed = day * 3 + month * 7;
+    const allSlots = generateSlots(workStart, workEnd, slotInterval);
+    return allSlots.filter((_, i) => (seed + i * 11) % 4 === 0);
+  };
+
+  const getSlotStatus = (slot: string, day: number, serviceDuration: number): "free" | "occupied" | "unavailable" | "buffer" => {
+    const occupied = getMockOccupied(day, calMonth);
+    const allSlots = generateSlots(workStart, workEnd, slotInterval);
+    const startIdx = allSlots.indexOf(slot);
+    if (startIdx === -1) return "unavailable";
+    const slotsNeeded = Math.ceil(serviceDuration / slotInterval);
+    const bufferSlots = Math.ceil(bufferMinutes / slotInterval);
+    // Verificam daca serviciul incape
+    if (startIdx + slotsNeeded > allSlots.length) return "unavailable";
+    for (let i = startIdx; i < startIdx + slotsNeeded; i++) {
+      if (occupied.includes(allSlots[i])) return "occupied";
+    }
+    // Verificam daca e buffer dupa un slot ocupat
+    for (let i = Math.max(0, startIdx - bufferSlots); i < startIdx; i++) {
+      if (occupied.includes(allSlots[i])) return "buffer";
+    }
+    return "free";
+  };
+
+  const hasFreeSlots = (day: number): boolean => {
+    const today = new Date();
+    const checkDate = new Date(calYear, calMonth, day);
+    if (checkDate < new Date(today.getFullYear(), today.getMonth(), today.getDate())) return false;
+    if (checkDate.getDay() === 0) return false; // Duminica inchis
+    const duration = selectedService?.duration * slotInterval || slotInterval;
+    const allSlots = generateSlots(workStart, workEnd, slotInterval);
+    return allSlots.some(slot => getSlotStatus(slot, day, duration) === "free");
+  };
+
+  const getSlotCount = (day: number): number => {
+    const duration = selectedService?.duration * slotInterval || slotInterval;
+    const allSlots = generateSlots(workStart, workEnd, slotInterval);
+    return allSlots.filter(slot => getSlotStatus(slot, day, duration) === "free").length;
   };
 
   if (loading) return <div style={{ minHeight: "100vh", background: s.bg }} />;
@@ -351,32 +416,197 @@ export default function ProviderPage() {
           {/* COLOANA DREAPTA */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-            {/* CTA REZERVARE */}
-            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: 20 }}>
-              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Rezerva acum</div>
-              <div style={{ fontSize: 12, color: s.muted, marginBottom: 16 }}>Selecteaza un serviciu din lista</div>
-              {selectedService ? (
-                <div>
-                  <div style={{ padding: "12px 14px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 10, marginBottom: 12 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{selectedService.name}</div>
-                    <div style={{ fontSize: 12, color: s.muted, marginTop: 4 }}>{selectedService.duration * 30} min · {selectedService.price} lei</div>
+            {/* CALENDAR REZERVARE */}
+            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, overflow: "hidden" }}>
+              
+              {/* HEADER */}
+              <div style={{ padding: "16px 20px", borderBottom: `1px solid ${s.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600 }}>Rezerva acum</div>
+                {selectedService && (
+                  <button onClick={() => { setSelectedService(null); setCalSelectedDay(null); setCalSelectedSlot(null); setBookingStep("service"); }}
+                    style={{ fontSize: 11, color: s.muted, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
+                    Schimba serviciul
+                  </button>
+                )}
+              </div>
+
+              {/* STEP 1 - Selecteaza serviciu */}
+              {!selectedService && (
+                <div style={{ padding: 20 }}>
+                  <div style={{ fontSize: 13, color: s.muted, marginBottom: 14 }}>Alege un serviciu pentru a vedea disponibilitatea:</div>
+                  {services.map((svc: any, idx: number) => {
+                    const colors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
+                    return (
+                      <div key={svc.id} onClick={() => { setSelectedService(svc); setBookingStep("calendar"); setCalSelectedDay(null); setCalSelectedSlot(null); }}
+                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, border: `1px solid ${s.border}`, background: s.surface2, marginBottom: 8, cursor: "pointer", transition: "all .2s" }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.4)"; (e.currentTarget as HTMLDivElement).style.background = "rgba(201,169,110,0.06)"; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = s.border; (e.currentTarget as HTMLDivElement).style.background = s.surface2; }}>
+                        <div style={{ width: 4, height: 36, borderRadius: 2, background: colors[idx % colors.length], flexShrink: 0 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600 }}>{svc.name}</div>
+                          <div style={{ fontSize: 11, color: s.muted }}>{svc.duration * 30} min</div>
+                        </div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: s.accent }}>{svc.price} lei</div>
+                      </div>
+                    );
+                  })}
+                  {services.length === 0 && <div style={{ textAlign: "center", color: s.muted, fontSize: 13, padding: "20px 0" }}>Niciun serviciu disponibil</div>}
+                </div>
+              )}
+
+              {/* STEP 2 - Calendar */}
+              {selectedService && !calSelectedDay && (
+                <div style={{ padding: "16px 20px" }}>
+                  {/* Serviciu selectat */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 10, marginBottom: 16 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700 }}>{selectedService.name}</div>
+                      <div style={{ fontSize: 11, color: s.muted }}>{selectedService.duration * slotInterval} min · {selectedService.price} lei</div>
+                    </div>
+                    <div style={{ fontSize: 14, color: s.accent }}>✓</div>
                   </div>
+
+                  {/* Header calendar */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                    <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(calYear - 1); } else setCalMonth(calMonth - 1); }}
+                      style={{ width: 28, height: 28, borderRadius: 7, background: s.surface2, border: `1px solid ${s.border}`, color: "#f0ede8", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>
+                      {new Date(calYear, calMonth).toLocaleDateString("ro-RO", { month: "long", year: "numeric" })}
+                    </div>
+                    <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(calYear + 1); } else setCalMonth(calMonth + 1); }}
+                      style={{ width: 28, height: 28, borderRadius: 7, background: s.surface2, border: `1px solid ${s.border}`, color: "#f0ede8", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>›</button>
+                  </div>
+
+                  {/* Zile saptamana */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", marginBottom: 6 }}>
+                    {["L","M","M","J","V","S","D"].map((d, i) => (
+                      <div key={i} style={{ textAlign: "center", fontSize: 10, color: i >= 5 ? s.red : s.muted, fontWeight: 600, padding: "4px 0" }}>{d}</div>
+                    ))}
+                  </div>
+
+                  {/* Grid zile */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 3 }}>
+                    {(() => {
+                      const firstDay = new Date(calYear, calMonth, 1).getDay();
+                      const offset = firstDay === 0 ? 6 : firstDay - 1;
+                      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+                      const today = new Date();
+                      const cells = [];
+                      for (let i = 0; i < offset; i++) cells.push(null);
+                      for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+                      return cells.map((day, idx) => {
+                        if (!day) return <div key={idx} />;
+                        const isToday = today.getDate() === day && today.getMonth() === calMonth && today.getFullYear() === calYear;
+                        const free = hasFreeSlots(day);
+                        const count = free ? getSlotCount(day) : 0;
+                        const isPast = new Date(calYear, calMonth, day) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                        const isSunday = new Date(calYear, calMonth, day).getDay() === 0;
+                        const isDisabled = isPast || isSunday || !free;
+                        return (
+                          <div key={idx} onClick={() => !isDisabled && setCalSelectedDay(day)}
+                            style={{ aspectRatio: "1", borderRadius: 8, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: isToday ? 700 : 400, cursor: isDisabled ? "default" : "pointer", background: isToday ? "rgba(201,169,110,0.15)" : "transparent", border: isToday ? `1px solid ${s.accent}` : "1px solid transparent", color: isDisabled ? "#444" : "#f0ede8", position: "relative", transition: "all .15s" }}
+                            onMouseEnter={e => { if (!isDisabled) { (e.currentTarget as HTMLDivElement).style.background = "rgba(201,169,110,0.1)"; (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.3)"; } }}
+                            onMouseLeave={e => { if (!isDisabled && !isToday) { (e.currentTarget as HTMLDivElement).style.background = "transparent"; (e.currentTarget as HTMLDivElement).style.borderColor = "transparent"; } }}>
+                            <span>{day}</span>
+                            {!isDisabled && (
+                              <div style={{ width: 4, height: 4, borderRadius: "50%", background: count > 5 ? s.green : count > 2 ? s.yellow : s.red, marginTop: 1 }} />
+                            )}
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+
+                  {/* Legenda */}
+                  <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
+                    {[[s.green,"Disponibil"],[s.yellow,"Putine locuri"],[s.red,"Aproape ocupat"]].map(([color, label]) => (
+                      <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: color }} />
+                        <span style={{ fontSize: 10, color: s.muted }}>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3 - Sloturi */}
+              {selectedService && calSelectedDay && !calSelectedSlot && (
+                <div style={{ padding: "16px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                    <button onClick={() => setCalSelectedDay(null)} style={{ width: 28, height: 28, borderRadius: 7, background: s.surface2, border: `1px solid ${s.border}`, color: "#f0ede8", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>
+                      {new Date(calYear, calMonth, calSelectedDay).toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" })}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: s.muted, marginBottom: 12 }}>Alege ora pentru <strong>{selectedService.name}</strong> ({selectedService.duration * slotInterval} min):</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6 }}>
+                    {generateSlots(workStart, workEnd, slotInterval).map(slot => {
+                      const status = getSlotStatus(slot, calSelectedDay, selectedService.duration * slotInterval);
+                      const isAvail = status === "free";
+                      return (
+                        <button key={slot} disabled={!isAvail} onClick={() => isAvail && setCalSelectedSlot(slot)}
+                          style={{ padding: "8px 4px", borderRadius: 8, border: `1px solid ${isAvail ? "rgba(76,175,130,0.4)" : s.border}`, background: isAvail ? "rgba(76,175,130,0.08)" : s.surface2, color: isAvail ? s.green : "#444", fontSize: 12, fontWeight: 600, cursor: isAvail ? "pointer" : "default", fontFamily: "var(--font-outfit)", transition: "all .15s", position: "relative" }}
+                          onMouseEnter={e => { if (isAvail) { (e.currentTarget as HTMLButtonElement).style.background = "rgba(76,175,130,0.2)"; } }}
+                          onMouseLeave={e => { if (isAvail) { (e.currentTarget as HTMLButtonElement).style.background = "rgba(76,175,130,0.08)"; } }}>
+                          {slot}
+                          {status === "buffer" && <span style={{ position: "absolute", top: 2, right: 2, width: 4, height: 4, borderRadius: "50%", background: s.yellow }} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
+                    {[[s.green,"rgba(76,175,130,0.08)","Disponibil"],["#444",s.surface2,"Ocupat"]].map(([color, bg, label]) => (
+                      <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                        <div style={{ width: 16, height: 16, borderRadius: 4, background: bg, border: `1px solid ${color}` }} />
+                        <span style={{ fontSize: 10, color: s.muted }}>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4 - Confirmare */}
+              {selectedService && calSelectedDay && calSelectedSlot && (
+                <div style={{ padding: "16px 20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                    <button onClick={() => setCalSelectedSlot(null)} style={{ width: 28, height: 28, borderRadius: 7, background: s.surface2, border: `1px solid ${s.border}`, color: "#f0ede8", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>‹</button>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>Confirma rezervarea</div>
+                  </div>
+                  <div style={{ background: "rgba(201,169,110,0.06)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 12, padding: "14px 16px", marginBottom: 16 }}>
+                    {[
+                      ["🔧 Serviciu", selectedService.name],
+                      ["📅 Data", new Date(calYear, calMonth, calSelectedDay).toLocaleDateString("ro-RO", { weekday: "long", day: "numeric", month: "long" })],
+                      ["🕐 Ora", calSelectedSlot],
+                      ["⏱ Durata", `${selectedService.duration * slotInterval} min`],
+                      ["💰 Pret", `${selectedService.price} lei`],
+                    ].map(([label, value]) => (
+                      <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid rgba(201,169,110,0.1)" }}>
+                        <span style={{ fontSize: 12, color: s.muted }}>{label}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {activeEmployee && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: s.surface2, borderRadius: 8, marginBottom: 12 }}>
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg,#c9a96e,#8b5e3c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#fff", overflow: "hidden", flexShrink: 0 }}>
+                        {activeEmployee.avatar ? <img src={activeEmployee.avatar} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : activeEmployee.name?.charAt(0)}
+                      </div>
+                      <div style={{ fontSize: 12 }}>Specialist: <strong>{activeEmployee.name}</strong></div>
+                    </div>
+                  )}
                   {currentUser ? (
-                    <button style={{ width: "100%", padding: "13px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                      Solicita rezervare
+                    <button style={{ width: "100%", padding: "13px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}
+                      onClick={() => alert("🚀 Backend urmează! Rezervarea va fi trimisă prestatorului.")}>
+                      ✅ Solicita rezervarea
                     </button>
                   ) : (
                     <button onClick={() => router.push("/login")} style={{ width: "100%", padding: "13px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                      Autentifica-te →
+                      Autentifica-te pentru a rezerva →
                     </button>
                   )}
-                  <button onClick={() => setSelectedService(null)} style={{ width: "100%", marginTop: 8, padding: "9px", background: "transparent", border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 13, color: s.muted, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                    Anuleaza selectia
-                  </button>
-                </div>
-              ) : (
-                <div style={{ textAlign: "center", padding: "20px 0", color: s.muted, fontSize: 13 }}>
-                  👆 Selecteaza un serviciu
+                  <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(76,175,130,0.06)", border: "1px solid rgba(76,175,130,0.2)", borderRadius: 8, fontSize: 11, color: s.muted, textAlign: "center" }}>
+                    ⚡ Rezervarea necesita confirmare din partea prestatorului
+                  </div>
                 </div>
               )}
             </div>
