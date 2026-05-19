@@ -27,6 +27,7 @@ export default function ProviderPage() {
   const [services, setServices] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
@@ -239,8 +240,13 @@ export default function ProviderPage() {
             </div>
             <div style={{ display: "flex", gap: 8, paddingBottom: 4, flexWrap: "wrap" }}>
               {currentUser && (
-                <button onClick={() => router.push(`/chat/${provider.id}`)} style={{ padding: "10px 20px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                  💬 Trimite mesaj
+                <button onClick={() => setIsFavorite(prev => !prev)}
+                  style={{ padding: "10px 20px", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", border: "none", transition: "all 0.3s",
+                    background: isFavorite ? "linear-gradient(135deg,#e91e8c,#c2185b)" : s.surface2,
+                    color: isFavorite ? "#fff" : s.muted,
+                    boxShadow: isFavorite ? "0 4px 15px rgba(233,30,140,0.3)" : "none"
+                  }}>
+                  {isFavorite ? "❤️ La Favorite" : "♡ Adauga la Favorite"}
                 </button>
               )}
               <button onClick={() => router.push("/search")} style={{ padding: "10px 16px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 13, color: s.muted, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
@@ -357,62 +363,6 @@ export default function ProviderPage() {
                 </div>
               </div>
             )}
-
-            {/* SERVICII */}
-            <div style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 14, padding: isMobile ? 16 : 20 }}>
-              <div style={{ fontFamily: "var(--font-playfair)", fontSize: 15, fontWeight: 600, marginBottom: 14 }}>
-                Servicii {activeEmployee && isCompany ? `— ${activeEmployee.name}` : ""}
-              </div>
-              {services.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "20px 0", color: s.muted, fontSize: 13 }}>Niciun serviciu disponibil</div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {services.map((svc: any, idx: number) => {
-                    const colors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
-                    const isFav = favorites.includes(svc.id);
-                    const hasThisBooking = myBookingWithThis.some(b => b.serviceId === svc.id && (b.status === "pending" || b.status === "accepted"));
-                    return (
-                      <div key={svc.id} style={{ display: "flex", alignItems: "center", gap: 0, background: s.surface2, borderRadius: 12, overflow: "hidden", border: `1px solid ${selectedService?.id === svc.id ? "rgba(201,169,110,0.4)" : s.border}`, transition: "all .2s", cursor: "pointer" }}
-                        onClick={() => setSelectedService(selectedService?.id === svc.id ? null : svc)}>
-                        <div style={{ width: 4, height: "100%", background: colors[idx % colors.length], flexShrink: 0, minHeight: 70 }} />
-                        <div style={{ flex: 1, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.name}</div>
-                              {hasThisBooking && <div style={{ padding: "2px 7px", borderRadius: 4, background: "rgba(232,184,75,0.15)", color: s.yellow, fontSize: 10, fontWeight: 700, flexShrink: 0 }}>⏳ Rezervat</div>}
-                            </div>
-                            {svc.description && <div style={{ fontSize: 12, color: s.muted, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.description}</div>}
-                            <div style={{ fontSize: 11, color: s.muted, marginTop: 4 }}>⏱ {svc.duration * 30} min</div>
-                          </div>
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0 }}>
-                            <div style={{ fontSize: 16, fontWeight: 700, color: s.accent }}>{svc.price} lei</div>
-                            <button onClick={e => { e.stopPropagation(); toggleFavorite(svc.id); }}
-                              style={{ width: 28, height: 28, borderRadius: 7, background: isFav ? "rgba(201,169,110,0.2)" : "rgba(255,255,255,0.05)", border: `1px solid ${isFav ? s.accent : s.border}`, color: isFav ? s.accent : s.muted, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              {isFav ? "★" : "☆"}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              {selectedService && (
-                <div style={{ marginTop: 14, padding: 16, background: "rgba(201,169,110,0.06)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 12 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Rezerva: {selectedService.name}</div>
-                  <div style={{ fontSize: 12, color: s.muted, marginBottom: 12 }}>{selectedService.duration * 30} min · {selectedService.price} lei</div>
-                  {currentUser ? (
-                    <button style={{ width: "100%", padding: "11px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                      Solicita rezervare
-                    </button>
-                  ) : (
-                    <button onClick={() => router.push("/login")} style={{ width: "100%", padding: "11px", background: s.surface, border: `1px solid ${s.border}`, borderRadius: 10, fontSize: 14, fontWeight: 600, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
-                      Autentifica-te pentru a rezerva
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
 
             {/* GALERIE */}
             {gallery.length > 0 && (
@@ -699,7 +649,10 @@ export default function ProviderPage() {
               <div style={{ fontFamily: "var(--font-playfair)", fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Contact</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {currentUser && (
-                  <button onClick={() => router.push(`/chat/${provider.id}`)} style={{ width: "100%", padding: "11px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 10, fontSize: 13, fontWeight: 600, color: s.accent, cursor: "pointer", fontFamily: "var(--font-outfit)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  <button onClick={() => {
+                    const subject = encodeURIComponent("Mesaj de pe Aitimp.ro");
+                    window.open(`mailto:${provider.contactEmail || ""}`, "_blank");
+                  }} style={{ width: "100%", padding: "11px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>
                     💬 Trimite mesaj
                   </button>
                 )}

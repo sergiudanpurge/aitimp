@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
 
-    const { name, duration, price, employeeId, icon } = await request.json()
+    const { name: rawName, duration, price, employeeId, icon } = await request.json()
 
     if (!name || !duration || !price) {
       return NextResponse.json({ error: "Toate campurile sunt obligatorii" }, { status: 400 })

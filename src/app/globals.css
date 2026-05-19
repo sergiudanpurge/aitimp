@@ -391,3 +391,11 @@ body::after {
     overflow: hidden !important;
   }
 }
+
+/* Auto-capitalize inputs */
+input[type="text"], input[type="search"], textarea {
+  text-transform: sentence;
+}
+input[type="email"] {
+  text-transform: lowercase;
+}

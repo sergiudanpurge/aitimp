@@ -9,7 +9,9 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
   try {
-const { name, email, password, accountType, phone, tara, judet, oras, cui, adresa } = await request.json()
+const { name: rawName, email: rawEmail, password, accountType, phone, tara, judet, oras, cui, adresa } = await request.json()
+    const name = rawName?.trim().split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') || rawName
+    const email = rawEmail?.trim().toLowerCase() || rawEmail
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Toate câmpurile sunt obligatorii" }, { status: 400 })
     }

@@ -1,3 +1,11 @@
 const fs = require('fs');
-const c = fs.readFileSync('./src/app/api/register/route.ts', 'utf8');
-c.split('\n').forEach((l, i) => console.log(i+1, l));
+let c = fs.readFileSync('./src/app/search/page.tsx', 'utf8');
+
+c = c.replace(
+  `  const [loading, setLoading] = useState(false);`,
+  `  const [loading, setLoading] = useState(false);
+  const [searchFavorites, setSearchFavorites] = useState<string[]>([]);`
+);
+
+fs.writeFileSync('./src/app/search/page.tsx', c);
+console.log('Done:', fs.statSync('./src/app/search/page.tsx').size);

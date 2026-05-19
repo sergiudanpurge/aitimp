@@ -32,6 +32,7 @@ export default function SearchPage() {
   const [oraseDisponibile, setOraseDisponibile] = useState<string[]>([]);
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchFavorites, setSearchFavorites] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [availability, setAvailability] = useState("orice");
   const [dateStart, setDateStart] = useState("");
@@ -198,7 +199,7 @@ export default function SearchPage() {
           <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 10, marginBottom: 14 }}>
             <div style={{ flex: 1, position: "relative" }}>
               <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 17, color: "#777", pointerEvents: "none" }}>🔍</span>
-              <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSearch()} placeholder="Ce serviciu cauți?"
+              <input value={query} onChange={e => setQuery(e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1).toLowerCase())} onKeyDown={e => e.key === "Enter" && handleSearch()} placeholder="Ce serviciu cauți?"
                 style={{ ...inputStyle, padding: "13px 16px 13px 44px" }}
                 onFocus={e => (e.currentTarget.style.borderColor = "#c9a96e")} onBlur={e => (e.currentTarget.style.borderColor = "#262626")} />
             </div>
@@ -308,8 +309,11 @@ export default function SearchPage() {
                               <div style={{ fontSize: 11, color: "#777" }}>📍 {r.oras || "România"} · {r.accountType === "company" ? "🏢 Firmă" : "👤 Persoană"}</div>
                             </div>
                             <div style={{ textAlign: "right", flexShrink: 0 }}>
-                              {r.rating && <div style={{ fontSize: 13, fontWeight: 700, color: "#c9a96e" }}>★ {r.rating}</div>}
-                              <div style={{ fontSize: 11, color: "#777", marginTop: 2 }}>{r.services?.[0]?.price ? `${r.services[0].price} lei` : "—"}</div>
+                              <button onClick={e => { e.preventDefault(); setSearchFavorites(prev => prev.includes(r.id) ? prev.filter(x => x !== r.id) : [...prev, r.id]); }}
+                                style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, padding: 0, lineHeight: 1 }}>
+                                {searchFavorites.includes(r.id) ? "❤️" : "🤍"}
+                              </button>
+                              {r.services?.[0]?.price > 0 && <div style={{ fontSize: 15, fontWeight: 700, color: "#c9a96e", marginTop: 2 }}>{r.services[0].price} lei</div>}
                             </div>
                           </div>
                           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -319,7 +323,7 @@ export default function SearchPage() {
                             ))}
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div style={{ fontSize: 11, color: "#555" }}>de la <strong style={{ color: "#c9a96e", fontSize: 13 }}>{r.services?.[0]?.price ? `${r.services[0].price} lei` : "—"}</strong></div>
+                            <div style={{ fontSize: 11, color: "#777" }}>{r.rating > 0 ? `★ ${r.rating} · ` : ""}Servicii: {r.services?.length || 0}</div>
                             <div style={{ padding: "5px 12px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 7, fontSize: 11, color: "#c9a96e", fontWeight: 600 }}>Vezi profil →</div>
                           </div>
                         </div>

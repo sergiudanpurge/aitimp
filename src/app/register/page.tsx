@@ -8,6 +8,10 @@ import { Country, State, City } from "country-state-city";
 
 export default function RegisterPage() {
   const router = useRouter();
+
+  const toTitleCase = (v: string) => v.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  const toSentenceCase = (v: string) => v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
+
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState<"personal" | "company">("personal");
   const [loading, setLoading] = useState(false);
