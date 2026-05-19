@@ -1,19 +1,18 @@
 const fs = require('fs');
-const emp = fs.readFileSync('./src/app/dashboard/employee/page.tsx', 'utf8');
+let c = fs.readFileSync('./src/app/p/[slug]/page.tsx', 'utf8');
 
-// Extragem stats block de la Employee
-const empSvcIdx = emp.indexOf('activeSection === "servicii"');
-const empStatsStart = emp.indexOf('{services.length > 0 && (() => {', empSvcIdx);
-const empStatsEnd = emp.indexOf('})()}', empStatsStart) + 5;
-const statsBlock = emp.substring(empStatsStart, empStatsEnd);
-console.log('Stats block size:', statsBlock.length);
+// Inlocuim pozitional
+const oldStr = "{!selectedService && (\r\n                <div style={{ padding: 20 }}>\r\n                  <div style={";
+const newStr = "{(\r\n                <div style={{ padding: 20 }}>\r\n                  <div style={";
 
-// Adaugam la User inainte de {services.length === 0
-let user = fs.readFileSync('./src/app/dashboard/user/page.tsx', 'utf8');
-const userSvcIdx = user.indexOf('activeSection === "servicii"');
-const insertPoint = user.indexOf('{services.length === 0 ?', userSvcIdx);
-console.log('Insert point:', insertPoint);
+c = c.replace(oldStr, newStr);
+console.log('Fix aplicat:', c.includes('{(\r\n                <div style={{ padding: 20 }}>'));
 
-user = user.substring(0, insertPoint) + statsBlock + '\n              ' + user.substring(insertPoint);
-fs.writeFileSync('./src/app/dashboard/user/page.tsx', user);
-console.log('✅ Done! Size:', fs.statSync('./src/app/dashboard/user/page.tsx').size);
+// Evidentiez serviciul selectat in lista
+c = c.replace(
+  'String(selectedService.id) === String(svc.id)) { setSelectedService(null); } else { setSelectedService(svc);',
+  'String(selectedService?.id) === String(svc.id)) { setSelectedService(null); } else { setSelectedService(svc);'
+);
+
+fs.writeFileSync('./src/app/p/[slug]/page.tsx', c);
+console.log('Done:', fs.statSync('./src/app/p/[slug]/page.tsx').size);

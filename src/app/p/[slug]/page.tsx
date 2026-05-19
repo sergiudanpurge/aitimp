@@ -432,13 +432,13 @@ export default function ProviderPage() {
               </div>
 
               {/* STEP 1 - Selecteaza serviciu */}
-              {!selectedService && (
+              {(
                 <div style={{ padding: 20 }}>
                   <div style={{ fontSize: 13, color: s.muted, marginBottom: 14 }}>Alege un serviciu pentru a vedea disponibilitatea:</div>
                   {services.map((svc: any, idx: number) => {
                     const colors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
                     return (
-                      <div key={svc.id} onClick={() => { setSelectedService(svc); setBookingStep("calendar"); setCalSelectedDay(null); setCalSelectedSlot(null); }}
+                      <div key={svc.id} onClick={() => { if (selectedService && String(selectedService?.id) === String(svc.id)) { setSelectedService(null); } else { setSelectedService(svc); setBookingStep("calendar"); setCalSelectedDay(null); setCalSelectedSlot(null); } }}
                         style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, border: `1px solid ${s.border}`, background: s.surface2, marginBottom: 8, cursor: "pointer", transition: "all .2s" }}
                         onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(201,169,110,0.4)"; (e.currentTarget as HTMLDivElement).style.background = "rgba(201,169,110,0.06)"; }}
                         onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = s.border; (e.currentTarget as HTMLDivElement).style.background = s.surface2; }}>
