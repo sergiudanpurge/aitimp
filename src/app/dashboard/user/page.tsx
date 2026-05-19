@@ -6,6 +6,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import Link from "next/link";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
 import RezervariMele from "@/components/dashboard/RezervariMele";
+import AddServiceModal from "@/components/dashboard/AddServiceModal";
 
 const JUDETE = ["Alba","Arad","Argeș","Bacău","Bihor","Bistrița-Năsăud","Botoșani","Brăila","Brașov","București","Buzău","Călărași","Caraș-Severin","Cluj","Constanța","Covasna","Dâmbovița","Dolj","Galați","Giurgiu","Gorj","Harghita","Hunedoara","Ialomița","Iași","Ilfov","Maramureș","Mehedinți","Mureș","Neamț","Olt","Prahova","Sălaj","Satu Mare","Sibiu","Suceava","Teleorman","Timiș","Tulcea","Vâlcea","Vaslui","Vrancea"];
 const SOCIAL_PLATFORMS = [
@@ -238,48 +239,8 @@ const getSectionTitle = () => {
   return (
     <div style={{ minHeight: "100vh", background: s.bg, color: "#f0ede8", fontFamily: "var(--font-outfit)", display: "flex" }}>
 
-      {/* MODAL ADAUGA SERVICIU */}
-      {showAddService && (
-        <div onClick={() => setShowAddService(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 16, padding: 24, width: "100%", maxWidth: 480 }}>
-            <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>+ Adauga serviciu</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Icon</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {["✂️","💆","💅","🎨","🔧","💻","📸","🏋️","🚗","🧹","⭐","💈"].map(ic => (
-                    <button key={ic} onClick={() => setNewService({...newService, icon: ic})} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${newService.icon === ic ? s.accent : s.border}`, background: newService.icon === ic ? "rgba(201,169,110,0.15)" : s.surface2, fontSize: 18, cursor: "pointer" }}>{ic}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Nume serviciu *</div>
-                <input value={newService.name} onChange={e => setNewService({...newService, name: e.target.value})} placeholder="ex: Tuns + Styling" style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
-                  onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Durata</div>
-                  <select value={newService.duration} onChange={e => setNewService({...newService, duration: e.target.value})} style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", cursor: "pointer" }}>
-                    {[1,2,3,4,6,8].map(d => <option key={d} value={d}>{d * 30} min</option>)}
-                  </select>
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Pret (lei) *</div>
-                  <input type="number" value={newService.price} onChange={e => setNewService({...newService, price: e.target.value})} placeholder="ex: 50" style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}
-                    onFocus={e => (e.currentTarget.style.borderColor = s.accent)} onBlur={e => (e.currentTarget.style.borderColor = s.border)} />
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
-                <button onClick={() => setShowAddService(false)} style={{ flex: 1, padding: "11px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: s.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anuleaza</button>
-                <button onClick={saveService} disabled={serviceLoading || !newService.name || !newService.price} style={{ flex: 2, padding: "11px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)", opacity: (!newService.name || !newService.price) ? 0.5 : 1 }}>
-                  {serviceLoading ? "Se adauga..." : "Adauga serviciu"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <AddServiceModal open={showAddService} onClose={() => setShowAddService(false)} onSaved={() => fetch("/api/services").then(r => r.json()).then(d => setServices(d.services || []))} />
+
       {/* SIDEBAR */}
       {!isMobile && (
         <div style={{ width: 220, background: "#111", borderRight: `1px solid ${s.border}`, position: "fixed", top: 0, left: 0, bottom: 0, display: "flex", flexDirection: "column", zIndex: 50 }}>

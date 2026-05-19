@@ -9,6 +9,8 @@ interface Props {
   onClose: () => void;
   onSaved: () => void;
   employeeId?: string;
+  employees?: { id: string; name: string }[];
+  showAssign?: boolean;
 }
 
 const s = {
@@ -25,8 +27,9 @@ async function uploadToCloudinary(file: File): Promise<string> {
   return data.secure_url;
 }
 
-export default function AddServiceModal({ open, onClose, onSaved, employeeId }: Props) {
+export default function AddServiceModal({ open, onClose, onSaved, employeeId, employees = [], showAssign = false }: Props) {
   const [form, setForm] = useState({ name: "", description: "", duration: "1", price: "" });
+  const [assignTo, setAssignTo] = useState("company");
   const [images, setImages] = useState<string[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,6 +70,7 @@ export default function AddServiceModal({ open, onClose, onSaved, employeeId }: 
           price: parseFloat(form.price),
           gallery: images,
           ...(employeeId ? { employeeId } : {}),
+          ...(showAssign && assignTo !== "company" ? { employeeId: assignTo } : {}),
         }),
       });
       const data = await res.json();
@@ -85,6 +89,18 @@ export default function AddServiceModal({ open, onClose, onSaved, employeeId }: 
         
         <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, marginBottom: 20, color: "#f0ede8" }}>+ Serviciu nou</div>
         
+        {showAssign && employees.length > 0 && (
+          <div>
+            <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>Atribuie la</div>
+            <select value={assignTo} onChange={e => setAssignTo(e.target.value)}
+              style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: "1px solid " + s.border, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", cursor: "pointer" }}>
+              <option value="company">🏢 Companie</option>
+              {employees.map(emp => (
+                <option key={emp.id} value={emp.id}>👤 {emp.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         {error && (
           <div style={{ padding: "10px 14px", background: "rgba(224,90,90,0.1)", border: "1px solid rgba(224,90,90,0.3)", borderRadius: 8, color: s.red, fontSize: 13, marginBottom: 14 }}>{error}</div>
         )}
