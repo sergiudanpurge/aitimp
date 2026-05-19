@@ -7,6 +7,7 @@ import Link from "next/link";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
 import RezervariMele from "@/components/dashboard/RezervariMele";
 import AddServiceModal from "@/components/dashboard/AddServiceModal";
+import ServiceCard from "@/components/dashboard/ServiceCard";
 
 const SOCIAL_PLATFORMS = [
   { key: "facebook", label: "Facebook", color: "#1877F2", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
@@ -601,43 +602,13 @@ export default function EmployeeDashboard() {
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {services.map((svc: any, idx: number) => {
-                    const accentColors = ["#c9a96e","#5a8de0","#4caf82","#e8b84b","#e05a5a","#a78de0"];
-                    const sqColors = [["#c9a96e","#8b5e3c","#5a3a20"],["#5a8de0","#3a6abf","#1a4a9e"],["#4caf82","#2a8f62","#0a6f42"],["#e8b84b","#c9902a","#a06810"],["#e05a5a","#c03a3a","#a02020"],["#a78de0","#7a5abf","#5a3a9e"]];
-                    const accent = accentColors[idx % accentColors.length];
-                    const sq = sqColors[idx % sqColors.length];
-                    const galleryImg = user.gallery?.[idx % (user.gallery?.length || 1)];
-                    return (
-                      <div key={svc.id} style={{ background: s.surface, border: `1px solid ${s.border}`, borderRadius: 12, overflow: "hidden", display: "flex", height: 110, transition: "all .22s" }}
-                        onMouseEnter={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = "rgba(201,169,110,0.5)"; el.style.transform = "translateY(-2px)"; el.style.boxShadow = "0 8px 24px rgba(0,0,0,.3)"; }}
-                        onMouseLeave={e => { const el = e.currentTarget as HTMLDivElement; el.style.borderColor = s.border; el.style.transform = "none"; el.style.boxShadow = "none"; }}>
-                        <div style={{ width: 110, flexShrink: 0, background: s.surface2, display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: 6, padding: 12, position: "relative", overflow: "hidden" }}>
-                          {galleryImg ? <img src={galleryImg} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                            : sq.map((c: string, i: number) => <div key={i} style={{ width: 26, height: 26, borderRadius: 6, background: c, opacity: 1 - i * 0.25, flexShrink: 0 }} />)}
-                          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: accent }} />
-                        </div>
-                        <div style={{ flex: 1, padding: "12px 14px", display: "flex", flexDirection: "column", justifyContent: "space-between", minWidth: 0 }}>
-                          <div>
-                            <div style={{ fontSize: 15, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 3 }}>{svc.name}</div>
-                            <div style={{ fontSize: 12, color: s.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svc.description || "Nicio descriere"}</div>
-                          </div>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div style={{ display: "flex", gap: 6 }}>
-                              <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700, background: "rgba(76,175,130,0.15)", color: s.green }}>● Activ</div>
-                              <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 12, fontWeight: 700, background: "rgba(201,169,110,0.1)", color: s.accent }}>{svc.duration * 30} min</div>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span style={{ fontSize: 15, fontWeight: 700, color: s.accent }}>{svc.price} lei</span>
-                              <div style={{ display: "flex", gap: 5 }}>
-                                <button style={{ padding: "5px 10px", borderRadius: 7, background: s.surface2, color: "#f0ede8", border: `1px solid ${s.border}`, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Editează</button>
-                                <button style={{ padding: "5px 8px", borderRadius: 7, background: "rgba(224,90,90,0.08)", color: s.red, border: "1px solid rgba(224,90,90,0.2)", fontSize: 11, cursor: "pointer" }}>Șterge</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {services.map((svc: any, idx: number) => (
+                    <ServiceCard key={svc.id} service={svc} index={idx}
+                      onEdit={() => alert("Edit coming soon: " + svc.name)}
+                      onToggleActive={() => fetch("/api/services", {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id:svc.id, isActive:!svc.isActive})}).then(()=>fetch("/api/services").then(r=>r.json()).then(d=>setServices(d.services||[])))}
+                      onDelete={() => fetch("/api/services", {method:"DELETE", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id:svc.id})}).then(()=>setServices((prev:any)=>prev.filter((s:any)=>s.id!==svc.id)))}
+                    />
+                  ))}
                 </div>
               )}
             </div>
