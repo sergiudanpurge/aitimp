@@ -21,7 +21,7 @@ export async function GET() {
 
     const provider = await prisma.provider.findUnique({
       where: { userId: user.id as string },
-      include: { services: true }
+      include: { services: { orderBy: { createdAt: "desc" } } }
     })
 
     if (!provider) return NextResponse.json({ services: [] })
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
 
-    const { name: rawName, duration, price, employeeId, icon } = await request.json()
+    const { name: rawName, duration, price, employeeId, icon, description, gallery } = await request.json()
 
     if (!name || !duration || !price) {
       return NextResponse.json({ error: "Toate campurile sunt obligatorii" }, { status: 400 })

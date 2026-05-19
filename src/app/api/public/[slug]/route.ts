@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
           select: {
             id: true, gallery: true, rating: true, reviewCount: true,
             workStart: true, workEnd: true,
-            services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true } }
+            services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true, description: true, gallery: true } }
           }
         },
         employees: {
@@ -32,7 +32,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
               select: {
                 id: true, gallery: true, rating: true, reviewCount: true,
                 workStart: true, workEnd: true,
-                services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true } }
+                services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true, description: true, gallery: true } }
               }
             }
           }

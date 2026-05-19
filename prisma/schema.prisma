@@ -76,7 +76,9 @@ model Service {
   price      Float
   createdAt  DateTime @default(now())
   icon        String?
-isActive    Boolean  @default(true)
+  description String?
+  gallery     String[]
+  isActive    Boolean  @default(true)
 
   bookings   Booking[]
 }

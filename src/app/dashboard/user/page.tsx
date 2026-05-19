@@ -6,6 +6,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import Link from "next/link";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
 import RezervariMele from "@/components/dashboard/RezervariMele";
+import AddServiceModal from "@/components/dashboard/AddServiceModal";
 
 const JUDETE = ["Alba","Arad","Argeș","Bacău","Bihor","Bistrița-Năsăud","Botoșani","Brăila","Brașov","București","Buzău","Călărași","Caraș-Severin","Cluj","Constanța","Covasna","Dâmbovița","Dolj","Galați","Giurgiu","Gorj","Harghita","Hunedoara","Ialomița","Iași","Ilfov","Maramureș","Mehedinți","Mureș","Neamț","Olt","Prahova","Sălaj","Satu Mare","Sibiu","Suceava","Teleorman","Timiș","Tulcea","Vâlcea","Vaslui","Vrancea"];
 const SOCIAL_PLATFORMS = [
@@ -201,10 +202,7 @@ const getSectionTitle = () => {
           <div>
             <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Icon</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {["✂️","💆","💅","🎨","🔧","💻","📸","🏋️","🚗","🧹","⭐","💈"].map(ic => (
-                <button key={ic} onClick={() => setNewService({...newService, icon: ic})} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${newService.icon === ic ? s.accent : s.border}`, background: newService.icon === ic ? "rgba(201,169,110,0.15)" : s.surface2, fontSize: 18, cursor: "pointer" }}>{ic}</button>
-              ))}
-            </div>
+              <ServiceIconPicker value={newService.icon} onChange={ic => setNewService({...newService, icon: ic})} />
           </div>
           <div>
             <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Nume serviciu *</div>
@@ -244,14 +242,7 @@ const getSectionTitle = () => {
           <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 16, padding: 24, width: "100%", maxWidth: 480 }}>
             <div style={{ fontFamily: "var(--font-playfair)", fontSize: 18, fontWeight: 700, marginBottom: 20 }}>+ Adauga serviciu</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Icon</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {["✂️","💆","💅","🎨","🔧","💻","📸","🏋️","🚗","🧹","⭐","💈"].map(ic => (
-                    <button key={ic} onClick={() => setNewService({...newService, icon: ic})} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${newService.icon === ic ? s.accent : s.border}`, background: newService.icon === ic ? "rgba(201,169,110,0.15)" : s.surface2, fontSize: 18, cursor: "pointer" }}>{ic}</button>
-                  ))}
-                </div>
-              </div>
+                            </div>
               <div>
                 <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Nume serviciu *</div>
                 <input value={newService.name} onChange={e => setNewService({...newService, name: e.target.value})} placeholder="ex: Tuns + Styling" style={{ width: "100%", padding: "11px 14px", background: s.surface2, border: `1px solid ${s.border}`, borderRadius: 10, color: "#f0ede8", fontSize: 14, outline: "none", fontFamily: "var(--font-outfit)", boxSizing: "border-box" as const }}

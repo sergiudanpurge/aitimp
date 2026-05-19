@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useResponsive } from "@/hooks/useResponsive";
 import FinancialDashboard from "@/components/dashboard/FinancialDashboard";
 import RezervariMele from "@/components/dashboard/RezervariMele";
+import AddServiceModal from "@/components/dashboard/AddServiceModal";
 
 const SOCIAL_PLATFORMS = [
   { key: "facebook", label: "Facebook", color: "#1877F2", icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>' },
@@ -644,10 +645,7 @@ export default function AdminDashboard() {
                             <div>
                               <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Icon</div>
                               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                {["✂️","💆","💅","🎨","🔧","💻","📸","🏋️","💼","📊","⭐","💈"].map(ic => (
-                                  <button key={ic} onClick={() => setNewSvc({...newSvc, icon: ic})} style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${newSvc.icon === ic ? s.accent : s.border}`, background: newSvc.icon === ic ? "rgba(201,169,110,0.15)" : s.surface2, fontSize: 18, cursor: "pointer" }}>{ic}</button>
-                                ))}
-                              </div>
+                                <ServiceIconPicker value={newSvc.icon} onChange={ic => setNewSvc({...newSvc, icon: ic})} />
                             </div>
                             <div>
                               <div style={{ fontSize: 11, color: s.muted, textTransform: "uppercase" as const, letterSpacing: "0.5px", marginBottom: 6 }}>Nume serviciu *</div>

@@ -117,7 +117,8 @@ export default function ProviderPage() {
   }, [slug]);
 
   const isCompany = provider?.accountType === "company";
-  const gallery = provider?.provider?.gallery || activeEmployee?.provider?.gallery || [];
+  // Galeria publica = pozele din toate serviciile combinate
+  const gallery = (services || []).flatMap((svc: any) => svc.gallery || []).filter(Boolean);
   const avgRating = reviews.length > 0 ? (reviews.reduce((a: number, r: any) => a + r.rating, 0) / reviews.length).toFixed(1) : null;
 
   const myBookingWithThis = myBookings.filter(b => {

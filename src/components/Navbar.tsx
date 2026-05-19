@@ -53,8 +53,8 @@ export default function Navbar() {
             <div style={{ width: 1, height: 20, background: "#222", margin: "0 4px" }} />
             {user ? (
               <div style={{ display: "flex", gap: 8 }}>
-                <a href={`/p/${user.id}`} target="_blank" style={{ padding: "7px 14px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 8, fontSize: 12, color: "#c9a96e", textDecoration: "none", fontWeight: 600, fontFamily: "var(--font-outfit)" }}>👁 Profil</a>
-                <button onClick={() => router.push(getDashboardPath())} style={{ padding: "7px 14px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Dashboard →</button>
+                <a href={`/p/${user.id}`} target="_blank" style={{ padding: "7px 14px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 8, fontSize: 12, color: "#c9a96e", textDecoration: "none", fontWeight: 600, fontFamily: "var(--font-outfit)" }}>👤 Profil</a>
+                <button onClick={() => router.push(getDashboardPath())} style={{ padding: "7px 14px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Contul meu</button>
               </div>
             ) : (
               <div style={{ display: "flex", gap: 8 }}>
