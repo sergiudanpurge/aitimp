@@ -122,7 +122,11 @@ export async function DELETE(request: Request) {
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
     const { id } = await request.json()
     if (!id) return NextResponse.json({ error: "ID lipsa" }, { status: 400 })
-    await prisma.service.delete({ where: { id } })
+    try {
+      await prisma.service.delete({ where: { id } })
+    } catch {
+      // Serviciul nu exista, ignoram
+    }
     return NextResponse.json({ message: "Serviciu sters!" })
   } catch (error: any) {
     console.error("Services DELETE error:", error?.message)

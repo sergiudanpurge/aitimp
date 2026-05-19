@@ -587,7 +587,7 @@ export default function AdminDashboard() {
                         <div style={{ fontSize: 36, marginBottom: 12 }}>✂️</div>
                         <div style={{ fontFamily: "var(--font-playfair)", fontSize: 16, fontWeight: 700, color: "#f0ede8", marginBottom: 8 }}>Niciun serviciu</div>
                         <div style={{ fontSize: 13, marginBottom: 20 }}>Adauga primul serviciu pentru {svcTab === "firma" ? "firma" : employees.find((e: any) => e.id === svcTab)?.name}</div>
-                        <button onClick={() => { setNewSvc(prev => ({...prev, employeeId: svcTab})); setShowAddSvc(true); }} style={{ padding: "10px 24px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>+ Adauga serviciu</button>
+                        
                       </div>
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
