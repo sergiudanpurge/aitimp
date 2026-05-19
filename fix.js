@@ -1,16 +1,12 @@
 const fs = require('fs');
-let api = fs.readFileSync('./src/app/api/public/[slug]/route.ts', 'utf8');
+let api = fs.readFileSync('./src/app/api/services/route.ts', 'utf8');
 
 api = api.replace(
-  `services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true } }`,
-  `services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true, description: true, gallery: true } }`
+  /const \{ name: rawName.*?\} = await request\.json\(\)[\r\n]+/,
+  `const { name: rawName, duration, price, employeeId, icon, description, gallery } = await request.json()\r\n    const name = (rawName || "").trim().charAt(0).toUpperCase() + (rawName || "").trim().slice(1).toLowerCase()\r\n`
 );
 
-// Verificam si pentru employees
-api = api.replace(
-  /services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true } }/g,
-  `services: { where: { isActive: true }, select: { id: true, name: true, duration: true, price: true, icon: true, description: true, gallery: true } }`
-);
-
-fs.writeFileSync('./src/app/api/public/[slug]/route.ts', api);
-console.log('✅ Public API updated! Size:', fs.statSync('./src/app/api/public/[slug]/route.ts').size);
+fs.writeFileSync('./src/app/api/services/route.ts', api);
+const content = fs.readFileSync('./src/app/api/services/route.ts', 'utf8');
+console.log('Are "const name =":', content.includes('const name ='));
+console.log('Size:', content.length);

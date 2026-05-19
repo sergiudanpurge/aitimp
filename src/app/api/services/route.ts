@@ -27,8 +27,9 @@ export async function GET() {
     if (!provider) return NextResponse.json({ services: [] })
 
     return NextResponse.json({ services: provider.services })
-  } catch (error) {
-    return NextResponse.json({ error: "Eroare server" }, { status: 500 })
+  } catch (error: any) {
+    console.error("Services POST error:", error?.message || error)
+    return NextResponse.json({ error: error?.message || "Eroare server" }, { status: 500 })
   }
 }
 
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     if (!user) return NextResponse.json({ error: "Neautentificat" }, { status: 401 })
 
     const { name: rawName, duration, price, employeeId, icon, description, gallery } = await request.json()
-
+    const name = (rawName || "").trim().charAt(0).toUpperCase() + (rawName || "").trim().slice(1).toLowerCase()
     if (!name || !duration || !price) {
       return NextResponse.json({ error: "Toate campurile sunt obligatorii" }, { status: 400 })
     }
@@ -69,6 +70,8 @@ export async function POST(request: Request) {
         price: parseFloat(price),
         providerId: provider.id,
         icon: icon || "✂️",
+        description: description || null,
+        gallery: gallery || [],
       }
     })
 
