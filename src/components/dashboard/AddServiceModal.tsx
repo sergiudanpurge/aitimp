@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dlemr26ee";
 const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "aitimp_avatars";
@@ -11,6 +11,7 @@ interface Props {
   employeeId?: string;
   employees?: { id: string; name: string }[];
   showAssign?: boolean;
+  editService?: { id: string; name: string; description?: string; duration: number; price: number; gallery?: string[] };
 }
 
 const s = {
@@ -27,7 +28,7 @@ async function uploadToCloudinary(file: File): Promise<string> {
   return data.secure_url;
 }
 
-export default function AddServiceModal({ open, onClose, onSaved, employeeId, employees = [], showAssign = false }: Props) {
+export default function AddServiceModal({ open, onClose, onSaved, employeeId, employees = [], showAssign = false, editService }: Props) {
   const [form, setForm] = useState({ name: "", description: "", duration: "1", price: "" });
   const [assignTo, setAssignTo] = useState("company");
   const [images, setImages] = useState<string[]>([]);
@@ -35,7 +36,19 @@ export default function AddServiceModal({ open, onClose, onSaved, employeeId, em
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
+  
+
+  useEffect(() => {
+    if (editService && open) {
+      setForm({ name: editService.name || "", description: editService.description || "", duration: String(Math.round(editService.duration)), price: String(editService.price) });
+      setImages(editService.gallery || []);
+      setPreviews(editService.gallery || []);
+    } else if (!open) {
+      setForm({ name: "", description: "", duration: "1", price: "" });
+      setImages([]); setPreviews([]);
+    }
+  }, [open, editService]);
+const fileRef = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
 
@@ -61,16 +74,17 @@ export default function AddServiceModal({ open, onClose, onSaved, employeeId, em
     setLoading(true); setError("");
     try {
       const res = await fetch("/api/services", {
-        method: "POST",
+        method: editService ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...(editService ? { id: editService.id } : {}),
           name: form.name,
           description: form.description || null,
           duration: parseInt(form.duration),
           price: parseFloat(form.price),
           gallery: images,
-          ...(employeeId ? { employeeId } : {}),
-          ...(showAssign && assignTo !== "company" ? { employeeId: assignTo } : {}),
+          ...((!editService && employeeId) ? { employeeId } : {}),
+          ...((!editService && showAssign && assignTo !== "company") ? { employeeId: assignTo } : {}),
         }),
       });
       const data = await res.json();
@@ -87,7 +101,7 @@ export default function AddServiceModal({ open, onClose, onSaved, employeeId, em
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: "#161616", border: "1px solid #262626", borderRadius: 16, padding: 24, width: "100%", maxWidth: 500, maxHeight: "90vh", overflowY: "auto" }}>
         
-        <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, marginBottom: 20, color: "#f0ede8" }}>+ Serviciu nou</div>
+        <div style={{ fontFamily: "var(--font-playfair)", fontSize: 20, fontWeight: 700, marginBottom: 20, color: "#f0ede8" }}>{editService ? "✏️ Editează serviciu" : "+ Serviciu nou"}</div>
         
         {showAssign && employees.length > 0 && (
           <div>
@@ -180,7 +194,7 @@ export default function AddServiceModal({ open, onClose, onSaved, employeeId, em
             <button onClick={onClose} style={{ flex: 1, padding: "12px", background: s.surface2, border: "1px solid " + s.border, borderRadius: 10, color: s.muted, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "var(--font-outfit)" }}>Anuleaza</button>
             <button onClick={save} disabled={loading || uploading}
               style={{ flex: 2, padding: "12px", background: "linear-gradient(135deg,#c9a96e,#a8843d)", color: "#0a0a0a", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: loading ? "wait" : "pointer", fontFamily: "var(--font-outfit)", opacity: loading ? 0.7 : 1 }}>
-              {loading ? "Se salveaza..." : "✓ Adauga serviciu"}
+              {loading ? "Se salveaza..." : editService ? "✓ Salveaza modificari" : "✓ Adauga serviciu"}
             </button>
           </div>
 

@@ -69,6 +69,7 @@ export default function UserProfilePage() {
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calSelectedDay, setCalSelectedDay] = useState<number | null>(null);
   const [showAddService, setShowAddService] = useState(false);
+  const [editService, setEditService] = useState<any>(null);
   const [newService, setNewService] = useState({ name: "", duration: "1", price: "", icon: "✂️" });
   const [serviceLoading, setServiceLoading] = useState(false);
 
@@ -240,7 +241,7 @@ const getSectionTitle = () => {
   return (
     <div style={{ minHeight: "100vh", background: s.bg, color: "#f0ede8", fontFamily: "var(--font-outfit)", display: "flex" }}>
 
-      <AddServiceModal open={showAddService} onClose={() => setShowAddService(false)} onSaved={() => fetch("/api/services").then(r => r.json()).then(d => setServices(d.services || []))} />
+      <AddServiceModal open={showAddService} onClose={() => { setShowAddService(false); setEditService(null); }} editService={editService} onSaved={() => fetch("/api/services").then(r => r.json()).then(d => setServices(d.services || []))} />
 
       {/* SIDEBAR */}
       {!isMobile && (
@@ -789,7 +790,7 @@ const getSectionTitle = () => {
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {services.map((svc: any, idx: number) => (
                     <ServiceCard key={svc.id} service={svc} index={idx}
-                      onEdit={() => alert("Edit: " + svc.name)}
+                      onEdit={(svc) => { setEditService(svc); setShowAddService(true); }}
                       onToggleActive={() => fetch("/api/services", {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id:svc.id, isActive:!svc.isActive})}).then(()=>fetch("/api/services").then(r=>r.json()).then(d=>setServices(d.services||[])))}
                       onDelete={() => fetch("/api/services", {method:"DELETE", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id:svc.id})}).then(()=>setServices((prev:any)=>prev.filter((s:any)=>s.id!==svc.id)))}
                     />

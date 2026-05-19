@@ -154,6 +154,7 @@ export default function AdminDashboard() {
   const [emailVisible, setEmailVisible] = useState(true);
   const [svcTab, setSvcTab] = useState("firma");
   const [showAddSvcNew, setShowAddSvcNew] = useState(false);
+  const [editService, setEditService] = useState<any>(null);
   const [showAddSvc, setShowAddSvc] = useState(false);
   const [newSvc, setNewSvc] = useState({ name: "", duration: "1", price: "", icon: "✂️", employeeId: "firma" });
   const [svcLoading, setSvcLoading] = useState(false);
@@ -273,7 +274,7 @@ export default function AdminDashboard() {
   return (
     <div style={{ minHeight: "100vh", background: s.bg, color: "#f0ede8", fontFamily: "var(--font-outfit)", display: "flex" }}>
 
-            <AddServiceModal open={showAddSvcNew} onClose={() => setShowAddSvcNew(false)} onSaved={() => fetch("/api/services").then(r=>r.json()).then(d=>setServices(d.services||[]))} showAssign={true} employees={(employees||[]).map((e:any) => ({ id: e.id, name: e.name }))} />
+            <AddServiceModal open={showAddSvcNew} onClose={() => { setShowAddSvcNew(false); setEditService(null); }} editService={editService} onSaved={() => fetch("/api/services").then(r=>r.json()).then(d=>setServices(d.services||[]))} showAssign={true} employees={(employees||[]).map((e:any) => ({ id: e.id, name: e.name }))} />
 
       {/* SIDEBAR */}
       {!isMobile && (
@@ -652,7 +653,7 @@ export default function AdminDashboard() {
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         {tabServices.map((svc: any, idx: number) => (
                           <ServiceCard key={svc.id} service={svc} index={idx} showOwner={true}
-                            onEdit={() => alert("Edit: " + svc.name)}
+                            onEdit={(svc) => { setEditService(svc); setShowAddSvcNew(true); }}
                             onToggleActive={() => fetch("/api/services", {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id:svc.id, isActive:!svc.isActive})}).then(()=>fetch("/api/services").then(r=>r.json()).then(d=>setServices(d.services||[])))}
                             onDelete={() => fetch("/api/services", {method:"DELETE", headers:{"Content-Type":"application/json"}, body:JSON.stringify({id:svc.id})}).then(()=>setServices((prev:any)=>prev.filter((s:any)=>s.id!==svc.id)))}
                           />
