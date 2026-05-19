@@ -1,11 +1,19 @@
 const fs = require('fs');
-let c = fs.readFileSync('./src/app/search/page.tsx', 'utf8');
+let api = fs.readFileSync('./src/app/api/search/route.ts', 'utf8');
 
-c = c.replace(
-  `  const [loading, setLoading] = useState(false);`,
-  `  const [loading, setLoading] = useState(false);
-  const [searchFavorites, setSearchFavorites] = useState<string[]>([]);`
+// Scoatem _count care nu e in schema
+api = api.replace(
+  `            rating: true, gallery: true,
+            _count: { select: { reviews: true } },`,
+  `            rating: true, gallery: true,`
 );
 
-fs.writeFileSync('./src/app/search/page.tsx', c);
-console.log('Done:', fs.statSync('./src/app/search/page.tsx').size);
+api = api.replace(
+  `          rating: u.provider?.rating || 0,
+          reviewCount: u.provider?._count?.reviews || 0,`,
+  `          rating: u.provider?.rating || 0,
+          reviewCount: 0,`
+);
+
+fs.writeFileSync('./src/app/api/search/route.ts', api);
+console.log('Done:', fs.statSync('./src/app/api/search/route.ts').size);

@@ -323,7 +323,12 @@ export default function SearchPage() {
                             ))}
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div style={{ fontSize: 11, color: "#777" }}>{r.rating > 0 ? `★ ${r.rating} · ` : ""}Servicii: {r.services?.length || 0}</div>
+                            <div style={{ fontSize: 11, color: "#777" }}>
+                              {r.reviewCount > 0
+                                ? <span style={{ color: "#c9a96e" }}>★ {r.rating > 0 ? r.rating.toFixed(1) : "—"} <span style={{ color: "#555" }}>({r.reviewCount} {r.reviewCount === 1 ? "recenzie" : "recenzii"})</span></span>
+                                : <span style={{ color: "#555" }}>Fără recenzii încă</span>
+                              }
+                            </div>
                             <div style={{ padding: "5px 12px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: 7, fontSize: 11, color: "#c9a96e", fontWeight: 600 }}>Vezi profil →</div>
                           </div>
                         </div>
