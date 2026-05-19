@@ -314,7 +314,7 @@ export default function SearchPage() {
                           </div>
                           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                             <div style={{ padding: "2px 8px", borderRadius: 5, fontSize: 10, fontWeight: 600, background: "rgba(76,175,130,0.15)", color: "#4caf82" }}>● Disponibil</div>
-                            {(r.services || []).slice(0, 2).map((s: any, i: number) => (
+                            {(r.services || []).slice(0, 1).map((s: any, i: number) => (
                               <div key={i} style={{ padding: "2px 8px", background: "rgba(201,169,110,0.08)", border: "1px solid rgba(201,169,110,0.15)", borderRadius: 5, fontSize: 10, color: "#c9a96e" }}>{s.name}</div>
                             ))}
                           </div>

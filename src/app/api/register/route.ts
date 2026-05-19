@@ -45,7 +45,6 @@ const { name, email, password, accountType, phone, tara, judet, oras, cui, adres
       to: email,
       subject: "Confirmă-ți contul pe Aitimp.ro",
       html: `
-        html: `
   <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:40px 20px;background:#0f0e0b;color:#F2ECD8;">
     <h1 style="color:#C9A84C;font-size:26px;margin-bottom:4px;">Aitimp<sup style="font-size:11px;">.ro</sup></h1>
     <hr style="border:none;border-top:1px solid rgba(201,168,76,0.2);margin:16px 0 28px;" />
@@ -58,7 +57,6 @@ const { name, email, password, accountType, phone, tara, judet, oras, cui, adres
     <p style="color:#5A5040;font-size:12px;margin-top:32px;line-height:1.6;">Dacă nu tu ai creat acest cont, ignoră acest email.<br/>© 2025 Aitimp.ro — Toate drepturile rezervate.</p>
   </div>
 `
-      `
     })
 
     return NextResponse.json({ message: "Cont creat! Verifică email-ul pentru confirmare." })

@@ -311,7 +311,7 @@ export default function EmployeeDashboard() {
                   </div>
                   <div style={{ flex: 1, paddingBottom: 4, minWidth: 140 }}>
                     <div style={{ fontFamily: "var(--font-playfair)", fontSize: isMobile ? 17 : 20, fontWeight: 700 }}>{user.name}</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 4 }}>
+                    <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", flexWrap: "wrap", gap: isMobile ? 4 : 10, marginTop: 4 }}>
                       {(profileForm.oras || profileForm.judet) && <span style={{ fontSize: 12, color: s.muted }}>📍 {profileForm.oras}{profileForm.judet && `, ${profileForm.judet}`}</span>}
                       {profileForm.phone && <span style={{ fontSize: 12, color: s.muted }}>📞 {profileForm.phone}</span>}
                       <span style={{ fontSize: 12, color: s.muted }}>· Angajat</span>
